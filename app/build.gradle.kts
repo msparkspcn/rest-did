@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    kotlin("kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -39,7 +41,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
-    packaging {
+    packagingOptions {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -58,6 +60,13 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.5.3")
     testImplementation("junit:junit:4.12")
     androidTestImplementation("junit:junit:4.12")
-    androidTestImplementation("junit:junit:4.12") // ViewModel Compose
+
+    implementation("androidx.work:work-runtime-ktx:2.7.0")
+
+    implementation("com.google.dagger:hilt-android:2.45")
+    kapt("com.google.dagger:hilt-compiler:2.45")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    implementation("androidx.hilt:hilt-work:1.0.0")
+    kapt("androidx.hilt:hilt-compiler:1.0.0")
 
 }

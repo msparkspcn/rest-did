@@ -1,4 +1,4 @@
-package com.secta9ine.rest.did.login;
+package com.secta9ine.rest.did.presentation.login
 
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -7,8 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
-import javax.inject.Inject;
-import dagger.hilt.android.lifecycle.HiltViewModel;
+import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
@@ -49,9 +49,9 @@ class LoginViewModel @Inject constructor(
     }
 
     sealed interface UiState {
-        data object Loading : UiState
-        data object Login : UiState
-        data object Idle : UiState
+        object Loading : UiState
+        object Login : UiState
+        object Idle : UiState
         data class Error(val message: String) : UiState
 
     }

@@ -10,8 +10,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.secta9ine.rest.did.device.DeviceScreen
-import com.secta9ine.rest.did.login.LoginScreen
+import com.secta9ine.rest.did.presentation.device.DeviceScreen
+import com.secta9ine.rest.did.presentation.login.LoginScreen
 
 private const val TAG = "AppNavHost"
 

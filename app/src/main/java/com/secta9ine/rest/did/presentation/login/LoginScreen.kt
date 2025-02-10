@@ -1,4 +1,4 @@
-package com.secta9ine.rest.did.login
+package com.secta9ine.rest.did.presentation.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -43,7 +44,7 @@ fun LoginScreen(
         AppTextInput(
             text = viewModel.storeCd,
             modifier = Modifier
-                .fillMaxWidth()
+                .weight(0.6f)
                 .background(Color(0xFF37454B))
                 .clickable { viewModel.onChangeFocus("posUserId") },
             color = Color(0xFFFFFFFF),

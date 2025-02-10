@@ -39,7 +39,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.4.2"
     }
     packagingOptions {
         resources {
@@ -50,11 +50,13 @@ android {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.6.0") // Core KTX 라이브러리
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1") // Lifecycle KTX
     implementation("androidx.compose.ui:ui:1.0.5") // Jetpack Compose UI
     implementation("androidx.compose.material:material:1.0.5") // Jetpack Compose Material
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.10")
     implementation("androidx.compose.ui:ui-tooling-preview:1.0.5") // Jetpack Compose UI Tooling
     implementation("androidx.activity:activity-compose:1.3.1") // Jetpack Compose Activity
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1") // Lifecycle KTX
+
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07")
     implementation("androidx.test:monitor:1.7.2")
     implementation("androidx.navigation:navigation-compose:2.5.3")
@@ -63,10 +65,14 @@ dependencies {
 
     implementation("androidx.work:work-runtime-ktx:2.7.0")
 
-    implementation("com.google.dagger:hilt-android:2.45")
-    kapt("com.google.dagger:hilt-compiler:2.45")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.10")
+    implementation("com.google.dagger:hilt-android:2.46.1")
+    kapt("com.google.dagger:hilt-compiler:2.46.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     implementation("androidx.hilt:hilt-work:1.0.0")
     kapt("androidx.hilt:hilt-compiler:1.0.0")
+
+    // DataStore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
 }

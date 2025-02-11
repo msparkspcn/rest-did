@@ -1,4 +1,4 @@
-package com.secta9ine.rest.did.presentation.login
+package com.secta9ine.rest.did.presentation.device
 
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
-import javax.inject.Inject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -15,23 +14,19 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
-    private val dataStoreRepository: DataStoreRepository,
-) :
-    ViewModel() {
+class DeviceViewModel @Inject constructor(
+    private val dataStoreRepository:DataStoreRepository,
+) : ViewModel() {
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
-    var currentFocus by mutableStateOf("storeCd")
-        private set
     var storeCd by mutableStateOf("")
         private set
-    var storePassword by mutableStateOf("")
+    var selectedOption by mutableStateOf("fixed")
         private set
-
-
 
     init {
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
@@ -39,26 +34,24 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             storeCd = dataStoreRepository.getStoreCd().first()
             if (storeCd.isNotEmpty()) {
-                currentFocus = "posPassword"
             }
             Log.d(TAG, "### 최종 매장코드=$storeCd")
         }
     }
-
-    fun onChangeFocus(value: String) {
-        currentFocus = value
-    }
-
-    fun onClickLogin() {
+    fun onClickLogout() {
         Log.d(TAG,"### 로그인 클릭")
         viewModelScope.launch {
-            _uiState.emit(UiState.Login)
+            _uiState.emit(UiState.Logout)
         }
-
     }
+
+    fun onSelectOption(option: String) {
+        selectedOption = option
+    }
+
     sealed interface UiState {
         object Loading : UiState
-        object Login : UiState
+        object Logout : UiState
         object Idle : UiState
         data class Error(val message: String) : UiState
 

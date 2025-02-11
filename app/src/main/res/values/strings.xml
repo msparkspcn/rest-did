@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">REST_DID</string>
+    <string name="login_button">로그인</string>
+    <string name="logout_button">로그아웃</string>
+    <string name="store_nm">점포 :</string>
+    <string name="device_no">장비 :</string>
+    <string name="show_menu">표시 메뉴 :</string>
+    <string name="rolling_status">롤링 :</string>
+    <string name="rolling_fix">고정</string>
+    <string name="rolling_rolling">롤링</string>
 </resources>

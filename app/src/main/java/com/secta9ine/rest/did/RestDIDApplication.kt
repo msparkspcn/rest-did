@@ -13,7 +13,6 @@ class RestDIDApplication : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-//        Stetho.initializeWithDefaults(this)
     }
     override fun getWorkManagerConfiguration() =
         Configuration.Builder()

@@ -28,6 +28,9 @@ class DeviceViewModel @Inject constructor(
     var selectedOption by mutableStateOf("fixed")
         private set
 
+    var deviceCdList: List<String> = emptyList()
+        private set
+
     init {
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
 
@@ -35,13 +38,20 @@ class DeviceViewModel @Inject constructor(
             storeCd = dataStoreRepository.getStoreCd().first()
             if (storeCd.isNotEmpty()) {
             }
+//            deviceCdList = listOf(dataStoreRepository.g)
             Log.d(TAG, "### 최종 매장코드=$storeCd")
         }
     }
-    fun onClickLogout() {
-        Log.d(TAG,"### 로그인 클릭")
+    fun onLogout() {
+        Log.d(TAG,"### 로그아웃 클릭")
         viewModelScope.launch {
             _uiState.emit(UiState.Logout)
+        }
+    }
+
+    fun onShowMenu() {
+        viewModelScope.launch {
+            _uiState.emit(UiState.OrderStatus)
         }
     }
 
@@ -52,6 +62,7 @@ class DeviceViewModel @Inject constructor(
     sealed interface UiState {
         object Loading : UiState
         object Logout : UiState
+        object OrderStatus : UiState
         object Idle : UiState
         data class Error(val message: String) : UiState
 

@@ -5,13 +5,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.secta9ine.rest.did.presentation.device.DeviceScreen
 import com.secta9ine.rest.did.presentation.login.LoginScreen
+import com.secta9ine.rest.did.presentation.order.OrderStatusScreen
 
 private const val TAG = "AppNavHost"
 
@@ -30,7 +30,7 @@ fun AppNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.LoginScreen.route,
+        startDestination = Screen.OrderStatusScreen.route,
         modifier = modifier
     ) {
         composable(route = Screen.LoginScreen.route) {
@@ -38,6 +38,9 @@ fun AppNavHost(
         }
         composable(route = Screen.DeviceScreen.route) {
             DeviceScreen(navController = navController)
+        }
+        composable(route = Screen.OrderStatusScreen.route) {
+            OrderStatusScreen(navController = navController)
         }
     }
 }

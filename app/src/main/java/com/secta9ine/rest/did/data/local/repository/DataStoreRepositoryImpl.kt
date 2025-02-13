@@ -20,11 +20,19 @@ class DataStoreRepositoryImpl @Inject constructor(
         dataStore.edit { it.clear() }
     }
 
+    override fun getUserId(): Flow<String> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun setUserId(value: String) {
+        TODO("Not yet implemented")
+    }
+
     override fun getStoreCd(): Flow<String> = getValue(STORE_CD, "")
     override suspend fun setStoreCd(value: String) = setValue(STORE_CD, value)
-    override fun getStorePassword(): Flow<String> = getValue(STORE_PASSWORD, "");
+    override fun getPassword(): Flow<String> = getValue(STORE_PASSWORD, "")
 
-    override suspend fun setStorePassword(value: String) = setValue(STORE_PASSWORD, value)
+    override suspend fun setPassword(value: String) = setValue(STORE_PASSWORD, value)
 
     private fun <T> getValue(key: Preferences.Key<T>, defValue: T): Flow<T> {
         return dataStore.data

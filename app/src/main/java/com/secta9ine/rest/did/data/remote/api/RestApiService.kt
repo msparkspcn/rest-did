@@ -9,6 +9,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
+import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
 
@@ -19,6 +20,13 @@ interface RestApiService {
         @Query("authPassword") authPassword: String,
         @Query("storeCd") storeCd: String
     ):RestApiResponseDto<Store>
+
+    @GET("/api/v1/login")
+    suspend fun acceptLogin (
+        @Query("userId") userId: String,
+        @Query("password") password: String
+    ):RestApiResponseDto<Store>
+
     companion object {
         private const val BASE_URL = "http://110.45.199.220:17070/" // 운영서버
 

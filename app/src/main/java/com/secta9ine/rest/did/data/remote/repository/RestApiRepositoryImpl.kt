@@ -29,4 +29,20 @@ class RestApiRepositoryImpl @Inject constructor(
             Resource.Failure(resources.getString(R.string.network_error))
         }
     }
+
+    override suspend fun acceptLogin(
+        userId: String,
+        password: String
+    ): Resource<Store?> = withContext(Dispatchers.IO){
+        try {
+            restApiService.acceptLogin(
+                userId = userId,
+                password = password
+            ).let {
+                Resource.Success(it.responseBody)
+            }
+        } catch (e: Exception) {
+            Resource.Failure(resources.getString(R.string.network_error))
+        }
+    }
 }

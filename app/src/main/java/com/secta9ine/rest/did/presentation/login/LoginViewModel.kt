@@ -31,9 +31,9 @@ class LoginViewModel @Inject constructor(
     val uiState = _uiState.asSharedFlow()
     var currentFocus by mutableStateOf("storeCd")
         private set
-    var storeCd by mutableStateOf("")
+    var userId by mutableStateOf("")
         private set
-    var storePassword by mutableStateOf("")
+    var password by mutableStateOf("")
         private set
 
 
@@ -42,11 +42,11 @@ class LoginViewModel @Inject constructor(
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
 
         viewModelScope.launch {
-            storeCd = dataStoreRepository.getStoreCd().first()
-            if (storeCd.isNotEmpty()) {
+            userId = dataStoreRepository.getStoreCd().first()
+            if (userId.isNotEmpty()) {
                 currentFocus = "posPassword"
             }
-            Log.d(TAG, "### 최종 매장코드=$storeCd")
+            Log.d(TAG, "### 최종 매장코드=$userId")
         }
     }
 
@@ -57,25 +57,25 @@ class LoginViewModel @Inject constructor(
     fun onChangeText(field: String, value: String) {
         Log.d(TAG,"field:$field")
         when(field) {
-            "storeCd" -> storeCd = value
-            "storePassword" -> storePassword = value
+            "storeCd" -> userId = value
+            "storePassword" -> password = value
         }
     }
 
     fun onLogin() {
-        Log.d(TAG,"### 로그인 클릭 storeCd:$storeCd, password:$storePassword")
+        Log.d(TAG,"### 로그인 클릭 userId:$userId, password:$password")
         viewModelScope.launch {
             _uiState.emit(UiState.Loading)
-            if(storeCd.isEmpty()) {
-                _uiState.emit(UiState.Error(resources.getString(R.string.store_cd_empty_error)))
+            if(userId.isEmpty()) {
+                _uiState.emit(UiState.Error(resources.getString(R.string.user_id_empty_error)))
             }
-            else if(storePassword.isEmpty()) {
-                _uiState.emit(UiState.Error(resources.getString(R.string.store_password_empty_error)))
+            else if(password.isEmpty()) {
+                _uiState.emit(UiState.Error(resources.getString(R.string.password_empty_error)))
             }
             else {
                 restApiRepository.getStoreInfo(
-                    storeCd = storeCd,
-                    storePassword = storePassword
+                    storeCd = userId,
+                    storePassword = password
                 ).let {
                     when (it) {
                         is Resource.Success -> {

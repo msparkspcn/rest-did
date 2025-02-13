@@ -79,6 +79,11 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.2")
     implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2")
 
+    // Room
+    implementation("androidx.room:room-runtime:2.4.3")
+    kapt("androidx.room:room-compiler:2.4.3")
+    implementation("androidx.room:room-ktx:2.4.3")
+
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 

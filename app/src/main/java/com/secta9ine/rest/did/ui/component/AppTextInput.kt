@@ -7,16 +7,20 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
@@ -37,9 +41,10 @@ fun AppTextInput(
     paddingValues: PaddingValues = PaddingValues(horizontal = 6.dp, vertical = 15.dp),
     onChangeText: (String) -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    fontSize: TextUnit = 20.sp
+    fontSize: TextUnit = 20.sp,
+    placeholder: String
 ) {
-
+    val focusManager = LocalFocusManager.current  // 추가
     val focusRequester = remember { FocusRequester() }
     Box(
         modifier = modifier
@@ -62,7 +67,24 @@ fun AppTextInput(
             visualTransformation = if (keyboardOptions.keyboardType == KeyboardType.Password) PasswordVisualTransformation() else VisualTransformation.None,
             singleLine = true,
             enabled = true,
-            keyboardOptions = keyboardOptions
+            keyboardOptions = keyboardOptions.copy(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(  // 추가
+                onDone = {
+                    focusManager.clearFocus()
+                }
+            ),
+            decorationBox = { innerTextField ->
+                Box {
+                    if (text.isEmpty()) {
+                        Text(
+                            text = placeholder,
+                            color = Color.Gray,
+                            fontSize = fontSize
+                        )
+                    }
+                    innerTextField()
+                }
+            }
         )
     }
 

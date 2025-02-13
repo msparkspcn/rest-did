@@ -17,11 +17,11 @@ class OrderStatusViewModel @Inject constructor(
 
     var completedOrderList: List<String> =
         listOf(
-            "1134", "1135", "1136",
-            "1137", "1138", "1139",
-            "1140", "1141", "1142",
-            "1145", "1146", "1147",
-            "1148"
+            "1133", "1134", "1135",
+            "1136", "1137", "1138",
+            "1139", "1140", "1141",
+            "1142", "1145", "1146",
+            "1147", "1148"
         )
         private set
 
@@ -31,8 +31,19 @@ class OrderStatusViewModel @Inject constructor(
             "2137", "2138", "2139",
             "2140", "2141", "2142",
             "2145", "2146", "2147",
-            "2148"
+            "2148", "2149", "2150"
         )
+
+    var callOrderNo: String?
+    private set
+
+    init {
+        callOrderNo =""
+    }
+
+    fun onCallOrder(orderNo : String) {
+        callOrderNo = orderNo
+    }
 
 
 }

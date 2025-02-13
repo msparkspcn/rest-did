@@ -20,7 +20,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key.Companion.K
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -78,7 +77,7 @@ fun LoginScreen(
         )
         Spacer(modifier = Modifier.height(40.dp))
         AppTextInput(
-            text = viewModel.storeCd,
+            text = viewModel.userId,
             modifier = Modifier
                 .fillMaxWidth(0.5f)
                 .background(Color(0xFF37454B))
@@ -86,12 +85,12 @@ fun LoginScreen(
             color = Color(0xFFFFFFFF),
             focussed = viewModel.currentFocus == "storeCd",
             onChangeText = {viewModel.onChangeText("storeCd", it)},
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            placeholder = stringResource(id = R.string.user_id)
         )
         Spacer(Modifier.height(8.dp))
         AppTextInput(
-//            text = "⬤".repeat(viewModel.storePassword.length),
-            text = viewModel.storePassword,
+            text = viewModel.password,
             modifier = Modifier
                 .fillMaxWidth(0.5f)
                 .background(Color(0xFF37454B))
@@ -99,7 +98,8 @@ fun LoginScreen(
             color = Color(0xFFFFFFFF),
             focussed = viewModel.currentFocus == "storePassword",
             onChangeText = {viewModel.onChangeText("storePassword", it)},
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            placeholder = stringResource(id = R.string.user_password)
         )
         Spacer(Modifier.height(16.dp))
         AppButton(

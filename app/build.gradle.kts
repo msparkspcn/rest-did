@@ -46,13 +46,16 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
 }
 
 dependencies {
     implementation("androidx.core:core-ktx:1.6.0") // Core KTX 라이브러리
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1") // Lifecycle KTX
-    implementation("androidx.compose.ui:ui:1.0.5") // Jetpack Compose UI
-    implementation("androidx.compose.material:material:1.0.5") // Jetpack Compose Material
+    implementation("androidx.compose.ui:ui:1.1.0") // Jetpack Compose UI
+    implementation("androidx.compose.material:material:1.1.0") // Jetpack Compose Material
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.10")
     implementation("androidx.compose.ui:ui-tooling-preview:1.0.5") // Jetpack Compose UI Tooling
     implementation("androidx.activity:activity-compose:1.3.1") // Jetpack Compose Activity
@@ -61,6 +64,7 @@ dependencies {
     implementation("androidx.test:monitor:1.7.2")
     implementation("androidx.navigation:navigation-compose:2.5.3")
     implementation("androidx.test.ext:junit-ktx:1.2.1")
+    implementation("androidx.compose.foundation:foundation:1.1.0")
     testImplementation("junit:junit:4.12")
     androidTestImplementation("junit:junit:4.12")
 

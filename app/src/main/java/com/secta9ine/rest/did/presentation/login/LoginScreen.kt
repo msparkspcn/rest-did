@@ -81,10 +81,10 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth(0.5f)
                 .background(Color(0xFF37454B))
-                .clickable { viewModel.onChangeFocus("storeCd") },
+                .clickable { viewModel.onChangeFocus("userId") },
             color = Color(0xFFFFFFFF),
-            focussed = viewModel.currentFocus == "storeCd",
-            onChangeText = {viewModel.onChangeText("storeCd", it)},
+            focussed = viewModel.currentFocus == "userId",
+            onChangeText = {viewModel.onChangeText("userId", it)},
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             placeholder = stringResource(id = R.string.user_id)
         )
@@ -94,10 +94,10 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth(0.5f)
                 .background(Color(0xFF37454B))
-                .clickable { viewModel.onChangeFocus("storePassword") },
+                .clickable { viewModel.onChangeFocus("password") },
             color = Color(0xFFFFFFFF),
-            focussed = viewModel.currentFocus == "storePassword",
-            onChangeText = {viewModel.onChangeText("storePassword", it)},
+            focussed = viewModel.currentFocus == "password",
+            onChangeText = {viewModel.onChangeText("password", it)},
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             placeholder = stringResource(id = R.string.user_password)
         )

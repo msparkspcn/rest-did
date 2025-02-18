@@ -14,6 +14,7 @@ import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.presentation.device.DeviceScreen
 import com.secta9ine.rest.did.presentation.login.LoginScreen
 import com.secta9ine.rest.did.presentation.order.OrderStatusScreen
+import com.secta9ine.rest.did.presentation.product.ProductScreen
 
 private const val TAG = "AppNavHost"
 
@@ -33,7 +34,7 @@ fun AppNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.LoginScreen.route,
+        startDestination = Screen.ProductScreen.route,
         modifier = modifier
     ) {
         composable(route = Screen.LoginScreen.route) {
@@ -46,6 +47,9 @@ fun AppNavHost(
             OrderStatusScreen(
                 navController = navController,
                 viewModel2 = webSocketViewModel)
+        }
+        composable(route = Screen.ProductScreen.route) {
+            ProductScreen(navController = navController)
         }
     }
 }

@@ -29,7 +29,7 @@ class LoginViewModel @Inject constructor(
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
-    var currentFocus by mutableStateOf("storeCd")
+    var currentFocus by mutableStateOf("userId")
         private set
     var userId by mutableStateOf("")
         private set
@@ -46,7 +46,7 @@ class LoginViewModel @Inject constructor(
             if (userId.isNotEmpty()) {
                 currentFocus = "posPassword"
             }
-            Log.d(TAG, "### 최종 매장코드=$userId")
+            Log.d(TAG, "### 최종 매장코드1=$userId")
         }
     }
 
@@ -55,10 +55,9 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onChangeText(field: String, value: String) {
-        Log.d(TAG,"field:$field")
         when(field) {
-            "storeCd" -> userId = value
-            "storePassword" -> password = value
+            "userId" -> userId = value
+            "password" -> password = value
         }
     }
 

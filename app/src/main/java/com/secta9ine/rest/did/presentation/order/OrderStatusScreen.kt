@@ -1,31 +1,44 @@
 package com.secta9ine.rest.did.presentation.order
 
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,8 +48,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.network.WebSocketViewModel
+import com.secta9ine.rest.did.presentation.navigation.Screen
 import com.secta9ine.rest.did.ui.component.AppButton
+import com.secta9ine.rest.did.util.UiString
 import kotlinx.coroutines.delay
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalFocusManager
 
 @Composable
 fun OrderStatusScreen(
@@ -45,9 +62,44 @@ fun OrderStatusScreen(
     viewModel: OrderStatusViewModel = hiltViewModel(),
     viewModel2: WebSocketViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
+    var dialogMessage by remember { mutableStateOf<UiString?>(null) }
+
+    val uiState by viewModel.uiState.collectAsState(initial = null)
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus() // Box가 포커스를 받도록 요청
+        viewModel.uiState.collect {
+            when(it) {
+                is OrderStatusViewModel.UiState.Device -> {
+                    navController?.navigate(Screen.DeviceScreen.route)
+                }
+                is OrderStatusViewModel.UiState.Error -> {
+                    dialogMessage = UiString.TextString(it.message)
+                }
+                else -> {}
+            }
+        }
+    }
     Scaffold {
         Box(
-
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFFE0E0E0))
+                .focusRequester(focusRequester) // 포커스 요청
+                .focusable() // 키 입력을 받으려면 필수
+                .onKeyEvent { keyEvent ->
+                    if (keyEvent.type == KeyEventType.KeyUp) {
+                        viewModel.onEnterKeyPressed() // ViewModel에 이벤트 전달
+                        Toast.makeText(context, "Enter key pressed!", Toast.LENGTH_SHORT).show()
+                        true
+                    } else {
+                        false
+                    }
+                }
         ) {
             Column(
             ) {
@@ -103,7 +155,7 @@ fun OrderContents(
             displayedCompletedOrders = completedOrderList
         } else {
             while (true) {
-                delay(500000) // 5초 대기
+                delay(5000000) // 5초 대기
 
                 if(complitedOrderIndex + 6 <= completedOrderList.size) {
 
@@ -156,17 +208,18 @@ fun OrderContents(
             modifier = Modifier
                 .weight(4.5f)
                 .fillMaxHeight(0.9f)
+                .clip(RoundedCornerShape(8.dp))
                 .background((Color.White))
-                .padding(12.dp)
                 .border(
                     width = 2.dp,
-                    color = Color.Magenta
+                    color = Color.Magenta,
+                    RoundedCornerShape(8.dp)
                 )
         ) {
             Column(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(10.dp, 0.dp) // Box의 중앙 정렬
+                    .padding(20.dp, 0.dp)
             ) {
                 Text(
                     text = "1133",
@@ -200,7 +253,8 @@ fun OrderContents(
         Column(Modifier.weight(5.5f)) {
             Box(modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)) {
+                .weight(1f)
+                .padding(20.dp, 0.dp)) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -239,7 +293,8 @@ fun OrderContents(
 
             Box(modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)) {
+                .weight(1f)
+                .padding(20.dp, 0.dp)) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -275,7 +330,6 @@ fun OrderContents(
                     }
                 }
             }
-
         }
     }
 

@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.secta9ine.rest.did.R
 
 @Composable
@@ -71,10 +72,10 @@ fun SingleProduct() {
                 )
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+                painter = rememberAsyncImagePainter("http://o2pos.spcnetworks.kr/files/pos/2022/04/04/1110/tmb_product_00F144.png"),
                 contentDescription = "content",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
         }
     }

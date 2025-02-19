@@ -128,9 +128,11 @@ fun OrderHeader(
             text = "SR DID",
             style = MaterialTheme.typography.h5,
         )
+        /*
         AppButton(onClick = { viewModel2.sendMessage("Message from Other Screen") }) {
             Text("Send Message")
         }
+         */
         Text(
             text = "번호가 표시되면 음식을 찾아가세요.",
             style = MaterialTheme.typography.h5,

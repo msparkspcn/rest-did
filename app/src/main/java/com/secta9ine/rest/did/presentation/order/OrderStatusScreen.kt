@@ -214,7 +214,7 @@ fun OrderContents(
                 .background((Color.White))
                 .border(
                     width = 2.dp,
-                    color = Color.Magenta,
+                    color = Color(0xFF1BAAFE),
                     RoundedCornerShape(8.dp)
                 )
         ) {
@@ -230,7 +230,7 @@ fun OrderContents(
                         .align(Alignment.CenterHorizontally)
                         .alpha(if (isVisible) 1f else 0f),
                     fontSize = 140.sp,
-                    color = Color.Magenta,
+                    color = Color(0xFF1BAAFE),
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
@@ -239,7 +239,7 @@ fun OrderContents(
                         .fillMaxWidth(0.9f)
                         .align(Alignment.CenterHorizontally)
                         .padding(top = 8.dp),
-                    color = Color.Magenta,
+                    color = Color(0xFF1BAAFE),
                     thickness = 4.dp // 밑줄 두께
                 )
                 Spacer(modifier = Modifier.height(15.dp))

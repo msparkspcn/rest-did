@@ -1,6 +1,7 @@
 package com.secta9ine.rest.did.presentation.login
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -45,6 +49,8 @@ fun LoginScreen(
     var dialogMessage by remember { mutableStateOf<UiString?>(null) }
     var dialogContents by remember { mutableStateOf<UiString?>(null) }
     val uiState by viewModel.uiState.collectAsState(initial = null)
+
+    val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
         viewModel.uiState.collect {
@@ -80,31 +86,50 @@ fun LoginScreen(
             text = viewModel.userId,
             modifier = Modifier
                 .fillMaxWidth(0.5f)
-                .background(Color(0xFF37454B))
+                .background(Color.White)
                 .clickable { viewModel.onChangeFocus("userId") },
-            color = Color(0xFFFFFFFF),
+            color = if (viewModel.currentFocus == "userId") Color(0xFF1BAAFE) else Color(0xFFAFB7BF),
             focussed = viewModel.currentFocus == "userId",
             onChangeText = {viewModel.onChangeText("userId", it)},
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            placeholder = stringResource(id = R.string.user_id)
+            placeholder = stringResource(id = R.string.user_id),
+            focusRequester = focusRequester
         )
         Spacer(Modifier.height(8.dp))
         AppTextInput(
             text = viewModel.password,
             modifier = Modifier
                 .fillMaxWidth(0.5f)
-                .background(Color(0xFF37454B))
-                .clickable { viewModel.onChangeFocus("password") },
-            color = Color(0xFFFFFFFF),
+                .clickable {
+                    viewModel.onChangeFocus("password")
+                    focusRequester.requestFocus()
+                }
+                .background(Color.White),
+            color = if (viewModel.currentFocus == "password") Color(0xFF1BAAFE) else Color(0xFFAFB7BF),
             focussed = viewModel.currentFocus == "password",
             onChangeText = {viewModel.onChangeText("password", it)},
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            placeholder = stringResource(id = R.string.user_password)
+            placeholder = stringResource(id = R.string.user_password),
+            focusRequester = focusRequester
         )
         Spacer(Modifier.height(16.dp))
         AppButton(
             modifier = Modifier.fillMaxWidth(0.5f),
-            onClick = viewModel::onLogin) {
+            onClick = viewModel::onLogin,
+            colors = if(viewModel.userId!="" && viewModel.password!="") {
+                ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF1BAAFE),
+                    contentColor = Color.White
+                )
+            } else {
+                ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFFCFD4D8),
+                    contentColor = Color.White
+                )
+            }
+
+        )
+        {
             Text(
                 text = stringResource(R.string.login_button),
                 style = TextStyle(fontSize = 35.sp)

@@ -44,13 +44,14 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             userId = dataStoreRepository.getStoreCd().first()
             if (userId.isNotEmpty()) {
-                currentFocus = "posPassword"
+                currentFocus = "password"
             }
             Log.d(TAG, "### 최종 매장코드1=$userId")
         }
     }
 
     fun onChangeFocus(value: String) {
+        Log.d(TAG,"onChangeFocus currentFocus:$value")
         currentFocus = value
     }
 

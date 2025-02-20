@@ -44,7 +44,7 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 try {
-                    Log.d(TAG, "Message received: $text")
+//                    Log.d(TAG, "Message received: $text")
                     /*
                     val jsonObject =JSONObject(text)
                     val event = jsonObject.getString("event")

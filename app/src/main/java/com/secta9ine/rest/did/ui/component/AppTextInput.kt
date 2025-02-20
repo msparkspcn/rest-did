@@ -1,35 +1,40 @@
 package com.secta9ine.rest.did.ui.component
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.secta9ine.rest.did.ui.theme.RESTDIDTheme
 
 @Composable
 fun AppTextInput(
@@ -38,32 +43,36 @@ fun AppTextInput(
     focussed: Boolean = false,
     textStyle: TextStyle = MaterialTheme.typography.body1,
     color: Color = Color.Black,
-    paddingValues: PaddingValues = PaddingValues(horizontal = 6.dp, vertical = 15.dp),
+    paddingValues: PaddingValues = PaddingValues(horizontal = 15.dp, vertical = 15.dp),
     onChangeText: (String) -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     fontSize: TextUnit = 20.sp,
-    placeholder: String
+    shape: Shape = RoundedCornerShape(10.dp),
+    placeholder: String,
+    focusRequester: FocusRequester
 ) {
+    Log.d("AppTextInput","text:$text, focussed:$focussed")
+    var isFocused by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current  // 추가
-    val focusRequester = remember { FocusRequester() }
+
     Box(
         modifier = modifier
             .focusRequester(focusRequester)
-            .clickable {
-                focusRequester.requestFocus()
-            }
+            .onFocusChanged { isFocused = it.isFocused }
+            .border(
+                width = 1.dp, // 테두리 두께 조정
+                color = if (isFocused) Color(0xFF1BAAFE) else Color(0xFFDEE0E6),
+                shape = shape
+            )
+            .clip(shape)
     ) {
         BasicTextField(
             value = text,
             onValueChange = {value -> onChangeText(value)},
             modifier = Modifier
                 .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = if (focussed) MaterialTheme.colors.primary else Color.Transparent
-                )
                 .padding(paddingValues),
-            textStyle = textStyle.copy(color, fontSize = fontSize),
+            textStyle = textStyle.copy(Color.Black, fontSize = fontSize),
             visualTransformation = if (keyboardOptions.keyboardType == KeyboardType.Password) PasswordVisualTransformation() else VisualTransformation.None,
             singleLine = true,
             enabled = true,
@@ -87,7 +96,6 @@ fun AppTextInput(
             }
         )
     }
-
 }
 
 //@Preview(showBackground = true)

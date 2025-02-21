@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
+import com.secta9ine.rest.did.presentation.order.OrderStatusViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -57,6 +58,20 @@ class DeviceViewModel @Inject constructor(
 
     fun onSelectOption(option: String) {
         selectedOption = option
+    }
+
+    fun onEnterKeyPressed() {
+        Log.d(TAG,"장비설정화면 이동")
+        viewModelScope.launch {
+            _uiState.emit(UiState.OrderStatus)
+        }
+    }
+
+    fun onBackSpacePressed() {
+        Log.d(TAG,"로그인 화면 이동")
+        viewModelScope.launch {
+            _uiState.emit(UiState.Logout)
+        }
     }
 
     sealed interface UiState {

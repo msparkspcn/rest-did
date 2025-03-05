@@ -36,13 +36,15 @@ class LoginViewModel @Inject constructor(
     var password by mutableStateOf("")
         private set
 
+    var isAutoLoginChecked by mutableStateOf(false)
+        private set
 
 
     init {
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
 
         viewModelScope.launch {
-            userId = dataStoreRepository.getStoreCd().first()
+            userId = dataStoreRepository.getUserId().first()
             if (userId.isNotEmpty()) {
                 currentFocus = "password"
             }
@@ -62,6 +64,11 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    fun onChangeAutoLoginChecked(isAutoLoginChecked: Boolean) {
+        Log.d(TAG,"체크상태:$isAutoLoginChecked")
+        this.isAutoLoginChecked = isAutoLoginChecked
+    }
+
     fun onLogin() {
         Log.d(TAG,"### 로그인 클릭 userId:$userId, password:$password")
         viewModelScope.launch {
@@ -73,16 +80,37 @@ class LoginViewModel @Inject constructor(
                 _uiState.emit(UiState.Error(resources.getString(R.string.password_empty_error)))
             }
             else {
-                restApiRepository.getStoreInfo(
-                    storeCd = userId,
-                    storePassword = password
+                restApiRepository.acceptLogin(
+                    userId = userId,
+                    password = password
                 ).let {
                     when (it) {
                         is Resource.Success -> {
                             if(it.data!=null) {
                                 Log.d(TAG,"data:${it.data}")
-                                val store = it.data!!
-                                dataStoreRepository.setStoreCd(store.storeCd)
+                                val user = it.data!!
+                                dataStoreRepository.setUserId(user.userId)
+                                dataStoreRepository.setCmpCd(user.cmpCd)
+                                if(user.userRoleType!=null) {
+                                    dataStoreRepository.setUserRoleType(user.userRoleType)
+                                    when(user.userRoleType) {
+                                        "001" -> {
+                                            dataStoreRepository.setSalesOrgCd("")
+                                            dataStoreRepository.setStorCd("")
+                                        }
+                                        "002" -> {
+                                            user.salesOrgCd?.let { it1 -> dataStoreRepository.setSalesOrgCd(it1) }
+                                            dataStoreRepository.setStorCd("")
+                                        }
+                                        "003" -> {
+                                            user.salesOrgCd?.let { it1 -> dataStoreRepository.setSalesOrgCd(it1) }
+                                            user.storCd?.let { it1 -> dataStoreRepository.setStorCd(it1) }
+                                        }
+
+                                    }
+                                }
+
+
                                 _uiState.emit(UiState.Login)
                             }
                             else {

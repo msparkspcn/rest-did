@@ -1,17 +1,18 @@
 package com.secta9ine.rest.did.presentation.login
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,13 +23,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,12 +39,12 @@ import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.presentation.navigation.Screen
 import com.secta9ine.rest.did.ui.component.AppButton
 import com.secta9ine.rest.did.ui.component.AppTextInput
-import com.secta9ine.rest.did.ui.theme.RESTDIDTheme
+import com.secta9ine.rest.did.ui.component.CheckedBox
+import com.secta9ine.rest.did.ui.component.UncheckedBox
 import com.secta9ine.rest.did.util.UiString
 
 @Composable
 fun LoginScreen(
-    modifier: Modifier = Modifier,
     navController: NavHostController? = null,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
@@ -51,7 +53,6 @@ fun LoginScreen(
     val uiState by viewModel.uiState.collectAsState(initial = null)
 
     val focusRequester = remember { FocusRequester() }
-
     LaunchedEffect(Unit) {
         viewModel.uiState.collect {
             when(it) {
@@ -78,7 +79,7 @@ fun LoginScreen(
         )
         Text(
             text = "MEMBER LOGIN",
-            style = TextStyle(fontSize = 30.sp),
+            style = TextStyle(fontSize = 25.sp),
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(40.dp))
@@ -86,12 +87,16 @@ fun LoginScreen(
             text = viewModel.userId,
             modifier = Modifier
                 .fillMaxWidth(0.5f)
+                .clip(RoundedCornerShape(10.dp))
                 .background(Color.White)
                 .clickable { viewModel.onChangeFocus("userId") },
             color = if (viewModel.currentFocus == "userId") Color(0xFF1BAAFE) else Color(0xFFAFB7BF),
             focussed = viewModel.currentFocus == "userId",
             onChangeText = {viewModel.onChangeText("userId", it)},
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next
+            ),
             placeholder = stringResource(id = R.string.user_id),
             focusRequester = focusRequester
         )
@@ -108,10 +113,31 @@ fun LoginScreen(
             color = if (viewModel.currentFocus == "password") Color(0xFF1BAAFE) else Color(0xFFAFB7BF),
             focussed = viewModel.currentFocus == "password",
             onChangeText = {viewModel.onChangeText("password", it)},
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
             placeholder = stringResource(id = R.string.user_password),
             focusRequester = focusRequester
         )
+        Spacer(Modifier.height(16.dp))
+        Box(modifier = Modifier.fillMaxWidth(0.5f)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically // Align items vertically
+            ) {
+
+                AutoLoginCheckBox(
+                    viewModel.isAutoLoginChecked,
+                    changeAutoLoginChecked = {
+                        viewModel.onChangeAutoLoginChecked(isAutoLoginChecked = !viewModel.isAutoLoginChecked)
+                    })
+                Text(
+                    text = stringResource(id = R.string.auto_login),
+                    style = TextStyle(fontSize = 18.sp),
+                )
+            }
+        }
+
         Spacer(Modifier.height(16.dp))
         AppButton(
             modifier = Modifier.fillMaxWidth(0.5f),
@@ -138,10 +164,20 @@ fun LoginScreen(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-private fun LoginScreenPreview() {
-    RESTDIDTheme {
-        LoginScreen()
+fun AutoLoginCheckBox(
+    isAutoLoginChecked: Boolean,
+    changeAutoLoginChecked: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .clickable(onClick = changeAutoLoginChecked) // 클릭 이벤트 처리
+    ) {
+        if (isAutoLoginChecked) {
+            CheckedBox()
+        } else {
+            UncheckedBox()
+        }
+
     }
 }

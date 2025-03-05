@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.model.Product
-import com.secta9ine.rest.did.presentation.login.LoginViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -21,7 +20,7 @@ class ProductViewModel @Inject constructor(
     
 ) : ViewModel() {
     private val TAG = this.javaClass.simpleName
-    private val _uiState = MutableSharedFlow<ProductViewModel.UiState>()
+    private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
     
     var productList by mutableStateOf(emptyList<Product>())
@@ -35,22 +34,28 @@ class ProductViewModel @Inject constructor(
                 Product(
                     productNm = "탐라 흑돼지 김치찌개",
                     productEngNm = "Tamra BlackPork Kimchi Jjigae",
-                    price = 7500
+                    price = 7500,
+                    productExpln = "탐라의 깊은 맛을 담은 진한 흑돼지 김치찌개",
+                    calorie = "365"
                 ),
                 Product(
                     productNm = "제주 고기국수",
                     productEngNm = "Jeju Meat Noodles",
-                    price = 8500
+                    price = 8500,
+                    calorie = "600"
+
                 ),
                 Product(
                     productNm = "제주 흑돼지 갈비",
                     productEngNm = "Jeju Black Pork Ribs",
-                    price = 9500
+                    price = 9500,
+                    calorie = "1000"
                 ),
                 Product(
                     productNm = "올레길 비빔밥",
                     productEngNm = "Olleh Trail Bibimbap",
-                    price = 12000
+                    price = 12000,
+                    calorie = "800"
                 ),
                 Product(
                     productNm = "한라산 백숙",
@@ -68,7 +73,7 @@ class ProductViewModel @Inject constructor(
                     price = 18000
                 ),
                 Product(
-                    productNm = "검은돼지 스테이크",
+                    productNm = "흑돼지 스테이크",
                     productEngNm = "Black Pig Steak",
                     price = 22000
                 ),
@@ -80,6 +85,11 @@ class ProductViewModel @Inject constructor(
                 Product(
                     productNm = "서귀포 한우 갈비찜",
                     productEngNm = "Seogwipo Hanwoo Braised Ribs",
+                    price = 25000
+                ),
+                Product(
+                    productNm = "흑돼지 삼겹살",
+                    productEngNm = "Black Pig Samgubsal",
                     price = 25000
                 )
             )

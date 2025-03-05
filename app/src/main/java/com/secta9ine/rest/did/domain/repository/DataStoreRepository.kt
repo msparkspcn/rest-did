@@ -6,9 +6,16 @@ interface DataStoreRepository {
     suspend fun clearAll()
     fun getUserId(): Flow<String>
     suspend fun setUserId(value: String)
-    fun getStoreCd(): Flow<String>
-    suspend fun setStoreCd(value: String)
+    fun getStorCd(): Flow<String?>
+    suspend fun setStorCd(value: String)
 
     fun getPassword(): Flow<String>
     suspend fun setPassword(value: String)
+
+    fun getCmpCd(): Flow<String>
+    suspend fun setCmpCd(value: String)
+    fun getSalesOrgCd(): Flow<String?>
+    suspend fun setSalesOrgCd(value: String)
+    fun getUserRoleType(): Flow<String>
+    suspend fun setUserRoleType(value: String)
 }

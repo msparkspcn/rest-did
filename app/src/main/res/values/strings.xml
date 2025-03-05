@@ -1,11 +1,13 @@
 <resources>
     <string name="app_name">REST_DID</string>
     <string name="login_button">로그인</string>
+    <string name="auto_login">자동 로그인</string>
     <string name="user_id">아이디</string>
     <string name="user_password">비밀번호</string>
     <string name="logout_button">로그아웃</string>
     <string name="store_setting">점포 설정</string>
     <string name="device_setting">장비 설정</string>
+    <string name="cmp_nm">회사 :</string>
     <string name="sales_org_nm">영업 조직 :</string>
     <string name="store_nm">점포 :</string>
     <string name="corner_nm">코너 :</string>

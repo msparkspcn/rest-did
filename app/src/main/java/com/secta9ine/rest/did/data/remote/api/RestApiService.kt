@@ -1,12 +1,15 @@
 package com.secta9ine.rest.did.data.remote.api
 
 import androidx.datastore.preferences.protobuf.Api
+import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiResponseDto
 import com.secta9ine.rest.did.domain.model.Store
+import com.secta9ine.rest.did.domain.model.User
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -21,14 +24,14 @@ interface RestApiService {
         @Query("storeCd") storeCd: String
     ):RestApiResponseDto<Store>
 
-    @GET("/api/v1/login")
+    @POST("/api/v1/login")
     suspend fun acceptLogin (
-        @Query("userId") userId: String,
-        @Query("password") password: String
-    ):RestApiResponseDto<Store>
+        @Body body: LoginRequestDto
+    ):RestApiResponseDto<User>
 
     companion object {
-        private const val BASE_URL = "http://110.45.199.220:17070/" // 운영서버
+//        private const val BASE_URL = "http://110.45.199.220:17070/" // 운영서버
+        private const val BASE_URL = "https://s9rest.ngrok.io/" // 개발서버
 
         fun create(): RestApiService {
             val logger =
@@ -36,6 +39,7 @@ interface RestApiService {
 
             val client = OkHttpClient.Builder()
                 .addInterceptor(logger)
+                .addInterceptor(AuthInterceptor("abcd12345"))
                 .build()
 
             return Retrofit.Builder()

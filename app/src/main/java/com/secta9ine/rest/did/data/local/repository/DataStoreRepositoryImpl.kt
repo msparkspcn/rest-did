@@ -20,19 +20,24 @@ class DataStoreRepositoryImpl @Inject constructor(
         dataStore.edit { it.clear() }
     }
 
-    override fun getUserId(): Flow<String> {
-        TODO("Not yet implemented")
-    }
+    override fun getUserId(): Flow<String> = getValue(USER_ID, "")
 
-    override suspend fun setUserId(value: String) {
-        TODO("Not yet implemented")
-    }
+    override suspend fun setUserId(value: String) { setValue(USER_ID, value) }
 
-    override fun getStoreCd(): Flow<String> = getValue(STORE_CD, "")
-    override suspend fun setStoreCd(value: String) = setValue(STORE_CD, value)
+    override fun getStorCd(): Flow<String> = getValue(STOR_CD, "")
+    override suspend fun setStorCd(value: String) = setValue(STOR_CD, value)
     override fun getPassword(): Flow<String> = getValue(STORE_PASSWORD, "")
 
     override suspend fun setPassword(value: String) = setValue(STORE_PASSWORD, value)
+    override fun getCmpCd(): Flow<String> = getValue(CMP_CD, "")
+    override suspend fun setCmpCd(value: String) = setValue(CMP_CD, value)
+
+    override fun getSalesOrgCd(): Flow<String?> = getValue(SALES_ORG_CD, "")
+
+    override suspend fun setSalesOrgCd(value: String) = setValue(SALES_ORG_CD, value)
+    override fun getUserRoleType(): Flow<String> = getValue(USER_ROLE_TYPE, "")
+
+    override suspend fun setUserRoleType(value: String) = setValue(USER_ROLE_TYPE, value)
 
     private fun <T> getValue(key: Preferences.Key<T>, defValue: T): Flow<T> {
         return dataStore.data
@@ -53,7 +58,11 @@ class DataStoreRepositoryImpl @Inject constructor(
     }
 
     companion object {
-        val STORE_CD = stringPreferencesKey("STORE_CD")
-        val STORE_PASSWORD = stringPreferencesKey("STORE_PASSWORD")
+        val CMP_CD = stringPreferencesKey("CMP_CD")
+        val SALES_ORG_CD = stringPreferencesKey("SALES_ORG_CD")
+        val STOR_CD = stringPreferencesKey("STOR_CD")
+        val USER_ROLE_TYPE = stringPreferencesKey("USER_ROLE_TYPE")
+        val STORE_PASSWORD = stringPreferencesKey("STOR_PASSWORD")
+        val USER_ID = stringPreferencesKey("USER_ID")
     }
 }

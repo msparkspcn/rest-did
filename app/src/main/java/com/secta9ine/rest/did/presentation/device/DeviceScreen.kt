@@ -73,7 +73,7 @@ fun DeviceScreen(
             .onKeyEvent { keyEvent ->
                 if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Backspace) {
                     viewModel.onBackSpacePressed() // ViewModel에 이벤트 전달
-                    Toast.makeText(context, "뒤로가기 key pressed!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show()
                     true
                 } else {
                     Toast.makeText(context, "다른키 key pressed!", Toast.LENGTH_SHORT).show()
@@ -104,6 +104,12 @@ fun DeviceScreen(
                 color = Color(0xFF6F777D),
             )
         }
+
+        DeviceInfo(
+            infoNm = stringResource(id = R.string.cmp_nm),
+            infoValue = "(주)삼립",
+            dividerUse = true
+        )
 
         DeviceInfo(
             infoNm = stringResource(id = R.string.sales_org_nm),

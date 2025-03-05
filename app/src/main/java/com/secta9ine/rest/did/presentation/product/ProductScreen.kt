@@ -79,7 +79,9 @@ fun ProductScreen(
             .onKeyEvent { keyEvent ->
                 if (keyEvent.type == KeyEventType.KeyUp) {
                     viewModel.onEnterKeyPressed() // ViewModel에 이벤트 전달
-                    Toast.makeText(context, "Enter key pressed!", Toast.LENGTH_SHORT).show()
+                    Toast
+                        .makeText(context, "Enter key pressed!", Toast.LENGTH_SHORT)
+                        .show()
 
                     true
                 } else {
@@ -87,9 +89,10 @@ fun ProductScreen(
                 }
             }
     ) {
-            SingleProduct()
+//            SingleProduct()
         //    TwoProducts(productList = viewModel.productList)
 //        ProductList(productList = viewModel.productList)
+        SpecialProductList(productList = viewModel.productList)
     }
 
 }

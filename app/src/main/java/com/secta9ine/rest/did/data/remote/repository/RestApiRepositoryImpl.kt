@@ -3,7 +3,9 @@ package com.secta9ine.rest.did.data.remote.repository
 import android.content.res.Resources
 import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.data.remote.api.RestApiService
+import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
 import com.secta9ine.rest.did.domain.model.Store
+import com.secta9ine.rest.did.domain.model.User
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
 import com.secta9ine.rest.did.util.Resource
 import kotlinx.coroutines.Dispatchers
@@ -33,12 +35,13 @@ class RestApiRepositoryImpl @Inject constructor(
     override suspend fun acceptLogin(
         userId: String,
         password: String
-    ): Resource<Store?> = withContext(Dispatchers.IO){
+    ): Resource<User?> = withContext(Dispatchers.IO){
         try {
-            restApiService.acceptLogin(
+            val requestBody = LoginRequestDto(
                 userId = userId,
                 password = password
-            ).let {
+            )
+            restApiService.acceptLogin(requestBody).let {
                 Resource.Success(it.responseBody)
             }
         } catch (e: Exception) {

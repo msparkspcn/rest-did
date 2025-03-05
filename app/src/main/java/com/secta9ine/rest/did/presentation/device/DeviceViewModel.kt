@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
-import com.secta9ine.rest.did.presentation.order.OrderStatusViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -24,8 +23,9 @@ class DeviceViewModel @Inject constructor(
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
-    var storeCd by mutableStateOf("")
+    var userId by mutableStateOf("")
         private set
+    var userRoleType by mutableStateOf("")
     var selectedOption by mutableStateOf("fixed")
         private set
 
@@ -36,11 +36,18 @@ class DeviceViewModel @Inject constructor(
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
 
         viewModelScope.launch {
-            storeCd = dataStoreRepository.getStoreCd().first()
-            if (storeCd.isNotEmpty()) {
+            userId = dataStoreRepository.getUserId().first()
+            userRoleType = dataStoreRepository.getUserRoleType().first()
+            if(userRoleType=="001") {
+                Log.d(TAG,"### 관리자 계정입니다.")
             }
-//            deviceCdList = listOf(dataStoreRepository.g)
-            Log.d(TAG, "### 최종 매장코드=$storeCd")
+            else if(userRoleType=="002") {
+                Log.d(TAG,"### 휴게소 관리자 계정입니다.")
+            }
+            else if(userRoleType=="003") {
+                Log.d(TAG,"### 점포 관리자 계정입니다.")
+            }
+            Log.d(TAG, "### 최종 userId=$userId")
         }
     }
     fun onLogout() {
@@ -73,6 +80,8 @@ class DeviceViewModel @Inject constructor(
             _uiState.emit(UiState.Logout)
         }
     }
+
+
 
     sealed interface UiState {
         object Loading : UiState

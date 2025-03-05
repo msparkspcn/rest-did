@@ -14,5 +14,7 @@ data class Product(
     @ColumnInfo(name = "ENGPRODUCT_NM") val productEngNm: String? =null,
     @ColumnInfo(name = "PRICE") val price: Int = 0,
     @ColumnInfo(name = "TAG") val tag: String? = null,
-    @ColumnInfo(name = "IMG_PATH") val imgPath: String? =null
+    @ColumnInfo(name = "IMG_PATH") val imgPath: String? =null,
+    @ColumnInfo(name = "PRODUCT_EXPLN") val productExpln: String? =null, //상품 설명
+    @ColumnInfo(name = "CALORY") val calorie: String? =null //열량
 )

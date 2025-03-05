@@ -115,12 +115,12 @@ fun Item(
                 }
             }
             Text(
+                text = "${item.price}".formatCurrency() ?: "0",
                 modifier = Modifier
                     .align(Alignment.Top)
                     .padding(10.dp)
                     .fillMaxHeight()
                     .wrapContentWidth(Alignment.End), // 오른쪽 정렬,
-                text = "${item.price}".formatCurrency() ?: "0",
                 fontSize = textSizePrice,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,

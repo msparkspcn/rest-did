@@ -75,7 +75,8 @@ fun OrderStatusScreen(
         viewModel.uiState.collect {
             when(it) {
                 is OrderStatusViewModel.UiState.Device -> {
-                    navController?.navigate(Screen.DeviceScreen.route)
+//                    navController?.navigate(Screen.DeviceScreen.route)
+                    navController?.popBackStack()
                 }
                 is OrderStatusViewModel.UiState.Error -> {
                     dialogMessage = UiString.TextString(it.message)

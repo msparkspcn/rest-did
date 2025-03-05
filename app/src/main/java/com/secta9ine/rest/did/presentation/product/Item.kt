@@ -1,5 +1,6 @@
 package com.secta9ine.rest.did.presentation.product
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,14 +33,14 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.secta9ine.rest.did.domain.model.Product
 import com.secta9ine.rest.did.util.formatCurrency
-
+private const val TAG = "Item"
 @Composable
 fun Item(
     item: Product,
     modifier: Modifier
 ) {
     var itemWidth by remember { mutableStateOf(0) }
-
+    Log.d(TAG,"itemWidth:$itemWidth")
     Column(
         modifier = modifier
             .fillMaxHeight()
@@ -59,7 +60,7 @@ fun Item(
                 painter = rememberAsyncImagePainter("http://o2pos.spcnetworks.kr/files/pos/2022/04/04/1110/tmb_product_00F144.png"),
                 contentDescription = "content",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
         }
         // 아이템의 너비에 따라 텍스트 크기 조정
@@ -78,6 +79,7 @@ fun Item(
         val textSizePrice = when {
             itemWidth < 200 -> 12.sp
             itemWidth < 400 -> 15.sp
+            itemWidth < 700 -> 40.sp
             else -> 50.sp
         }
         Row(
@@ -125,7 +127,7 @@ fun Item(
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                color = Color.Magenta
+                color = Color(0xFF1BAAFE)
             )
         }
     }

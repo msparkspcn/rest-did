@@ -1,6 +1,5 @@
 package com.secta9ine.rest.did.presentation.product
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

@@ -4,7 +4,9 @@ import android.content.res.Resources
 import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
-import com.secta9ine.rest.did.domain.model.Store
+import com.secta9ine.rest.did.data.remote.dto.RestApiRequestDto
+import com.secta9ine.rest.did.domain.model.OrderStatus
+import com.secta9ine.rest.did.domain.model.Stor
 import com.secta9ine.rest.did.domain.model.User
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
 import com.secta9ine.rest.did.util.Resource
@@ -19,7 +21,7 @@ class RestApiRepositoryImpl @Inject constructor(
     override suspend fun getStoreInfo(
         storeCd: String,
         storePassword: String
-    ): Resource<Store?> = withContext(Dispatchers.IO){
+    ): Resource<Stor?> = withContext(Dispatchers.IO){
         try {
             restApiService.getStoreInfo(
                 storeCd = storeCd,
@@ -48,4 +50,26 @@ class RestApiRepositoryImpl @Inject constructor(
             Resource.Failure(resources.getString(R.string.network_error))
         }
     }
+
+    override suspend fun getOrderList(
+        cmpCd: String,
+        salesOrgCd: String,
+        storCd: String,
+        cornerCd: String): Resource<List<OrderStatus?>> = withContext(Dispatchers.IO){
+        try {
+            val requestBody = RestApiRequestDto(
+                cmpCd =  cmpCd,
+                salesOrgCd = salesOrgCd,
+                storCd = storCd,
+                cornerCd = cornerCd
+            )
+            restApiService.getOrderList(requestBody).let {
+                Resource.Success(it.responseBody)
+            }
+        } catch (e: Exception) {
+            Resource.Failure(resources.getString(R.string.network_error))
+        }
+    }
+
+
 }

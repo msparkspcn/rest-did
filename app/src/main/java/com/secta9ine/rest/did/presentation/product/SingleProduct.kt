@@ -44,7 +44,7 @@ fun SingleProduct() {
                     .fillMaxWidth(1f)
                     .align(Alignment.CenterHorizontally)
                     .padding(top = 8.dp),
-                color = Color.Magenta,
+                color = Color(0xFF1BAAFE),
                 thickness = 4.dp // 밑줄 두께
             )
             Text(
@@ -57,7 +57,7 @@ fun SingleProduct() {
                     .fillMaxWidth(1f)
                     .align(Alignment.CenterHorizontally)
                     .padding(top = 8.dp),
-                color = Color.Magenta,
+                color = Color(0xFF1BAAFE),
                 thickness = 4.dp // 밑줄 두께
             )
 
@@ -68,7 +68,7 @@ fun SingleProduct() {
                 .background((Color.White))
                 .border(
                     width = 2.dp,
-                    color = Color.Magenta
+                    color = Color(0xFF1BAAFE)
                 )
         ) {
             Image(

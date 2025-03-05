@@ -2,6 +2,8 @@ package com.secta9ine.rest.did.presentation.device
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,17 +13,29 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Divider
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -34,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,33 +65,36 @@ fun DeviceScreen(
 ) {
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(Unit) {
-        viewModel.uiState.collect {
-            when(it) {
-                is DeviceViewModel.UiState.Logout -> {
-                    navController?.navigate(Screen.LoginScreen.route)
-                }
-                is DeviceViewModel.UiState.OrderStatus -> {
-                    navController?.navigate(Screen.OrderStatusScreen.route)
-                }
-
-                else -> {}
+    val uiState by viewModel.uiState.collectAsState(initial = DeviceViewModel.UiState.Idle)
+    LaunchedEffect(uiState) {
+        when(uiState) {
+            is DeviceViewModel.UiState.Logout -> {
+                navController?.popBackStack()
             }
+            is DeviceViewModel.UiState.OrderStatus -> {
+                navController?.navigate(Screen.OrderStatusScreen.route)
+            }
+
+            else -> {}
         }
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .focusRequester(focusRequester) // 포커스 요청
-            .focusable() // 키 입력을 받으려면 필수
+            .focusRequester(focusRequester)
+            .focusable()
             .onKeyEvent { keyEvent ->
                 if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Backspace) {
-                    viewModel.onBackSpacePressed() // ViewModel에 이벤트 전달
-                    Toast.makeText(context, "로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show()
+                    viewModel.onBackSpacePressed()
+                    Toast
+                        .makeText(context, "로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT)
+                        .show()
                     true
                 } else {
-                    Toast.makeText(context, "다른키 key pressed!", Toast.LENGTH_SHORT).show()
+                    Toast
+                        .makeText(context, "다른키 key pressed!", Toast.LENGTH_SHORT)
+                        .show()
                     false
                 }
             }
@@ -99,7 +117,9 @@ fun DeviceScreen(
         ) {
             Text(
                 text = stringResource(id = R.string.store_setting),
-                modifier = Modifier.fillMaxWidth(0.2f).padding(25.dp, 10.dp),
+                modifier = Modifier
+                    .fillMaxWidth(0.2f)
+                    .padding(25.dp, 10.dp),
                 style = TextStyle(fontSize = 17.sp),
                 color = Color(0xFF6F777D),
             )
@@ -107,24 +127,25 @@ fun DeviceScreen(
 
         DeviceInfo(
             infoNm = stringResource(id = R.string.cmp_nm),
-            infoValue = "(주)삼립",
+            infoList = viewModel.cmpNmList,
             dividerUse = true
         )
 
         DeviceInfo(
             infoNm = stringResource(id = R.string.sales_org_nm),
-            infoValue = "용인 휴게소",
-            dividerUse = true
+            infoList = viewModel.salesOrgNmList,
+            dividerUse = true,
+            
         )
 
         DeviceInfo(
             infoNm = stringResource(id = R.string.store_nm),
-            infoValue = "식당가",
+            infoList = viewModel.storNmList,
             dividerUse = true
         )
         DeviceInfo(
             infoNm = stringResource(id = R.string.corner_nm),
-            infoValue = "라면",
+            infoList = viewModel.cornerNmList,
             dividerUse = false
         )
         Box(
@@ -135,25 +156,28 @@ fun DeviceScreen(
         ) {
             Text(
                 text = stringResource(id = R.string.device_setting),
-                modifier = Modifier.fillMaxWidth(0.2f).padding(25.dp, 10.dp),
+                modifier = Modifier
+                    .fillMaxWidth(0.2f)
+                    .padding(25.dp, 10.dp),
                 style = TextStyle(fontSize = 17.sp),
                 color = Color(0xFF6F777D),
             )
         }
         DeviceInfo(
             infoNm = stringResource(id = R.string.device_no),
-            infoValue = "02",
+            infoList = viewModel.deviceNoList,
             dividerUse = true
         )
         DeviceInfo(
             infoNm = stringResource(id = R.string.show_menu),
-            infoValue = "단일 상품",
+            infoList = viewModel.displayMenuList,
             dividerUse = true
         )
 //        Spacer(modifier = Modifier.height(10.dp))
-        // 롤링 옵션 (라디오 버튼)
         Row(
-            modifier = Modifier.fillMaxWidth().padding(25.dp, 10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(25.dp, 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -162,7 +186,7 @@ fun DeviceScreen(
                 style = TextStyle(fontSize = 19.sp)
             )
             RadioButton(
-                selected = viewModel.selectedOption == "fixed", // 기본 선택 상태
+                selected = viewModel.selectedOption == "fixed",
                 onClick = { viewModel.onSelectOption("fixed") }
             )
             Spacer(modifier = Modifier.width(10.dp))
@@ -172,7 +196,7 @@ fun DeviceScreen(
             )
             Spacer(modifier = Modifier.width(20.dp))
             RadioButton(
-                selected = viewModel.selectedOption == "rolling", // 기본 선택 상태
+                selected = viewModel.selectedOption == "rolling",
                 onClick = { viewModel.onSelectOption("rolling")}
             )
             Spacer(modifier = Modifier.width(10.dp))
@@ -181,13 +205,13 @@ fun DeviceScreen(
                 style = TextStyle(fontSize = 19.sp)
             )
         }
-        // 버튼들
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFFF5F6F8))
                 .padding(10.dp),
-            horizontalArrangement = Arrangement.Center // 가로 가운데 정렬
+            horizontalArrangement = Arrangement.Center
         ) {
             AppButton(
                 modifier = Modifier.width(150.dp),
@@ -217,42 +241,99 @@ fun DeviceScreen(
 @Composable
 fun DeviceInfo(
     infoNm: String,
-    infoValue: String,
+    infoList: List<String>,
     dividerUse : Boolean
 ) {
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(25.dp, 10.dp),
-//                .background(Color.Yellow),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(25.dp, 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier.fillMaxWidth(0.2f),
+            contentAlignment = Alignment.CenterStart
         ) {
-            Box(
-                modifier = Modifier.fillMaxWidth(0.2f),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Text(
-                    text = infoNm,
-                    style = TextStyle(fontSize = 19.sp)
-                )
-            }
-            Box(
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Text(
-                    text = infoValue,
-                    style = TextStyle(fontSize = 19.sp)
+            Text(
+                text = infoNm,
+                style = TextStyle(fontSize = 19.sp)
+            )
+        }
+        Box(
+            contentAlignment = Alignment.CenterStart
+        ) {
+
+            if(infoList.isNotEmpty()) {
+                DeviceDropdownMenuBox(
+                    modifier = Modifier,
+                    selectedItem = infoList[0],
+                    itemList = infoList,
+                    onSelectItem = {}
                 )
             }
         }
-        if(dividerUse) {
-            Divider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(25.dp, 5.dp),
-                color = Color(0xFFCFD4D8),
-                thickness = 1.dp // 밑줄 두께
+    }
+    if(dividerUse) {
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(25.dp, 5.dp),
+            color = Color(0xFFCFD4D8),
+            thickness = 1.dp
+        )
+    }
+}
+
+@Composable
+fun DeviceDropdownMenuBox(
+    modifier: Modifier = Modifier,
+    selectedItem: String = "",
+    itemList: List<String> = emptyList(),
+    onSelectItem: (index: Int) -> Unit = {}
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier.padding(horizontal = 12.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clickable { expanded = true }
+                .background(Color(0xFFE1E1E1))
+                .border(1.dp, Color(0xFFA1A1A1))
+                .padding(6.dp)
+        ) {
+            Text(
+                text = selectedItem,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(25.dp)
+                    .rotate(if (expanded) 180f else 360f),
+                tint = Color(0xFFA1A1A1),
+            )
+        }
+        DropdownMenu(
+            modifier = Modifier.wrapContentSize(),
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            itemList.forEachIndexed { index, item ->
+                DropdownMenuItem(
+                    onClick = {
+                        onSelectItem(index)
+                        expanded = false
+                    }
+                ) {
+                    Text(text = item)
+                }
+            }
         }
     }
 }

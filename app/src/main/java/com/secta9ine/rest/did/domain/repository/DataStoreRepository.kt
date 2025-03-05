@@ -18,4 +18,6 @@ interface DataStoreRepository {
     suspend fun setSalesOrgCd(value: String)
     fun getUserRoleType(): Flow<String>
     suspend fun setUserRoleType(value: String)
+    fun getIsAutoLoginChecked(): Flow<String>
+    suspend fun setIsAutoLoginChecked(value: String)
 }

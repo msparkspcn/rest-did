@@ -1,5 +1,6 @@
 package com.secta9ine.rest.did.presentation.login
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ButtonDefaults
@@ -43,6 +45,7 @@ import com.secta9ine.rest.did.ui.component.CheckedBox
 import com.secta9ine.rest.did.ui.component.UncheckedBox
 import com.secta9ine.rest.did.util.UiString
 
+private const val TAG = "LoginScreen"
 @Composable
 fun LoginScreen(
     navController: NavHostController? = null,
@@ -50,22 +53,26 @@ fun LoginScreen(
 ) {
     var dialogMessage by remember { mutableStateOf<UiString?>(null) }
     var dialogContents by remember { mutableStateOf<UiString?>(null) }
-    val uiState by viewModel.uiState.collectAsState(initial = null)
+    val uiState by viewModel.uiState.collectAsState(initial = LoginViewModel.UiState.Idle)
 
     val focusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        viewModel.uiState.collect {
-            when(it) {
-                is LoginViewModel.UiState.Login -> {
-                    navController?.navigate(Screen.DeviceScreen.route)
-                }
-                is LoginViewModel.UiState.Error -> {
-                    dialogMessage = UiString.TextString(it.message)
-                }
-                else -> {}
+    LaunchedEffect(uiState) {
+        Log.d(TAG, "111 uiState:$uiState")
+        viewModel.checkAutoLogin()
+
+        when (uiState) {
+            is LoginViewModel.UiState.Login -> {
+                navController?.navigate(Screen.DeviceScreen.route)
             }
+
+            is LoginViewModel.UiState.Error -> {
+                dialogMessage = UiString.TextString((uiState as LoginViewModel.UiState.Error).message)
+            }
+
+            else -> {}
         }
     }
+
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -129,8 +136,9 @@ fun LoginScreen(
                 AutoLoginCheckBox(
                     viewModel.isAutoLoginChecked,
                     changeAutoLoginChecked = {
-                        viewModel.onChangeAutoLoginChecked(isAutoLoginChecked = !viewModel.isAutoLoginChecked)
+                        viewModel.onChangeAutoLoginChecked(isAutoLoginChecked = viewModel.isAutoLoginChecked)
                     })
+                Spacer(Modifier.width(5.dp))
                 Text(
                     text = stringResource(id = R.string.auto_login),
                     style = TextStyle(fontSize = 18.sp),
@@ -166,14 +174,14 @@ fun LoginScreen(
 
 @Composable
 fun AutoLoginCheckBox(
-    isAutoLoginChecked: Boolean,
+    isAutoLoginChecked: String,
     changeAutoLoginChecked: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .clickable(onClick = changeAutoLoginChecked) // 클릭 이벤트 처리
     ) {
-        if (isAutoLoginChecked) {
+        if (isAutoLoginChecked == "Y") {
             CheckedBox()
         } else {
             UncheckedBox()

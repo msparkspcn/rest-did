@@ -38,6 +38,9 @@ class DataStoreRepositoryImpl @Inject constructor(
     override fun getUserRoleType(): Flow<String> = getValue(USER_ROLE_TYPE, "")
 
     override suspend fun setUserRoleType(value: String) = setValue(USER_ROLE_TYPE, value)
+    override fun getIsAutoLoginChecked(): Flow<String> = getValue(IS_AUTO_LOGIN_CHECKED, "N")
+
+    override suspend fun setIsAutoLoginChecked(value: String) = setValue(IS_AUTO_LOGIN_CHECKED, value)
 
     private fun <T> getValue(key: Preferences.Key<T>, defValue: T): Flow<T> {
         return dataStore.data
@@ -64,5 +67,6 @@ class DataStoreRepositoryImpl @Inject constructor(
         val USER_ROLE_TYPE = stringPreferencesKey("USER_ROLE_TYPE")
         val STORE_PASSWORD = stringPreferencesKey("STOR_PASSWORD")
         val USER_ID = stringPreferencesKey("USER_ID")
+        val IS_AUTO_LOGIN_CHECKED = stringPreferencesKey("IS_AUTO_LOGIN_CHECKED")
     }
 }

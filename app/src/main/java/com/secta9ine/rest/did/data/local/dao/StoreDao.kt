@@ -5,30 +5,30 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.secta9ine.rest.did.domain.model.Store
+import com.secta9ine.rest.did.domain.model.Stor
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface StoreDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(store: Store)
+    suspend fun insert(stor: Stor)
 
-    @Query("DELETE FROM STORE")
+    @Query("DELETE FROM STOR")
     suspend fun deleteAll()
 
     @Transaction
-    suspend fun sync(store: Store) {
+    suspend fun sync(stor: Stor) {
         deleteAll()
-        insert(store)
+        insert(stor)
     }
 
     @Query(
         """
             SELECT * 
-            FROM STORE
+            FROM STOR
             WHERE 1 = 1
                 AND STORE_CD = :storeCd
         """
     )
-    fun get(storeCd: String): Flow<Store?>
+    fun get(storeCd: String): Flow<Stor?>
 }

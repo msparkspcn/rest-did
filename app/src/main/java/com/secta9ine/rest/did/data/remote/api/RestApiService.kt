@@ -1,18 +1,16 @@
 package com.secta9ine.rest.did.data.remote.api
 
-import androidx.datastore.preferences.protobuf.Api
 import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
+import com.secta9ine.rest.did.data.remote.dto.RestApiRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiResponseDto
-import com.secta9ine.rest.did.domain.model.Store
+import com.secta9ine.rest.did.domain.model.OrderStatus
+import com.secta9ine.rest.did.domain.model.Stor
 import com.secta9ine.rest.did.domain.model.User
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
 
@@ -22,12 +20,17 @@ interface RestApiService {
     suspend fun getStoreInfo (
         @Query("authPassword") authPassword: String,
         @Query("storeCd") storeCd: String
-    ):RestApiResponseDto<Store>
+    ):RestApiResponseDto<Stor>
 
     @POST("/api/v1/login")
     suspend fun acceptLogin (
         @Body body: LoginRequestDto
     ):RestApiResponseDto<User>
+
+    @POST("/api/v1/did/order")
+    suspend fun getOrderList (
+        @Body body: RestApiRequestDto
+    ):RestApiResponseDto<List<OrderStatus>>
 
     companion object {
 //        private const val BASE_URL = "http://110.45.199.220:17070/" // 운영서버

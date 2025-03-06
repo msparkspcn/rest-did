@@ -9,7 +9,7 @@ object WebSocketManager {
     private val client: OkHttpClient = OkHttpClient.Builder()
         .pingInterval(30, TimeUnit.SECONDS)
         .build()
-    private const val WEBSOCKET_URL = "ws://ops.koreainvestment.com:21000"
+    private const val WEBSOCKET_URL = "ws://10.120.44.88:8082/ws"
 
     fun connect(listener: WebSocketListener) {
         // 기존 WebSocket이 남아있다면 닫기

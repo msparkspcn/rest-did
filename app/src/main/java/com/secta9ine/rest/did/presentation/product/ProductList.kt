@@ -81,7 +81,7 @@ fun Header() {
             color = Color.White
         )
         Text(
-            text = "메뉴",
+            text = " 메뉴",
             style = MaterialTheme.typography.h5,
             color = Color.Yellow,
         )

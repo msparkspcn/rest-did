@@ -9,6 +9,10 @@ import androidx.room.Entity
 )
 data class Product(
     @ColumnInfo(name = "SEQ") val seq: Long? = null, // SEQ 번호
+    @ColumnInfo(name = "CMP_CD") val cmpCd: String = "",
+    @ColumnInfo(name = "SALES_ORG_CD") val salesOrgCd: String = "",
+    @ColumnInfo(name = "STOR_CD") val storCd: String = "",
+    @ColumnInfo(name = "CORNER_CD") val cornerCd: String = "",
     @ColumnInfo(name = "PRODUCT_CD") val productCd: String = "",
     @ColumnInfo(name = "PRODUCT_NM") val productNm: String = "",
     @ColumnInfo(name = "ENGPRODUCT_NM") val productEngNm: String? =null,

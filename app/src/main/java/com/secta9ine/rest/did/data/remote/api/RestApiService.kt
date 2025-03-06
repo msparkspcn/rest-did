@@ -1,8 +1,10 @@
 package com.secta9ine.rest.did.data.remote.api
 
+import com.secta9ine.rest.did.data.remote.dto.CmpRequestDto
 import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiResponseDto
+import com.secta9ine.rest.did.domain.model.Cmp
 import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.domain.model.Stor
 import com.secta9ine.rest.did.domain.model.User
@@ -32,8 +34,16 @@ interface RestApiService {
         @Body body: RestApiRequestDto
     ):RestApiResponseDto<List<OrderStatus>>
 
+    @POST("/api/v1/company/list")
+    suspend fun getCmp (
+        @Body body: CmpRequestDto
+    ):RestApiResponseDto<List<Cmp>>
+
+    @POST("/api/v1/company/list")
+    suspend fun getCmp2 (
+        @Body body: CmpRequestDto
+    ):List<Cmp>
     companion object {
-//        private const val BASE_URL = "http://110.45.199.220:17070/" // 운영서버
         private const val BASE_URL = "https://s9rest.ngrok.io/" // 개발서버
 
         fun create(): RestApiService {

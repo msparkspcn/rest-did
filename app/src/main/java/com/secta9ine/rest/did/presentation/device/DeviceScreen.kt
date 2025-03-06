@@ -1,5 +1,6 @@
 package com.secta9ine.rest.did.presentation.device
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -125,7 +126,12 @@ fun DeviceScreen(
             )
         }
 
-        DeviceInfo(
+//        DeviceInfo(
+//            infoNm = stringResource(id = R.string.cmp_nm),
+//            infoList = viewModel.cmpNmList,
+//            dividerUse = true
+//        )
+        TempDeviceInfo(
             infoNm = stringResource(id = R.string.cmp_nm),
             infoList = viewModel.cmpNmList,
             dividerUse = true
@@ -239,6 +245,54 @@ fun DeviceScreen(
 }
 
 @Composable
+fun TempDeviceInfo(
+    infoNm: String,
+    infoList: List<Pair<String, String>>,
+    dividerUse : Boolean
+) {
+    Log.d("TAG","infoList:$infoList")
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(25.dp, 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier.fillMaxWidth(0.2f),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text = infoNm,
+                style = TextStyle(fontSize = 19.sp)
+            )
+        }
+        Box(
+            contentAlignment = Alignment.CenterStart
+        ) {
+
+            if(infoList.isNotEmpty()) {
+                TempDeviceDropdownMenuBox(
+                    modifier = Modifier,
+                    selectedItem = infoList[0].second,
+                    itemList = infoList,
+                    onSelectItem = {}
+                )
+            }
+        }
+    }
+    if(dividerUse) {
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(25.dp, 5.dp),
+            color = Color(0xFFCFD4D8),
+            thickness = 1.dp
+        )
+    }
+}
+
+@Composable
 fun DeviceInfo(
     infoNm: String,
     infoList: List<String>,
@@ -282,6 +336,59 @@ fun DeviceInfo(
             color = Color(0xFFCFD4D8),
             thickness = 1.dp
         )
+    }
+}
+
+@Composable
+fun TempDeviceDropdownMenuBox(
+    modifier: Modifier = Modifier,
+    selectedItem: String = "",
+    itemList: List<Pair<String,String>> = emptyList(),
+    onSelectItem: (index: Int) -> Unit = {}
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = modifier.padding(horizontal = 12.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clickable { expanded = true }
+                .background(Color(0xFFE1E1E1))
+                .border(1.dp, Color(0xFFA1A1A1))
+                .padding(6.dp)
+        ) {
+            Text(
+                text = selectedItem,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Icon(
+                imageVector = Icons.Filled.ArrowDropDown,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(25.dp)
+                    .rotate(if (expanded) 180f else 360f),
+                tint = Color(0xFFA1A1A1),
+            )
+        }
+        DropdownMenu(
+            modifier = Modifier.wrapContentSize(),
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            itemList.forEachIndexed { index, item ->
+                DropdownMenuItem(
+                    onClick = {
+                        onSelectItem(index)
+                        expanded = false
+                    }
+                ) {
+                    Text(text = item.second)
+                }
+            }
+        }
     }
 }
 

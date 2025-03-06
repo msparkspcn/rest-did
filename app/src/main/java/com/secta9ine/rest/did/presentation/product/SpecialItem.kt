@@ -60,39 +60,45 @@ fun SpecialItem(
 
     ) {
         // 아이템의 너비에 따라 텍스트 크기 조정
-        val textSizeProductNm = when {
-            itemWidth < 200 -> 11.sp // 아이템 너비가 200dp 미만일 때
-            itemWidth < 400 -> 13.sp // 아이템 너비가 200dp 이상 300dp 미만일 때
-            itemWidth < 800 -> 28.sp
-            else -> 33.sp
-        }
-
-        val textSizeProductEngNm = when {
-            itemWidth < 200 -> 8.sp
-            itemWidth < 400 -> 10.sp
-            itemWidth < 800 -> 16.sp
-            else -> 17.sp
-        }
 
         val textSizePrice = when {
             itemWidth < 200 -> 12.sp
             itemWidth < 400 -> 14.sp
-            itemWidth < 800 -> 38.sp
+            itemWidth < 800 -> 30.sp
+            itemWidth > 1200 -> 16.sp
             else -> 50.sp
         }
 
+        val textSizeProductNm = when {
+            itemWidth < 200 -> 10.sp
+            itemWidth < 400 -> 12.sp
+            itemWidth < 800 -> 28.sp
+            itemWidth > 1200 -> 14.sp
+            else -> 33.sp
+        }
+
         val textSizeExpln = when {
-            itemWidth < 200 -> 12.sp
-            itemWidth < 400 -> 14.sp
-            itemWidth < 800 -> 18.sp
+            itemWidth < 200 -> 7.sp
+            itemWidth < 400 -> 9.sp
+            itemWidth < 800 -> 22.sp
+            itemWidth > 1200 -> 12.sp
             else -> 20.sp
         }
 
         val textSizeKcal = when {
-            itemWidth < 200 -> 10.sp
-            itemWidth < 400 -> 12.sp
-            itemWidth < 800 -> 17.sp
-            else -> 20.sp
+            itemWidth < 200 -> 6.sp
+            itemWidth < 400 -> 8.sp
+            itemWidth < 800 -> 22.sp
+            itemWidth > 1200 -> 10.sp
+            else -> 18.sp
+        }
+
+        val textSizeProductEngNm = when {
+            itemWidth < 200 -> 4.sp
+            itemWidth < 400 -> 6.sp
+            itemWidth < 800 -> 20.sp
+            itemWidth > 1200 -> 10.sp
+            else -> 18.sp
         }
 
         if(isEven) {
@@ -254,7 +260,7 @@ fun itemSubInfo(
             )
             item.calorie?.let { calorie ->
                 Text(
-                    text = "(${calorie}kcal)",
+                    text = "(${calorie.formatCurrency()} kcal)",
                     fontSize = textSizeKcal,
                     color = Color(0xFFAFB7BF),
                     fontWeight = FontWeight.Bold,

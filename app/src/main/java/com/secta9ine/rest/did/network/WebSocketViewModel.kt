@@ -37,14 +37,15 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
 
         WebSocketManager.connect(object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
-                Log.d(TAG, "Connected")
+                Log.d(TAG, "Connected") //connect 후 구독 요청
                 this@WebSocketViewModel.webSocket = webSocket
                 isConnected = true
+                subscribeToEvents()
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 try {
-//                    Log.d(TAG, "Message received: $text")
+                    Log.d(TAG, "Message received: $text")
                     /*
                     val jsonObject =JSONObject(text)
                     val event = jsonObject.getString("event")
@@ -106,6 +107,22 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
             connectWebSocket()
         }
     }
+
+    private fun subscribeToEvents() {
+        val subscribeMessage = """{ "type": "subscribe", "topic": "ECHO", "userId": "rest" }"""
+        sendMessage(subscribeMessage) // 구독 요청 전송
+    }
+
+    private fun subscribeOrderEvents() {
+        val subscribeMessage = """{ "type": "subscribe", "topic": "ORDER", "cmpCd": "SLKR", "salesOrgCd": "8000", "storCd": "5000511", "cornerCd": "CIBA" }"""
+        sendMessage(subscribeMessage)
+    }
+
+    private fun subscribeProductEvents() {
+        val subscribeMessage = """{ "type": "subscribe", "topic": "PRODUCT", "userId": "rest" }"""
+        sendMessage(subscribeMessage)
+    }
+
 
     private fun observeNetworkChanges() {
         val connectivityManager =

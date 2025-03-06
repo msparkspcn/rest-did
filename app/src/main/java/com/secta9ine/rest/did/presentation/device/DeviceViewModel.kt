@@ -6,8 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.secta9ine.rest.did.domain.model.Cmp
 import com.secta9ine.rest.did.domain.model.Product
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
+import com.secta9ine.rest.did.domain.repository.RestApiRepository
+import com.secta9ine.rest.did.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -20,6 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DeviceViewModel @Inject constructor(
     private val dataStoreRepository:DataStoreRepository,
+    private val restApiRepository: RestApiRepository,   //테스트
 ) : ViewModel() {
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
@@ -34,7 +38,8 @@ class DeviceViewModel @Inject constructor(
         private set
 
 //    var salesOrgList: List<String> = emp
-    var cmpNmList by mutableStateOf(emptyList<String>())
+    var cmpList by mutableStateOf(emptyList<Cmp>())
+    var cmpNmList by mutableStateOf(emptyList<Pair<String, String>>())
         private set
     var salesOrgNmList by mutableStateOf(emptyList<String>())
         private set
@@ -52,7 +57,33 @@ class DeviceViewModel @Inject constructor(
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
 
         viewModelScope.launch {
+            _uiState.emit(UiState.Loading)
+
             userId = dataStoreRepository.getUserId().first()
+//            restApiRepository.getCmp(
+//               dataStoreRepository.getCmpCd().first()
+//            ).let { it ->
+//                when(it) {
+//                    is Resource.Success -> {
+//                        cmpList = it.data!!
+//                        Log.d(TAG,"cmpList:$cmpList")
+//                        cmpNmList = cmpList.map { Pair(it.cmpCd, it.cmpNm) }
+//                    }
+//                    else -> {
+//                        Log.d(TAG,"실패")
+//                    }
+//                }
+//
+//            }
+            restApiRepository.getCmp2(
+                dataStoreRepository.getCmpCd().first()
+            ).let { it ->
+                cmpList = it!!
+                Log.d(TAG,"cmpList:$cmpList")
+                cmpNmList = cmpList.map { Pair(it.cmpCd, it.cmpNm) }
+
+            }
+            _uiState.emit(UiState.Idle)
             userRoleType = dataStoreRepository.getUserRoleType().first()
             if(userRoleType=="001") {
                 Log.d(TAG,"### 관리자 계정입니다.")
@@ -70,9 +101,9 @@ class DeviceViewModel @Inject constructor(
                 "제주 흑돼지 갈비",
                 "올레길 비빔밥"
             )
-            cmpNmList = listOf(
-                "삼립"
-            )
+//            cmpNmList = listOf(
+//                "삼립"
+//            )
             salesOrgNmList = listOf(
                 "용인휴게소",
                 "가평휴게소"
@@ -93,12 +124,13 @@ class DeviceViewModel @Inject constructor(
                 "04",
             )
             displayMenuList = listOf(
+                "순번안내",
                 "단일 메뉴",
                 "메뉴 2분할",
-                "순번안내",
                 "메뉴 리스트",
                 "스페셜 메뉴",
             )
+
         }
     }
     fun onLogout() {

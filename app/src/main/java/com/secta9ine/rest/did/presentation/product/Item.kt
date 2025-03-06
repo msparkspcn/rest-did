@@ -63,25 +63,30 @@ fun Item(
                 contentScale = ContentScale.Fit
             )
         }
-        // 아이템의 너비에 따라 텍스트 크기 조정
+        val textSizePrice = when {
+            itemWidth < 200 -> 12.sp
+            itemWidth < 400 -> 15.sp
+            else -> 10.sp
+        }
         val textSizeProductNm = when {
             itemWidth < 200 -> 11.sp // 아이템 너비가 200dp 미만일 때
             itemWidth < 400 -> 13.sp // 아이템 너비가 200dp 이상 300dp 미만일 때
-            else -> 30.sp // 아이템 너비가 300dp 이상일 때
+            else -> 9.sp // 아이템 너비가 300dp 이상일 때
+        }
+
+        val textSizeKcal = when {
+            itemWidth < 200 -> 8.sp
+            itemWidth < 400 -> 10.sp
+            else -> 6.sp
         }
 
         val textSizeProductEngNm = when {
             itemWidth < 200 -> 8.sp
             itemWidth < 400 -> 10.sp
-            else -> 15.sp
+            else -> 6.sp
         }
 
-        val textSizePrice = when {
-            itemWidth < 200 -> 12.sp
-            itemWidth < 400 -> 15.sp
-            itemWidth < 700 -> 40.sp
-            else -> 50.sp
-        }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -116,19 +121,33 @@ fun Item(
                     )
                 }
             }
-            Text(
-                text = "${item.price}".formatCurrency() ?: "0",
+            Column(
                 modifier = Modifier
                     .align(Alignment.Top)
-                    .padding(10.dp)
-                    .fillMaxHeight()
-                    .wrapContentWidth(Alignment.End), // 오른쪽 정렬,
-                fontSize = textSizePrice,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = Color(0xFF1BAAFE)
-            )
+                    .padding(8.dp),
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = "${item.price}".formatCurrency() ?: "0",
+                    fontSize = textSizePrice,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color(0xFF1BAAFE)
+                )
+                item.calorie?.let { calorie ->
+                    Text(
+                        text = "(${calorie.formatCurrency()} kcal)",
+                        fontSize = textSizeKcal,
+                        color = Color(0xFFAFB7BF),
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
         }
     }
 }

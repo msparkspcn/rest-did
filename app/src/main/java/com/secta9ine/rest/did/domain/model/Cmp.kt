@@ -10,5 +10,5 @@ import androidx.room.Entity
 data class Cmp (
     @ColumnInfo(name = "CMP_CD") val cmpCd: String = "",
     @ColumnInfo(name = "CMP_NM") val cmpNm: String = "",
-    @ColumnInfo(name = "USE_YN") val useYn: String = "",
+//    @ColumnInfo(name = "USE_YN") val useYn: String = "",
 )

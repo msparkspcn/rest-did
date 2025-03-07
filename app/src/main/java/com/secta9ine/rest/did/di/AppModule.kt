@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.res.Resources
 import com.secta9ine.rest.did.data.local.repository.DataStoreRepositoryImpl
 import com.secta9ine.rest.did.data.local.repository.dataStore
+import com.secta9ine.rest.did.data.remote.api.AuthInterceptor
 import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.data.remote.repository.RestApiRepositoryImpl
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
@@ -24,6 +25,10 @@ class AppModule {
     @Singleton
     fun provideDataStore(app: Application): DataStoreRepository =
         DataStoreRepositoryImpl(app.dataStore)
+
+    @Singleton
+    @Provides
+    fun provideAuthInterceptor(): AuthInterceptor = AuthInterceptor()
 
     @Singleton
     @Provides

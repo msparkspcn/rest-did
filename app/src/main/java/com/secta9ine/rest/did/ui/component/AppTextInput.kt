@@ -53,7 +53,7 @@ fun AppTextInput(
     placeholder: String,
     focusRequester: FocusRequester
 ) {
-    Log.d("AppTextInput","text:$text, focussed:$focussed, focusRequester:$focusRequester")
+//    Log.d("AppTextInput","text:$text, focussed:$focussed, focusRequester:$focusRequester")
     var isFocused by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current  // 추가
 

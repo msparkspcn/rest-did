@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.model.Cmp
-import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.model.Corner
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
 import com.secta9ine.rest.did.util.Resource
@@ -45,11 +45,11 @@ class DeviceViewModel @Inject constructor(
         private set
     var storNmList by mutableStateOf(emptyList<String>())
         private set
-    var cornerNmList by mutableStateOf(emptyList<String>())
+    var cornerList by mutableStateOf(emptyList<Corner>())
+        private set
+    var cornerNmList by mutableStateOf(emptyList<Pair<String, String>>())
         private set
     var deviceNoList by mutableStateOf(emptyList<String>())
-        private set
-    var productList by mutableStateOf(emptyList<String>())
         private set
     var displayMenuList by mutableStateOf(emptyList<String>())
         private set
@@ -60,50 +60,47 @@ class DeviceViewModel @Inject constructor(
             _uiState.emit(UiState.Loading)
 
             userId = dataStoreRepository.getUserId().first()
-//            restApiRepository.getCmp(
-//               dataStoreRepository.getCmpCd().first()
-//            ).let { it ->
-//                when(it) {
-//                    is Resource.Success -> {
-//                        cmpList = it.data!!
-//                        Log.d(TAG,"cmpList:$cmpList")
-//                        cmpNmList = cmpList.map { Pair(it.cmpCd, it.cmpNm) }
-//                    }
-//                    else -> {
-//                        Log.d(TAG,"실패")
-//                    }
-//                }
-//
-//            }
-            restApiRepository.getCmp2(
-                dataStoreRepository.getCmpCd().first()
+            restApiRepository.getCmp(
+               dataStoreRepository.getCmpCd().first()
             ).let { it ->
-                cmpList = it!!
-                Log.d(TAG,"cmpList:$cmpList")
-                cmpNmList = cmpList.map { Pair(it.cmpCd, it.cmpNm) }
+                when(it) {
+                    is Resource.Success -> {
+                        cmpList = it.data!!
+                        Log.d(TAG,"cmpList:$cmpList")
+                        cmpNmList = cmpList.map { Pair(it.cmpCd, it.cmpNm) }
+                        _uiState.emit(UiState.Idle)
+                        restApiRepository.getCornerList(cmpList[0].cmpCd,"8000","")
+                            .let { it ->
+                                when(it) {
+                                    is Resource.Success -> {
+                                        cornerNmList = cornerList.map { Pair(it.cornerCd, it.cornerNm)}
+                                    }
+                                    else -> {
 
+                                    }
+                                }
+                            }
+                    }
+                    else -> {
+                        _uiState.emit(UiState.Error("로그인 창으로 이동합니다."))
+                    }
+                }
             }
-            _uiState.emit(UiState.Idle)
+//            AuthInterceptor.initAuthToken("new_token")
+
             userRoleType = dataStoreRepository.getUserRoleType().first()
-            if(userRoleType=="001") {
-                Log.d(TAG,"### 관리자 계정입니다.")
-            }
-            else if(userRoleType=="002") {
-                Log.d(TAG,"### 휴게소 관리자 계정입니다.")
-            }
-            else if(userRoleType=="003") {
-                Log.d(TAG,"### 점포 관리자 계정입니다.")
+            when (userRoleType) {
+                "001" -> {
+                    Log.d(TAG,"### 관리자 계정입니다.")
+                }
+                "002" -> {
+                    Log.d(TAG,"### 휴게소 관리자 계정입니다.")
+                }
+                "003" -> {
+                    Log.d(TAG,"### 점포 관리자 계정입니다.")
+                }
             }
             Log.d(TAG, "### 최종 userId=$userId")
-            productList = listOf(
-                "탐라 흑돼지 김치찌개",
-                "제주 고기국수",
-                "제주 흑돼지 갈비",
-                "올레길 비빔밥"
-            )
-//            cmpNmList = listOf(
-//                "삼립"
-//            )
             salesOrgNmList = listOf(
                 "용인휴게소",
                 "가평휴게소"
@@ -111,11 +108,6 @@ class DeviceViewModel @Inject constructor(
             storNmList = listOf(
                 "식당가",
                 "던킨"
-            )
-            cornerNmList = listOf(
-                "한식당",
-                "우동/라면",
-                "한촌설렁탕",
             )
             deviceNoList = listOf(
                 "01",

@@ -11,12 +11,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -36,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -56,17 +60,21 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.presentation.navigation.Screen
+import com.secta9ine.rest.did.ui.component.AppAlertDialog
 import com.secta9ine.rest.did.ui.component.AppButton
-
+import com.secta9ine.rest.did.util.UiString
+private const val TAG = "DeviceScreen"
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DeviceScreen(
     navController: NavHostController? = null,
     viewModel: DeviceViewModel = hiltViewModel()
 ) {
+    var dialogMessage by remember { mutableStateOf<UiString?>(null) }
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
     val uiState by viewModel.uiState.collectAsState(initial = DeviceViewModel.UiState.Idle)
+//    val uiState by viewModel.uiState.collectAsState(initial = null)
     LaunchedEffect(uiState) {
         when(uiState) {
             is DeviceViewModel.UiState.Logout -> {
@@ -75,174 +83,251 @@ fun DeviceScreen(
             is DeviceViewModel.UiState.OrderStatus -> {
                 navController?.navigate(Screen.OrderStatusScreen.route)
             }
+            is DeviceViewModel.UiState.Error -> {
+                Log.d(TAG,"Error message:${UiString.TextString((uiState as DeviceViewModel.UiState.Error).message)}")
+                dialogMessage = UiString.TextString((uiState as DeviceViewModel.UiState.Error).message)
+            }
 
             else -> {}
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .focusRequester(focusRequester)
-            .focusable()
-            .onKeyEvent { keyEvent ->
-                if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Backspace) {
-                    viewModel.onBackSpacePressed()
-                    Toast
-                        .makeText(context, "로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT)
-                        .show()
-                    true
-                } else {
-                    Toast
-                        .makeText(context, "다른키 key pressed!", Toast.LENGTH_SHORT)
-                        .show()
-                    false
-                }
-            }
-            .padding(6.dp),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
+//    LaunchedEffect(Unit) {
+//        viewModel.uiState.collect {
+//            when(it) {
+//                is DeviceViewModel.UiState.Logout -> {
+//                    navController?.popBackStack()
+//                }
+//                is DeviceViewModel.UiState.OrderStatus -> {
+//                    navController?.navigate(Screen.OrderStatusScreen.route)
+//                }
+//                is DeviceViewModel.UiState.Error -> {
+//                    Log.d(TAG,"Error message:${it.message}")
+//                    dialogMessage = UiString.TextString(it.message)
+//                }
+//
+//                else -> {}
+//            }
+//        }
+//    }
 
-        Text(
-            text = "장비 선택",
-            style = MaterialTheme.typography.h5,
-            fontWeight = FontWeight.Bold,
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(10.dp))
+            .fillMaxSize()
+    ) {
+        Column(
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFFF5F6F8))
-                .padding(vertical = 5.dp)
+                .fillMaxSize()
+                .focusRequester(focusRequester)
+                .focusable()
+                .onKeyEvent { keyEvent ->
+                    if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Backspace) {
+                        viewModel.onBackSpacePressed()
+                        Toast
+                            .makeText(context, "로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT)
+                            .show()
+                        true
+                    } else {
+                        Toast
+                            .makeText(context, "다른키 key pressed!", Toast.LENGTH_SHORT)
+                            .show()
+                        false
+                    }
+                }
+                .padding(6.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
+
             Text(
-                text = stringResource(id = R.string.store_setting),
+                text = "장비 선택",
+                style = MaterialTheme.typography.h5,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                    .fillMaxWidth(0.2f)
-                    .padding(25.dp, 10.dp),
-                style = TextStyle(fontSize = 17.sp),
-                color = Color(0xFF6F777D),
+                    .align(Alignment.CenterHorizontally)
             )
-        }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFF5F6F8))
+                    .padding(vertical = 5.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.store_setting),
+                    modifier = Modifier
+                        .fillMaxWidth(0.2f)
+                        .padding(25.dp, 10.dp),
+                    style = TextStyle(fontSize = 17.sp),
+                    color = Color(0xFF6F777D),
+                )
+            }
 
 //        DeviceInfo(
 //            infoNm = stringResource(id = R.string.cmp_nm),
 //            infoList = viewModel.cmpNmList,
 //            dividerUse = true
 //        )
-        TempDeviceInfo(
-            infoNm = stringResource(id = R.string.cmp_nm),
-            infoList = viewModel.cmpNmList,
-            dividerUse = true
-        )
+            TempDeviceInfo(
+                infoNm = stringResource(id = R.string.cmp_nm),
+                infoList = viewModel.cmpNmList,
+                dividerUse = true
+            )
 
-        DeviceInfo(
-            infoNm = stringResource(id = R.string.sales_org_nm),
-            infoList = viewModel.salesOrgNmList,
-            dividerUse = true,
-            
-        )
+            DeviceInfo(
+                infoNm = stringResource(id = R.string.sales_org_nm),
+                infoList = viewModel.salesOrgNmList,
+                dividerUse = true,
 
-        DeviceInfo(
-            infoNm = stringResource(id = R.string.store_nm),
-            infoList = viewModel.storNmList,
-            dividerUse = true
-        )
-        DeviceInfo(
-            infoNm = stringResource(id = R.string.corner_nm),
-            infoList = viewModel.cornerNmList,
-            dividerUse = false
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFFF5F6F8))
-                .padding(vertical = 5.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.device_setting),
+                )
+
+            DeviceInfo(
+                infoNm = stringResource(id = R.string.store_nm),
+                infoList = viewModel.storNmList,
+                dividerUse = true
+            )
+            DeviceInfo(
+                infoNm = stringResource(id = R.string.corner_nm),
+                infoList = viewModel.cornerNmList,
+                dividerUse = false
+            )
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.2f)
-                    .padding(25.dp, 10.dp),
-                style = TextStyle(fontSize = 17.sp),
-                color = Color(0xFF6F777D),
-            )
-        }
-        DeviceInfo(
-            infoNm = stringResource(id = R.string.device_no),
-            infoList = viewModel.deviceNoList,
-            dividerUse = true
-        )
-        DeviceInfo(
-            infoNm = stringResource(id = R.string.show_menu),
-            infoList = viewModel.displayMenuList,
-            dividerUse = true
-        )
-//        Spacer(modifier = Modifier.height(10.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(25.dp, 10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "롤링 : ",
-                modifier = Modifier.fillMaxWidth(0.2f),
-                style = TextStyle(fontSize = 19.sp)
-            )
-            RadioButton(
-                selected = viewModel.selectedOption == "fixed",
-                onClick = { viewModel.onSelectOption("fixed") }
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = stringResource(R.string.rolling_fix),
-                style = TextStyle(fontSize = 19.sp)
-            )
-            Spacer(modifier = Modifier.width(20.dp))
-            RadioButton(
-                selected = viewModel.selectedOption == "rolling",
-                onClick = { viewModel.onSelectOption("rolling")}
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = stringResource(R.string.rolling_rolling),
-                style = TextStyle(fontSize = 19.sp)
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFFF5F6F8))
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            AppButton(
-                modifier = Modifier.width(150.dp),
-                onClick = viewModel::onLogout
+                    .fillMaxWidth()
+                    .background(Color(0xFFF5F6F8))
+                    .padding(vertical = 5.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.logout_button),
-                    style = MaterialTheme.typography.h6
+                    text = stringResource(id = R.string.device_setting),
+                    modifier = Modifier
+                        .fillMaxWidth(0.2f)
+                        .padding(25.dp, 10.dp),
+                    style = TextStyle(fontSize = 17.sp),
+                    color = Color(0xFF6F777D),
+                )
+            }
+            DeviceInfo(
+                infoNm = stringResource(id = R.string.device_no),
+                infoList = viewModel.deviceNoList,
+                dividerUse = true
+            )
+            DeviceInfo(
+                infoNm = stringResource(id = R.string.show_menu),
+                infoList = viewModel.displayMenuList,
+                dividerUse = true
+            )
+//        Spacer(modifier = Modifier.height(10.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(25.dp, 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "롤링 : ",
+                    modifier = Modifier.fillMaxWidth(0.2f),
+                    style = TextStyle(fontSize = 19.sp)
+                )
+                RadioButton(
+                    selected = viewModel.selectedOption == "fixed",
+                    onClick = { viewModel.onSelectOption("fixed") }
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = stringResource(R.string.rolling_fix),
+                    style = TextStyle(fontSize = 19.sp)
+                )
+                Spacer(modifier = Modifier.width(20.dp))
+                RadioButton(
+                    selected = viewModel.selectedOption == "rolling",
+                    onClick = { viewModel.onSelectOption("rolling")}
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = stringResource(R.string.rolling_rolling),
+                    style = TextStyle(fontSize = 19.sp)
                 )
             }
 
-            Spacer(modifier = Modifier.width(50.dp))
-
-            AppButton(
-                modifier = Modifier.width(150.dp),
-                onClick = viewModel::onShowMenu
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFF5F6F8))
+                    .padding(10.dp),
+                horizontalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = stringResource(R.string.confirm),
-                    style = MaterialTheme.typography.h6
-                )
+                AppButton(
+                    modifier = Modifier.width(150.dp),
+                    onClick = viewModel::onLogout
+                ) {
+                    Text(
+                        text = stringResource(R.string.logout_button),
+                        style = MaterialTheme.typography.h6
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(50.dp))
+
+                AppButton(
+                    modifier = Modifier.width(150.dp),
+                    onClick = viewModel::onShowMenu
+                ) {
+                    Text(
+                        text = stringResource(R.string.confirm),
+                        style = MaterialTheme.typography.h6
+                    )
+                }
+            }
+        }
+        if(dialogMessage != null) {
+            AppAlertDialog {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.6f)
+                        .fillMaxHeight(0.6f)
+                        .background(Color.White),
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        // 텍스트를 가운데 정렬
+                        Column(
+                            modifier = Modifier
+                                .weight(1f) // 남은 공간을 차지하도록 설정
+                                .fillMaxWidth(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "알림",
+                                style = TextStyle(fontSize = 24.sp)
+                            )
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Text(
+                                text = dialogMessage?.asString() ?: "",
+                                style = TextStyle(fontSize = 18.sp)
+                            )
+                        }
+
+                        // 버튼을 하단에 배치
+                        AppButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {},
+                            shape = RoundedCornerShape(0.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.confirm),
+                                style = TextStyle(fontSize = 28.sp)
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
+
+
 
 @Composable
 fun TempDeviceInfo(

@@ -1,10 +1,12 @@
 package com.secta9ine.rest.did.data.remote.api
 
 import com.secta9ine.rest.did.data.remote.dto.CmpRequestDto
+import com.secta9ine.rest.did.data.remote.dto.CornerRequestDto
 import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiResponseDto
 import com.secta9ine.rest.did.domain.model.Cmp
+import com.secta9ine.rest.did.domain.model.Corner
 import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.domain.model.Stor
 import com.secta9ine.rest.did.domain.model.User
@@ -39,20 +41,21 @@ interface RestApiService {
         @Body body: CmpRequestDto
     ):RestApiResponseDto<List<Cmp>>
 
-    @POST("/api/v1/company/list")
-    suspend fun getCmp2 (
-        @Body body: CmpRequestDto
-    ):List<Cmp>
+    @POST("/api/v1/corner/list")
+    suspend fun getCornerList (
+        @Body body: CornerRequestDto
+    ):RestApiResponseDto<List<Corner>>
     companion object {
         private const val BASE_URL = "https://s9rest.ngrok.io/" // 개발서버
 
+        private val authInterceptor = AuthInterceptor()
         fun create(): RestApiService {
             val logger =
                 HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
 
             val client = OkHttpClient.Builder()
                 .addInterceptor(logger)
-                .addInterceptor(AuthInterceptor("abcd12345"))
+                .addInterceptor(authInterceptor)
                 .build()
 
             return Retrofit.Builder()
@@ -61,6 +64,10 @@ interface RestApiService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(RestApiService::class.java)
+        }
+
+        fun updateAuthToken(newToken: String) {
+            authInterceptor.setAuthToken(newToken)
         }
     }
 }

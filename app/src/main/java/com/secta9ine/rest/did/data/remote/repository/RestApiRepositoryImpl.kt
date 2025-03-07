@@ -1,12 +1,15 @@
 package com.secta9ine.rest.did.data.remote.repository
 
 import android.content.res.Resources
+import android.util.Log
 import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.data.remote.dto.CmpRequestDto
+import com.secta9ine.rest.did.data.remote.dto.CornerRequestDto
 import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiRequestDto
 import com.secta9ine.rest.did.domain.model.Cmp
+import com.secta9ine.rest.did.domain.model.Corner
 import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.domain.model.Stor
 import com.secta9ine.rest.did.domain.model.User
@@ -78,18 +81,39 @@ class RestApiRepositoryImpl @Inject constructor(
         cmpCd: String
     ): Resource<List<Cmp>> = withContext(Dispatchers.IO){
         try {
-            restApiService.getCmp(CmpRequestDto(cmpCd = cmpCd)).let {
+            val response = restApiService.getCmp(CmpRequestDto(cmpValue = cmpCd))
+
+            if(response.responseCode == "401") {
+                Log.d("Impl", "Unauthorized access: ${response.responseMessage}")
+                // 401에 대한 별도 처리
+                Resource.Failure(resources.getString(R.string.unauthorized_error))
+            }
+            else {
+                Resource.Success(response.responseBody)
+            }
+        } catch (e: Exception) {
+            Log.d("Impl", "e:$e")
+            Resource.Failure(resources.getString(R.string.network_error))
+        }
+    }
+
+    override suspend fun getCornerList(
+        cmpCd: String,
+        salesOrgCd: String,
+        storCd: String
+    ): Resource<List<Corner>> = withContext(Dispatchers.IO) {
+        try {
+            restApiService.getCornerList(
+                CornerRequestDto(
+                    cmpCd = cmpCd,
+                    salesOrgCd = salesOrgCd,
+                    storCd = storCd,
+                )).let {
                 Resource.Success(it.responseBody)
             }
         } catch (e: Exception) {
             Resource.Failure(resources.getString(R.string.network_error))
         }
-    }
-
-    override suspend fun getCmp2(
-        cmpCd: String
-    ): List<Cmp> {
-        return restApiService.getCmp2(CmpRequestDto(cmpCd = cmpCd))
     }
 
 }

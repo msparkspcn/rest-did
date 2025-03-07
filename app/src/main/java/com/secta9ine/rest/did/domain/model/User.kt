@@ -17,4 +17,5 @@ data class User(
     @ColumnInfo(name = "USER_NM") val userNm : String? = null,
     @ColumnInfo(name = "EMP_NO") val empNo : String? = null,
     @ColumnInfo(name = "USE_YN") val useYn : String? = null,
+    @ColumnInfo(name = "API_KEY") val apiKey : String = "",
 )

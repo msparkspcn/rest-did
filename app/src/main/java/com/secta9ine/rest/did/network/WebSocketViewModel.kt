@@ -23,8 +23,8 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
     private var retryJob: Job? = null
     private var reconnectJob: Job? = null
     init {
-        observeNetworkChanges()
-        connectWebSocket()
+//        observeNetworkChanges()
+//        connectWebSocket()
     }
 
     private fun connectWebSocket() {

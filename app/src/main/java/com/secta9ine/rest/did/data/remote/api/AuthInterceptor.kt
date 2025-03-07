@@ -1,14 +1,24 @@
 package com.secta9ine.rest.did.data.remote.api
 
+import android.util.Log
 import okhttp3.Interceptor
 import okhttp3.Response
-
-class AuthInterceptor(private val authToken: String) : Interceptor {
+private val TAG = "AuthInterceptor"
+class AuthInterceptor(private var authToken: String? = null) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
-        val newRequest = originalRequest.newBuilder()
-            .addHeader("Authorization", authToken) // Bearer 토큰 형식
-            .build()
+        val newRequestBuilder = originalRequest.newBuilder()
+
+        authToken?.let {
+            Log.d("AuthInterceptor", "Using authToken: $it")
+            newRequestBuilder.addHeader("Authorization", it)
+        }
+
+        val newRequest = newRequestBuilder.build()
         return chain.proceed(newRequest)
+    }
+    fun setAuthToken(token: String) {
+        Log.d(TAG,"token:$token")
+        this.authToken = token
     }
 }

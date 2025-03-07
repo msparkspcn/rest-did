@@ -34,7 +34,7 @@ fun AppNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.DeviceScreen.route,
+        startDestination = Screen.LoginScreen.route,
         modifier = modifier
     ) {
         composable(route = Screen.LoginScreen.route) {

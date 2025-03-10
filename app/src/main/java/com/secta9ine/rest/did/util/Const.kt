@@ -1,8 +1,8 @@
 package com.secta9ine.rest.did.util
 
 object Const {
-    const val CMP = "C"
-    const val SALESORG = "S"
-    const val STORE = "S"
-    const val CORNER = "S"
+    const val DIV_CMP = "C"
+    const val DIV_SALESORG = "S"
+    const val DIV_STORE = "S"
+    const val DIV_CORNER = "CN"
 }

@@ -121,8 +121,18 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
     private fun subscribeProductEvents() {
         val subscribeMessage = """{ "type": "subscribe", "topic": "PRODUCT", "userId": "rest" }"""
         sendMessage(subscribeMessage)
+    }   //변경분 수신
+
+    private fun subscribeRestartEvents() {
+        val subscribeMessage = """{ "type": "subscribe", "topic": "RESTART", "cmpCd": "SLKR", 
+            |"salesOrgCd": "8000", "storCd": "5000511", "cornerCd": "CIBA", "deviceNo": "01"  }""".trimMargin()
+        sendMessage(subscribeMessage)
     }
 
+    private fun subscribeProductMasterEvents() {
+        val subscribeMessage = """{ "type": "subscribe", "topic": "PRODUCT", "userId": "rest" }"""
+        sendMessage(subscribeMessage)
+    }   //전체 product 수신 요청을 위한 구독(Product, Detail)
 
     private fun observeNetworkChanges() {
         val connectivityManager =

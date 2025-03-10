@@ -49,6 +49,7 @@ private const val TAG = "LoginScreen"
 @Composable
 fun LoginScreen(
     navController: NavHostController? = null,
+    isFirstLaunch: Boolean,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     var dialogMessage by remember { mutableStateOf<UiString?>(null) }
@@ -56,9 +57,15 @@ fun LoginScreen(
     val uiState by viewModel.uiState.collectAsState(initial = LoginViewModel.UiState.Idle)
 
     val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        Log.d(TAG,"최초진입 확인:$isFirstLaunch")
+        if (isFirstLaunch) {
+            viewModel.checkAutoLogin()
+        }
+    }
     LaunchedEffect(uiState) {
         Log.d(TAG, "111 uiState:$uiState")
-        viewModel.checkAutoLogin()
 
         when (uiState) {
             is LoginViewModel.UiState.Login -> {
@@ -136,7 +143,7 @@ fun LoginScreen(
                 AutoLoginCheckBox(
                     viewModel.isAutoLoginChecked,
                     changeAutoLoginChecked = {
-                        viewModel.onChangeAutoLoginChecked(isAutoLoginChecked = viewModel.isAutoLoginChecked)
+                        viewModel.onChangeAutoLoginChecked(currentState = viewModel.isAutoLoginChecked)
                     })
                 Spacer(Modifier.width(5.dp))
                 Text(

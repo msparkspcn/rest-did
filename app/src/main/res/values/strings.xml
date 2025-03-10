@@ -6,6 +6,8 @@
     <string name="user_password">비밀번호</string>
     <string name="logout_button">로그아웃</string>
     <string name="store_setting">점포 설정</string>
+    <string name="app_info">앱 정보</string>
+    <string name="version_info">버전 정보</string>
     <string name="device_setting">장비 설정</string>
     <string name="cmp_nm">회사 :</string>
     <string name="sales_org_nm">영업 조직 :</string>
@@ -22,4 +24,5 @@
     <string name="network_error">일시적인 오류로 인해 정상적으로 처리되지 않았습니다.\n잠시 후 다시 시도해 주시기 바랍니다.</string>
     <string name="unauthorized_error">유효하지 않은 API 키입니다.\n다시 로그인 해주세요.</string>
     <string name="completed_order_msg">주문하신 음식\n나왔습니다</string>
+    <string name="currency_unit">원</string>
 </resources>

@@ -24,6 +24,8 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
 ) {
     val webSocketViewModel: WebSocketViewModel = viewModel()
+    var isFirstLaunch by remember { mutableStateOf(true) }
+
     DisposableEffect(navController) {
         val callback = NavController.OnDestinationChangedListener { _, destination, _ ->
             Log.d(TAG, "### 화면이동: route=${destination.route}")
@@ -37,8 +39,13 @@ fun AppNavHost(
         startDestination = Screen.LoginScreen.route,
         modifier = modifier
     ) {
-        composable(route = Screen.LoginScreen.route) {
-            LoginScreen(navController = navController)
+        composable(
+            route = Screen.LoginScreen.route) {
+            LoginScreen(
+                navController = navController,
+                isFirstLaunch = isFirstLaunch
+            )
+            isFirstLaunch = false
         }
         composable(route = Screen.DeviceScreen.route) {
             DeviceScreen(navController = navController)

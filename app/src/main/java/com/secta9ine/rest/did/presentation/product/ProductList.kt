@@ -1,5 +1,6 @@
 package com.secta9ine.rest.did.presentation.product
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,20 +13,47 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.secta9ine.rest.did.domain.model.Product
+import kotlinx.coroutines.delay
 
+private const val TAG = "ProductList"
 @Composable
 fun ProductList(
     productList: List<Product>
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
+    var displayedProducts by remember { mutableStateOf(productList.take(8)) }
+    var productIndex by remember { mutableStateOf(0) }
+    LaunchedEffect(Unit) {
+        if(productList.size<9) {
+            displayedProducts = productList
+        } else {
+            while(true) {
+                delay(5000)
+                Log.d(TAG,"productIndex:$productIndex, displayedProducts:$displayedProducts")
 
+                if(productIndex + 8 <= productList.size) {
+                    displayedProducts = productList.subList(productIndex, productIndex+8)
+                    productIndex += 8
+                }
+                else {
+                    displayedProducts = productList.subList(productIndex, productList.size)
+                    productIndex = 0
+                }
+            }
+        }
+    }
     Column {
         Header()
         Box(
@@ -42,7 +70,7 @@ fun ProductList(
                 verticalArrangement = Arrangement.Center, // 세로 가운데 정렬
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                productList.take(8).chunked(2).forEach { rowItems ->
+                displayedProducts.take(8).chunked(2).forEach { rowItems ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()

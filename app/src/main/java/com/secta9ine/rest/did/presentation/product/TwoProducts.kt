@@ -28,7 +28,7 @@ fun TwoProducts(
     var displayedProducts by remember { mutableStateOf(productList.take(2)) }
     var productIndex by remember { mutableStateOf(0) }
     LaunchedEffect(Unit) {
-        if(productList.size<2) {
+        if(productList.size<3) {
             displayedProducts = productList
         } else {
             while(true) {

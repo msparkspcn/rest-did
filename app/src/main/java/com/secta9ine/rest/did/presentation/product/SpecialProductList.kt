@@ -79,7 +79,7 @@ fun SpecialProductContents(
             displayedSpecialProducts = productList
         } else {
             while (true) {
-                delay(500000)
+                delay(5000)
 
                 if(productIndex + 3 <= productList.size) {
                     displayedSpecialProducts = productList.subList(productIndex, productIndex+3)

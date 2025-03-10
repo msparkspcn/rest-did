@@ -37,12 +37,11 @@ class LoginViewModel @Inject constructor(
     var password by mutableStateOf("")
         private set
 
-    var isAutoLoginChecked by mutableStateOf("N")
+    var isAutoLoginChecked: String = "N"
         private set
 
     var hasCheckedAutoLogin by mutableStateOf(false)
         private set
-
 
     init {
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
@@ -52,7 +51,7 @@ class LoginViewModel @Inject constructor(
             if (userId.isNotEmpty()) {
                 currentFocus = "password"
             }
-
+            isAutoLoginChecked = dataStoreRepository.getIsAutoLoginChecked().first()
         }
     }
 
@@ -73,9 +72,12 @@ class LoginViewModel @Inject constructor(
     fun checkAutoLogin() {
         viewModelScope.launch {
             isAutoLoginChecked = dataStoreRepository.getIsAutoLoginChecked().first()
+            Log.d(TAG,"isAutoLoginChecked:$isAutoLoginChecked")
             if (isAutoLoginChecked == "Y") {
                 Log.d(TAG, "자동 로그인 시작")
-                _uiState.emit(UiState.Login)
+                password = dataStoreRepository.getPassword().first()
+                onLogin()
+//                _uiState.emit(UiState.Login)
             } else {
 
             }
@@ -94,15 +96,13 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun onChangeAutoLoginChecked(isAutoLoginChecked: String) {
-        Log.d(TAG,"1.체크상태:$isAutoLoginChecked")
-        if(isAutoLoginChecked=="N") {
+   fun onChangeAutoLoginChecked(currentState: String) {
+        Log.d(TAG,"1.체크상태:$currentState")
+        if(currentState=="N") {
             Log.d(TAG,"2.isAutoLoginChecked Y로 변경")
-            this.isAutoLoginChecked = "Y"
+            isAutoLoginChecked ="Y"
         }
-        else this.isAutoLoginChecked = "N"
-
-        Log.d(TAG,"3.체크상태:${this.isAutoLoginChecked}")
+        else isAutoLoginChecked = "N"
     }
 
     fun onLogin() {
@@ -126,11 +126,12 @@ class LoginViewModel @Inject constructor(
                                 Log.d(TAG,"data:${it.data}")
                                 val user = it.data!!
                                 dataStoreRepository.setUserId(user.userId)
+                                dataStoreRepository.setPassword(password)
                                 dataStoreRepository.setCmpCd(user.cmpCd)
+                                RestApiService.updateAuthToken(user.apiKey)
                                 Log.d(TAG,"3.isAutoLoginChecked:$isAutoLoginChecked")
                                 dataStoreRepository.setIsAutoLoginChecked(isAutoLoginChecked)
-//                                RestApiService.updateAuthToken(user.apiKey)
-                                RestApiService.updateAuthToken("1234")
+//                                RestApiService.updateAuthToken("1234")
                                 if(user.userRoleType!=null) {
                                     dataStoreRepository.setUserRoleType(user.userRoleType)
                                     when(user.userRoleType) {

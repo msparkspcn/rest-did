@@ -220,7 +220,7 @@ fun OrderContents(
                     .padding(20.dp, 0.dp)
             ) {
                 Text(
-                    text = "1133",
+                    text = "1132",
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.CenterHorizontally)

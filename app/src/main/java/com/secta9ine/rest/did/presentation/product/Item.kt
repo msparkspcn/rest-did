@@ -26,11 +26,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.domain.model.Product
 import com.secta9ine.rest.did.util.formatCurrency
 private const val TAG = "Item"
@@ -66,23 +68,31 @@ fun Item(
         val textSizePrice = when {
             itemWidth < 200 -> 12.sp
             itemWidth < 400 -> 15.sp
+            itemWidth < 700 -> 30.sp
+            itemWidth < 1300 -> 50.sp
             else -> 10.sp
         }
         val textSizeProductNm = when {
-            itemWidth < 200 -> 11.sp // 아이템 너비가 200dp 미만일 때
-            itemWidth < 400 -> 13.sp // 아이템 너비가 200dp 이상 300dp 미만일 때
-            else -> 9.sp // 아이템 너비가 300dp 이상일 때
+            itemWidth < 200 -> 11.sp
+            itemWidth < 400 -> 13.sp
+            itemWidth < 700 -> 28.sp
+            itemWidth < 1300 -> 45.sp
+            else -> 9.sp
         }
 
         val textSizeKcal = when {
             itemWidth < 200 -> 8.sp
             itemWidth < 400 -> 10.sp
+            itemWidth < 700 -> 18.sp
+            itemWidth < 1300 -> 28.sp
             else -> 6.sp
         }
 
         val textSizeProductEngNm = when {
             itemWidth < 200 -> 8.sp
             itemWidth < 400 -> 10.sp
+            itemWidth < 700 -> 18.sp
+            itemWidth < 1300 -> 28.sp
             else -> 6.sp
         }
 
@@ -127,14 +137,25 @@ fun Item(
                     .padding(8.dp),
                 horizontalAlignment = Alignment.End
             ) {
-                Text(
-                    text = "${item.price}".formatCurrency() ?: "0",
-                    fontSize = textSizePrice,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = Color(0xFF1BAAFE)
-                )
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    Text(
+                        text = "${item.price}".formatCurrency() ?: "0",
+                        fontSize = textSizePrice,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        color = Color(0xFF1BAAFE)
+                    )
+                    Text(
+                        text = stringResource(R.string.currency_unit),
+                        fontSize = textSizeKcal,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
                 item.calorie?.let { calorie ->
                     Text(
                         text = "(${calorie.formatCurrency()} kcal)",
@@ -144,10 +165,10 @@ fun Item(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.fillMaxWidth()
+                            .wrapContentWidth(Alignment.End)
                     )
                 }
             }
-
         }
     }
 }

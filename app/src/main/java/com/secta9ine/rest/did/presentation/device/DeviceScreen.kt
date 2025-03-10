@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
@@ -62,6 +63,8 @@ import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.presentation.navigation.Screen
 import com.secta9ine.rest.did.ui.component.AppAlertDialog
 import com.secta9ine.rest.did.ui.component.AppButton
+import com.secta9ine.rest.did.util.CommonUtils
+import com.secta9ine.rest.did.util.Const
 import com.secta9ine.rest.did.util.UiString
 private const val TAG = "DeviceScreen"
 @OptIn(ExperimentalComposeUiApi::class)
@@ -92,25 +95,6 @@ fun DeviceScreen(
         }
     }
 
-//    LaunchedEffect(Unit) {
-//        viewModel.uiState.collect {
-//            when(it) {
-//                is DeviceViewModel.UiState.Logout -> {
-//                    navController?.popBackStack()
-//                }
-//                is DeviceViewModel.UiState.OrderStatus -> {
-//                    navController?.navigate(Screen.OrderStatusScreen.route)
-//                }
-//                is DeviceViewModel.UiState.Error -> {
-//                    Log.d(TAG,"Error message:${it.message}")
-//                    dialogMessage = UiString.TextString(it.message)
-//                }
-//
-//                else -> {}
-//            }
-//        }
-//    }
-
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(10.dp))
@@ -140,112 +124,187 @@ fun DeviceScreen(
         ) {
 
             Text(
-                text = "장비 선택",
+                text = "환경 설정",
                 style = MaterialTheme.typography.h5,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
             )
-            Box(
+            LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFF5F6F8))
-                    .padding(vertical = 5.dp)
+                    .weight(1f)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp) // 항목 간의 간격
             ) {
-                Text(
-                    text = stringResource(id = R.string.store_setting),
-                    modifier = Modifier
-                        .fillMaxWidth(0.2f)
-                        .padding(25.dp, 10.dp),
-                    style = TextStyle(fontSize = 17.sp),
-                    color = Color(0xFF6F777D),
-                )
-            }
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFF5F6F8))
+                            .padding(vertical = 5.dp)
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.app_info),
+                            modifier = Modifier
+                                .fillMaxWidth(0.2f)
+                                .padding(25.dp, 10.dp),
+                            style = TextStyle(fontSize = 17.sp),
+                            color = Color(0xFF6F777D),
+                        )
+                    }
+                }
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(25.dp, 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(0.2f),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.version_info),
+                                style = TextStyle(fontSize = 19.sp)
+                            )
+                        }
+                        Box(
+                            contentAlignment = Alignment.CenterStart,
+                            modifier = Modifier.padding(horizontal = 12.dp)
+                        ) {
+                            Text(
+                                text = CommonUtils.getAppVersion(context),
+                                style = TextStyle(fontSize = 19.sp)
+                            )
+                        }
+                    }
+                }
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFF5F6F8))
+                            .padding(vertical = 5.dp)
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.store_setting),
+                            modifier = Modifier
+                                .fillMaxWidth(0.2f)
+                                .padding(25.dp, 10.dp),
+                            style = TextStyle(fontSize = 17.sp),
+                            color = Color(0xFF6F777D),
+                        )
+                    }
+                }
+                item {
+                    TempDeviceInfo(
+                        infoNm = stringResource(id = R.string.cmp_nm),
+                        infoList = viewModel.cmpNmList,
+                        dividerUse = true,
+                        infoDiv = Const.DIV_CMP,
+                        onSelectInfo = {
+//                            cmpCd ->
+//                            viewModel.getCornerList(cmpCd, "8000", "")
+                        }
+                    )
+                }
+                item {
+                    DeviceInfo(
+                        infoNm = stringResource(id = R.string.sales_org_nm),
+                        infoList = viewModel.salesOrgNmList,
+                        dividerUse = true,
 
-//        DeviceInfo(
-//            infoNm = stringResource(id = R.string.cmp_nm),
-//            infoList = viewModel.cmpNmList,
-//            dividerUse = true
-//        )
-            TempDeviceInfo(
-                infoNm = stringResource(id = R.string.cmp_nm),
-                infoList = viewModel.cmpNmList,
-                dividerUse = true
-            )
+                        )
+                }
+                item {
+                    DeviceInfo(
+                        infoNm = stringResource(id = R.string.store_nm),
+                        infoList = viewModel.storNmList,
+                        dividerUse = true
+                    )
+                }
 
-            DeviceInfo(
-                infoNm = stringResource(id = R.string.sales_org_nm),
-                infoList = viewModel.salesOrgNmList,
-                dividerUse = true,
+                item {
+                    TempDeviceInfo(
+                        infoNm = stringResource(id = R.string.corner_nm),
+                        infoList = viewModel.cornerNmList,
+                        dividerUse = false,
+                        infoDiv = Const.DIV_CORNER,
+                        onSelectInfo = {
+//                            cornerCd ->
+//                            viewModel.getDeviceList(cornerCd)
+                        }
+                    )
+                }
 
-                )
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFFF5F6F8))
+                            .padding(vertical = 5.dp)
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.device_setting),
+                            modifier = Modifier
+                                .fillMaxWidth(0.2f)
+                                .padding(25.dp, 10.dp),
+                            style = TextStyle(fontSize = 17.sp),
+                            color = Color(0xFF6F777D),
+                        )
+                    }
+                }
+                item {
+                    DeviceInfo(
+                        infoNm = stringResource(id = R.string.device_no),
+                        infoList = viewModel.deviceNoList,
+                        dividerUse = true
+                    )
+                }
+                item {
 
-            DeviceInfo(
-                infoNm = stringResource(id = R.string.store_nm),
-                infoList = viewModel.storNmList,
-                dividerUse = true
-            )
-            DeviceInfo(
-                infoNm = stringResource(id = R.string.corner_nm),
-                infoList = viewModel.cornerNmList,
-                dividerUse = false
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFF5F6F8))
-                    .padding(vertical = 5.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.device_setting),
-                    modifier = Modifier
-                        .fillMaxWidth(0.2f)
-                        .padding(25.dp, 10.dp),
-                    style = TextStyle(fontSize = 17.sp),
-                    color = Color(0xFF6F777D),
-                )
-            }
-            DeviceInfo(
-                infoNm = stringResource(id = R.string.device_no),
-                infoList = viewModel.deviceNoList,
-                dividerUse = true
-            )
-            DeviceInfo(
-                infoNm = stringResource(id = R.string.show_menu),
-                infoList = viewModel.displayMenuList,
-                dividerUse = true
-            )
-//        Spacer(modifier = Modifier.height(10.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(25.dp, 10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "롤링 : ",
-                    modifier = Modifier.fillMaxWidth(0.2f),
-                    style = TextStyle(fontSize = 19.sp)
-                )
-                RadioButton(
-                    selected = viewModel.selectedOption == "fixed",
-                    onClick = { viewModel.onSelectOption("fixed") }
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = stringResource(R.string.rolling_fix),
-                    style = TextStyle(fontSize = 19.sp)
-                )
-                Spacer(modifier = Modifier.width(20.dp))
-                RadioButton(
-                    selected = viewModel.selectedOption == "rolling",
-                    onClick = { viewModel.onSelectOption("rolling")}
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = stringResource(R.string.rolling_rolling),
-                    style = TextStyle(fontSize = 19.sp)
-                )
+                    DeviceInfo(
+                        infoNm = stringResource(id = R.string.show_menu),
+                        infoList = viewModel.displayMenuList,
+                        dividerUse = true
+                    )
+                }
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(25.dp, 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "롤링 : ",
+                            modifier = Modifier.fillMaxWidth(0.2f),
+                            style = TextStyle(fontSize = 19.sp)
+                        )
+                        RadioButton(
+                            selected = viewModel.selectedOption == "fixed",
+                            onClick = { viewModel.onSelectOption("fixed") }
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = stringResource(R.string.rolling_fix),
+                            style = TextStyle(fontSize = 19.sp)
+                        )
+                        Spacer(modifier = Modifier.width(20.dp))
+                        RadioButton(
+                            selected = viewModel.selectedOption == "rolling",
+                            onClick = { viewModel.onSelectOption("rolling") }
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = stringResource(R.string.rolling_rolling),
+                            style = TextStyle(fontSize = 19.sp)
+                        )
+                    }
+                }
+
             }
 
             Row(
@@ -312,7 +371,7 @@ fun DeviceScreen(
                         // 버튼을 하단에 배치
                         AppButton(
                             modifier = Modifier.fillMaxWidth(),
-                            onClick = {},
+                            onClick = viewModel::onLogout,
                             shape = RoundedCornerShape(0.dp)
                         ) {
                             Text(
@@ -333,9 +392,12 @@ fun DeviceScreen(
 fun TempDeviceInfo(
     infoNm: String,
     infoList: List<Pair<String, String>>,
-    dividerUse : Boolean
+    dividerUse : Boolean,
+    infoDiv: String,
+    onSelectInfo: (index: Int) -> Unit = {}
 ) {
     Log.d("TAG","infoList:$infoList")
+    var infoIdx by remember { mutableStateOf(0) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -355,13 +417,15 @@ fun TempDeviceInfo(
         Box(
             contentAlignment = Alignment.CenterStart
         ) {
-
             if(infoList.isNotEmpty()) {
                 TempDeviceDropdownMenuBox(
                     modifier = Modifier,
-                    selectedItem = infoList[0].second,
+                    selectedItem = infoList[infoIdx].second,
                     itemList = infoList,
-                    onSelectItem = {}
+                    onSelectItem = {
+                        Log.d(TAG,"it:$it")
+                        onSelectInfo(it)
+                    }
                 )
             }
         }
@@ -432,7 +496,7 @@ fun TempDeviceDropdownMenuBox(
     onSelectItem: (index: Int) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
-
+    Log.d(TAG,"selctedItem:$selectedItem")
     Box(
         modifier = modifier.padding(horizontal = 12.dp)
     ) {
@@ -467,6 +531,7 @@ fun TempDeviceDropdownMenuBox(
                 DropdownMenuItem(
                     onClick = {
                         onSelectItem(index)
+                        Log.d(TAG,"1.item:$item, index:$index")
                         expanded = false
                     }
                 ) {

@@ -68,12 +68,16 @@ class DeviceViewModel @Inject constructor(
                         cmpList = it.data!!
                         Log.d(TAG,"cmpList:$cmpList")
                         cmpNmList = cmpList.map { Pair(it.cmpCd, it.cmpNm) }
-                        _uiState.emit(UiState.Idle)
+
                         restApiRepository.getCornerList(cmpList[0].cmpCd,"8000","")
                             .let { it ->
                                 when(it) {
                                     is Resource.Success -> {
+                                        cornerList = it.data!!
+                                        Log.d(TAG,"cornerList:$cornerList")
                                         cornerNmList = cornerList.map { Pair(it.cornerCd, it.cornerNm)}
+
+                                        _uiState.emit(UiState.Idle)
                                     }
                                     else -> {
 
@@ -82,7 +86,9 @@ class DeviceViewModel @Inject constructor(
                             }
                     }
                     else -> {
-                        _uiState.emit(UiState.Error("로그인 창으로 이동합니다."))
+//                        _uiState.emit(UiState.Error("로그인 창으로 이동합니다."))
+                        Log.d(TAG,"실패 ${it.message!!}")
+                        _uiState.emit(UiState.Error(it.message!!))
                     }
                 }
             }
@@ -146,6 +152,31 @@ class DeviceViewModel @Inject constructor(
         when(listNm) {
 
         }
+    }
+
+    fun getCornerList(cmpCd: String, salesOrgCd: String, storCd: String) {
+        Log.d(TAG,"코너 정보 가져오기 cmpCd:$cmpCd")
+        viewModelScope.launch {
+            restApiRepository.getCornerList(cmpCd,salesOrgCd,storCd)
+                .let { it ->
+                    when(it) {
+                        is Resource.Success -> {
+                            cornerList = it.data!!
+                            Log.d(TAG,"cornerList:$cornerList")
+                            cornerNmList = cornerList.map { Pair(it.cornerCd, it.cornerNm)}
+
+                            _uiState.emit(UiState.Idle)
+                        }
+                        else -> {
+
+                        }
+                    }
+                }
+        }
+    }
+
+    fun getDeviceList(cornerCd: String) {
+        Log.d(TAG,"장비 정보 가져오기 cornerCd:$cornerCd")
     }
 
     fun onEnterKeyPressed() {

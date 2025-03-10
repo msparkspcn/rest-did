@@ -17,6 +17,7 @@ import com.secta9ine.rest.did.domain.repository.RestApiRepository
 import com.secta9ine.rest.did.util.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import javax.inject.Inject
 
 class RestApiRepositoryImpl @Inject constructor(
@@ -82,16 +83,22 @@ class RestApiRepositoryImpl @Inject constructor(
     ): Resource<List<Cmp>> = withContext(Dispatchers.IO){
         try {
             val response = restApiService.getCmp(CmpRequestDto(cmpValue = cmpCd))
+            
+            Resource.Success(response.responseBody)
 
-            if(response.responseCode == "401") {
-                Log.d("Impl", "Unauthorized access: ${response.responseMessage}")
-                // 401에 대한 별도 처리
-                Resource.Failure(resources.getString(R.string.unauthorized_error))
+        }
+        catch (e: HttpException) {
+            when(e.code()) {
+                401 -> {
+                    Log.d("Impl", "Unauthorized access: ${e.message()}")
+                    Resource.Failure(resources.getString(R.string.unauthorized_error))
+                }
+                else -> {
+                    Resource.Failure(resources.getString(R.string.network_error))
+                }
             }
-            else {
-                Resource.Success(response.responseBody)
-            }
-        } catch (e: Exception) {
+        }
+        catch (e: Exception) {
             Log.d("Impl", "e:$e")
             Resource.Failure(resources.getString(R.string.network_error))
         }

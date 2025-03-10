@@ -90,8 +90,8 @@ fun ProductScreen(
             }
     ) {
 //            SingleProduct(productList = viewModel.productList)
-//            TwoProducts(productList = viewModel.productList)
-        ProductList(productList = viewModel.productList)
+            TwoProducts(productList = viewModel.productList)
+//        ProductList(productList = viewModel.productList)
 //        SpecialProductList(productList = viewModel.productList)
     }
 

@@ -1,18 +1,9 @@
 package com.secta9ine.rest.did.presentation.product
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -20,26 +11,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.presentation.navigation.Screen
-import com.secta9ine.rest.did.presentation.order.OrderStatusViewModel
 import com.secta9ine.rest.did.util.UiString
 
 @Composable
@@ -57,7 +39,7 @@ fun ProductScreen(
     val uiState by viewModel.uiState.collectAsState(initial = null)
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus() // Box가 포커스를 받도록 요청
+        focusRequester.requestFocus()
         viewModel.uiState.collect {
             when(it) {
                 is ProductViewModel.UiState.Device -> {
@@ -75,10 +57,10 @@ fun ProductScreen(
         modifier = Modifier
             .fillMaxSize()
             .focusRequester(focusRequester) // 포커스 요청
-            .focusable() // 키 입력을 받으려면 필수
+            .focusable()
             .onKeyEvent { keyEvent ->
                 if (keyEvent.type == KeyEventType.KeyUp) {
-                    viewModel.onEnterKeyPressed() // ViewModel에 이벤트 전달
+                    viewModel.onEnterKeyPressed()
                     Toast
                         .makeText(context, "Enter key pressed!", Toast.LENGTH_SHORT)
                         .show()

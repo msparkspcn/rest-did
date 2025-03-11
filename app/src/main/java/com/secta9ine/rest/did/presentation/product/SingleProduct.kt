@@ -24,15 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.domain.model.Product
 import com.secta9ine.rest.did.util.formatCurrency
 import kotlinx.coroutines.delay
+
 private const val TAG = "SingleProduct"
 @Composable
 fun SingleProduct(
@@ -55,7 +54,7 @@ fun SingleProduct(
     }
     displayedProducts.chunked(1).forEach { rowItems ->
         rowItems.forEach { item ->
-            Row() {
+            Row {
                 Column(
                     modifier = Modifier
                         .padding(20.dp, 20.dp)
@@ -81,8 +80,8 @@ fun SingleProduct(
                     )
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth() // Row가 전체 너비를 차지하도록 설정
-                            .wrapContentHeight(), // Row의 높이를 내용에 맞게 조정
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
                         verticalAlignment = Alignment.Bottom,
                         horizontalArrangement = Arrangement.End,
                     ) {

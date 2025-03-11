@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.secta9ine.rest.did.R
-import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.util.UiString
 import kotlinx.coroutines.delay
 
@@ -54,8 +53,7 @@ import kotlinx.coroutines.delay
 fun OrderStatusScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController? = null,
-    viewModel: OrderStatusViewModel = hiltViewModel(),
-    viewModel2: WebSocketViewModel = hiltViewModel()
+    viewModel: OrderStatusViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
@@ -66,7 +64,7 @@ fun OrderStatusScreen(
     val uiState by viewModel.uiState.collectAsState(initial = null)
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus() // Box가 포커스를 받도록 요청
+        focusRequester.requestFocus()
         viewModel.uiState.collect {
             when(it) {
                 is OrderStatusViewModel.UiState.Device -> {
@@ -89,7 +87,7 @@ fun OrderStatusScreen(
                 .focusable() // 키 입력을 받으려면 필수
                 .onKeyEvent { keyEvent ->
                     if (keyEvent.type == KeyEventType.KeyUp) {
-                        viewModel.onEnterKeyPressed() // ViewModel에 이벤트 전달
+                        viewModel.onEnterKeyPressed()
                         Toast.makeText(context, "Enter key pressed!", Toast.LENGTH_SHORT).show()
                         true
                     } else {
@@ -97,9 +95,8 @@ fun OrderStatusScreen(
                     }
                 }
         ) {
-            Column(
-            ) {
-                OrderHeader(viewModel2)
+            Column {
+                OrderHeader()
                 OrderContents(
                     completedOrderList = viewModel.completedOrderList,
                     waitingOrderList = viewModel.waitingOrderList
@@ -110,9 +107,7 @@ fun OrderStatusScreen(
 }
 
 @Composable
-fun OrderHeader(
-    viewModel2: WebSocketViewModel = hiltViewModel()
-) {
+fun OrderHeader() {
     Row(
         modifier = Modifier
             .background(Color(0xFF283237))
@@ -124,11 +119,6 @@ fun OrderHeader(
             text = "SR DID",
             style = MaterialTheme.typography.h5,
         )
-        /*
-        AppButton(onClick = { viewModel2.sendMessage("Message from Other Screen") }) {
-            Text("Send Message")
-        }
-         */
         Text(
             text = "번호가 표시되면 음식을 찾아가세요.",
             style = MaterialTheme.typography.h5,
@@ -142,18 +132,18 @@ fun OrderContents(
     completedOrderList: List<String> = emptyList(),
     waitingOrderList: List<String> = emptyList(),
 ) {
-    var displayedCompletedOrders by remember { mutableStateOf(completedOrderList.take(6)) } // 처음에 6개 아이템만 표시
-    var displayedWaitingOrders by remember { mutableStateOf(waitingOrderList.take(6)) } // 처음에 6개 아이템만 표시
+    var displayedCompletedOrders by remember { mutableStateOf(completedOrderList.take(6)) }
+    var displayedWaitingOrders by remember { mutableStateOf(waitingOrderList.take(9)) }
     var complitedOrderIndex by remember { mutableStateOf(0) }
     var waitingOrderIndex by remember { mutableStateOf(0) }
     var isVisible by remember { mutableStateOf(true) }
-    // 5초 후에 다음 아이템들을 추가
+
     LaunchedEffect(Unit) {
-        if(completedOrderList.size<6) {
+        if(completedOrderList.size<9) {
             displayedCompletedOrders = completedOrderList
         } else {
             while (true) {
-                delay(5000000) // 5초 대기
+                delay(5000) // 5초 대기
 
                 if(complitedOrderIndex + 6 <= completedOrderList.size) {
 
@@ -170,14 +160,14 @@ fun OrderContents(
     }
 
     LaunchedEffect(Unit) {
-        if (waitingOrderList.size < 6) {
+        if (waitingOrderList.size < 9) {
             displayedWaitingOrders = waitingOrderList
         } else {
             while (true) {
-                delay(500000) // 3초 대기 (시간 수정)
-                if(waitingOrderIndex + 6 <= waitingOrderList.size) {
-                    displayedWaitingOrders = waitingOrderList.subList(waitingOrderIndex,waitingOrderIndex + 6)
-                    waitingOrderIndex += 6
+                delay(5000) // 3초 대기 (시간 수정)
+                if(waitingOrderIndex + 9 <= waitingOrderList.size) {
+                    displayedWaitingOrders = waitingOrderList.subList(waitingOrderIndex,waitingOrderIndex + 9)
+                    waitingOrderIndex += 9
                 }
                 else {
                     displayedWaitingOrders = waitingOrderList.subList(waitingOrderIndex, waitingOrderList.size)
@@ -269,7 +259,7 @@ fun OrderContents(
                                 style = MaterialTheme.typography.h3,
                                 modifier = Modifier
                                     .weight(1f)
-                                    .padding(4.dp) // 각 텍스트를 가로로 균등하게 배치
+                                    .padding(4.dp)
                             )
                         }
                     }
@@ -282,7 +272,7 @@ fun OrderContents(
                                 style = MaterialTheme.typography.h3,
                                 modifier = Modifier
                                     .weight(1f)
-                                    .padding(4.dp) // 각 텍스트를 가로로 균등하게 배치
+                                    .padding(4.dp)
                             )
                         }
                     }
@@ -291,7 +281,7 @@ fun OrderContents(
 
             Box(modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .weight(2f)
                 .padding(20.dp, 0.dp)) {
                 Column(
                     modifier = Modifier
@@ -309,7 +299,7 @@ fun OrderContents(
                                 style = MaterialTheme.typography.h3,
                                 modifier = Modifier
                                     .weight(1f)
-                                    .padding(4.dp) // 각 텍스트를 가로로 균등하게 배치
+                                    .padding(4.dp)
                             )
                         }
                     }
@@ -322,7 +312,19 @@ fun OrderContents(
                                 style = MaterialTheme.typography.h3,
                                 modifier = Modifier
                                     .weight(1f)
-                                    .padding(4.dp) // 각 텍스트를 가로로 균등하게 배치
+                                    .padding(4.dp)
+                            )
+                        }
+                    }
+
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        displayedWaitingOrders.drop(6).take(3).forEach { order ->
+                            Text(
+                                text = order,
+                                style = MaterialTheme.typography.h3,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(4.dp)
                             )
                         }
                     }

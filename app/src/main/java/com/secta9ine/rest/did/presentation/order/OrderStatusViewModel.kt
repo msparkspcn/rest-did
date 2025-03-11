@@ -29,7 +29,8 @@ class OrderStatusViewModel @Inject constructor(
 
     var waitingOrderList: List<String> =
         listOf(
-            "2134", "2135", "2136",
+            "2134",
+            "2135", "2136",
             "2137", "2138", "2139",
             "2140", "2141", "2142",
             "2145", "2146", "2147",
@@ -48,7 +49,7 @@ class OrderStatusViewModel @Inject constructor(
     }
 
     fun onEnterKeyPressed() {
-        Log.d(TAG,"장비설정화면 이동")
+        Log.d(TAG,"환경 설정 화면 이동")
         viewModelScope.launch {
             _uiState.emit(UiState.Device)
         }

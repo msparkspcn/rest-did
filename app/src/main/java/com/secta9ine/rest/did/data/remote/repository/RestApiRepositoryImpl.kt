@@ -49,10 +49,23 @@ class RestApiRepositoryImpl @Inject constructor(
                 userId = userId,
                 password = password
             )
-            restApiService.acceptLogin(requestBody).let {
-                Resource.Success(it.responseBody)
+            val response = restApiService.acceptLogin(requestBody)
+            when(response.responseCode) {
+                "200" -> {
+                    Resource.Success(response.responseBody)
+                }
+                "404" -> {
+                    Resource.Failure(response.responseMessage!!)
+                }
+                "401" -> {
+                    Resource.Failure(response.responseMessage!!)
+                }
+                else -> {
+                    Resource.Failure(resources.getString(R.string.network_error))
+                }
             }
-        } catch (e: Exception) {
+        }
+        catch (e: Exception) {
             Resource.Failure(resources.getString(R.string.network_error))
         }
     }

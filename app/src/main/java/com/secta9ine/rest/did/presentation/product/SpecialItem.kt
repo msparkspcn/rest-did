@@ -59,8 +59,6 @@ fun SpecialItem(
             }
 
     ) {
-        // 아이템의 너비에 따라 텍스트 크기 조정
-
         val textSizePrice = when {
             itemWidth < 200 -> 12.sp
             itemWidth < 400 -> 14.sp
@@ -102,12 +100,12 @@ fun SpecialItem(
         }
 
         if(isEven) {
-            itemMainInfo(
+            ItemMainInfo(
                 modifier = Modifier.fillMaxWidth(0.6f).fillMaxHeight(),
                 item = item,
                 textSizeProductNm = textSizeProductNm,
                 textSizeProductEngNm = textSizeProductEngNm)
-            itemSubInfo(
+            ItemSubInfo(
                 modifier = Modifier.fillMaxWidth(1f).fillMaxHeight(),
                 item= item,
                 textSizeExpln = textSizeExpln,
@@ -117,13 +115,13 @@ fun SpecialItem(
             )
         }
         else {
-            itemSubInfo(
+            ItemSubInfo(
                 modifier = Modifier.fillMaxWidth(0.4f).fillMaxHeight(),
                 item= item,
                 textSizeExpln = textSizeExpln,
                 textSizePrice = textSizePrice,
                 textSizeKcal = textSizeKcal)
-            itemMainInfo(
+            ItemMainInfo(
                 modifier = Modifier.fillMaxWidth(1f).fillMaxHeight(),
                 item = item,
                 textSizeProductNm = textSizeProductNm,
@@ -135,7 +133,7 @@ fun SpecialItem(
 }
 
 @Composable
-fun itemMainInfo(
+fun ItemMainInfo(
     modifier: Modifier,
     item: Product,
     textSizeProductNm: TextUnit,
@@ -195,7 +193,7 @@ fun itemMainInfo(
 }
 
 @Composable
-fun itemSubInfo(
+fun ItemSubInfo(
     modifier: Modifier,
     item: Product,
     textSizeExpln: TextUnit,

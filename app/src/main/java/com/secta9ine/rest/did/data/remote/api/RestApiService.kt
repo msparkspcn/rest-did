@@ -46,7 +46,7 @@ interface RestApiService {
         @Body body: CornerRequestDto
     ):RestApiResponseDto<List<Corner>>
     companion object {
-        private const val BASE_URL = "https://s9rest.ngrok.io/" // 개발서버
+        private const val BASE_URL = "https://s9rest.ngrok.io/"
 
         private val authInterceptor = AuthInterceptor()
         fun create(): RestApiService {

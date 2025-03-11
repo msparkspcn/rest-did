@@ -57,7 +57,7 @@ class DeviceViewModel @Inject constructor(
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
 
         viewModelScope.launch {
-            _uiState.emit(UiState.Loading)
+            _uiState.emit(UiState.Init)
 
             userId = dataStoreRepository.getUserId().first()
             restApiRepository.getCmp(
@@ -157,6 +157,7 @@ class DeviceViewModel @Inject constructor(
     fun getCornerList(cmpCd: String, salesOrgCd: String, storCd: String) {
         Log.d(TAG,"코너 정보 가져오기 cmpCd:$cmpCd")
         viewModelScope.launch {
+            _uiState.emit(UiState.Loading)
             restApiRepository.getCornerList(cmpCd,salesOrgCd,storCd)
                 .let { it ->
                     when(it) {
@@ -195,6 +196,7 @@ class DeviceViewModel @Inject constructor(
 
 
     sealed interface UiState {
+        object Init : UiState
         object Loading : UiState
         object Logout : UiState
         object OrderStatus : UiState

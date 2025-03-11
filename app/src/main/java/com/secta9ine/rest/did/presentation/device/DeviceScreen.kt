@@ -76,7 +76,7 @@ fun DeviceScreen(
     var dialogMessage by remember { mutableStateOf<UiString?>(null) }
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
-    val uiState by viewModel.uiState.collectAsState(initial = DeviceViewModel.UiState.Idle)
+    val uiState by viewModel.uiState.collectAsState(initial = DeviceViewModel.UiState.Init)
 //    val uiState by viewModel.uiState.collectAsState(initial = null)
     LaunchedEffect(uiState) {
         when(uiState) {
@@ -95,295 +95,302 @@ fun DeviceScreen(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(10.dp))
-            .fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .focusRequester(focusRequester)
-                .focusable()
-                .onKeyEvent { keyEvent ->
-                    if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Backspace) {
-                        viewModel.onBackSpacePressed()
-                        Toast
-                            .makeText(context, "로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT)
-                            .show()
-                        true
-                    } else {
-                        Toast
-                            .makeText(context, "다른키 key pressed!", Toast.LENGTH_SHORT)
-                            .show()
-                        false
-                    }
-                }
-                .padding(6.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
+    if(uiState is DeviceViewModel.UiState.Init) {
 
-            Text(
-                text = "환경 설정",
-                style = MaterialTheme.typography.h5,
-                fontWeight = FontWeight.Bold,
+    }
+    else {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .fillMaxSize()
+        ) {
+            Column(
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-            )
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp) // 항목 간의 간격
+                    .fillMaxSize()
+                    .focusRequester(focusRequester)
+                    .focusable()
+                    .onKeyEvent { keyEvent ->
+                        if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Backspace) {
+                            viewModel.onBackSpacePressed()
+                            Toast
+                                .makeText(context, "로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT)
+                                .show()
+                            true
+                        } else {
+                            Toast
+                                .makeText(context, "다른키 key pressed!", Toast.LENGTH_SHORT)
+                                .show()
+                            false
+                        }
+                    }
+                    .padding(6.dp),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFF5F6F8))
-                            .padding(vertical = 5.dp)
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.app_info),
+
+                Text(
+                    text = "환경 설정",
+                    style = MaterialTheme.typography.h5,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                )
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp) // 항목 간의 간격
+                ) {
+                    item {
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth(0.2f)
-                                .padding(25.dp, 10.dp),
-                            style = TextStyle(fontSize = 17.sp),
-                            color = Color(0xFF6F777D),
-                        )
-                    }
-                }
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(25.dp, 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(0.2f),
-                            contentAlignment = Alignment.CenterStart
+                                .fillMaxWidth()
+                                .background(Color(0xFFF5F6F8))
+                                .padding(vertical = 5.dp)
                         ) {
                             Text(
-                                text = stringResource(id = R.string.version_info),
-                                style = TextStyle(fontSize = 19.sp)
-                            )
-                        }
-                        Box(
-                            contentAlignment = Alignment.CenterStart,
-                            modifier = Modifier.padding(horizontal = 12.dp)
-                        ) {
-                            Text(
-                                text = CommonUtils.getAppVersion(context),
-                                style = TextStyle(fontSize = 19.sp)
+                                text = stringResource(id = R.string.app_info),
+                                modifier = Modifier
+                                    .fillMaxWidth(0.2f)
+                                    .padding(25.dp, 10.dp),
+                                style = TextStyle(fontSize = 17.sp),
+                                color = Color(0xFF6F777D),
                             )
                         }
                     }
-                }
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFF5F6F8))
-                            .padding(vertical = 5.dp)
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.store_setting),
+                    item {
+                        Row(
                             modifier = Modifier
-                                .fillMaxWidth(0.2f)
-                                .padding(25.dp, 10.dp),
-                            style = TextStyle(fontSize = 17.sp),
-                            color = Color(0xFF6F777D),
-                        )
+                                .fillMaxWidth()
+                                .padding(25.dp, 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth(0.2f),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                Text(
+                                    text = stringResource(id = R.string.version_info),
+                                    style = TextStyle(fontSize = 19.sp)
+                                )
+                            }
+                            Box(
+                                contentAlignment = Alignment.CenterStart,
+                                modifier = Modifier.padding(horizontal = 12.dp)
+                            ) {
+                                Text(
+                                    text = CommonUtils.getAppVersion(context),
+                                    style = TextStyle(fontSize = 19.sp)
+                                )
+                            }
+                        }
                     }
-                }
-                item {
-                    TempDeviceInfo(
-                        infoNm = stringResource(id = R.string.cmp_nm),
-                        infoList = viewModel.cmpNmList,
-                        dividerUse = true,
-                        infoDiv = Const.DIV_CMP,
-                        onSelectInfo = {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color(0xFFF5F6F8))
+                                .padding(vertical = 5.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.store_setting),
+                                modifier = Modifier
+                                    .fillMaxWidth(0.2f)
+                                    .padding(25.dp, 10.dp),
+                                style = TextStyle(fontSize = 17.sp),
+                                color = Color(0xFF6F777D),
+                            )
+                        }
+                    }
+                    item {
+                        TempDeviceInfo(
+                            infoNm = stringResource(id = R.string.cmp_nm),
+                            infoList = viewModel.cmpNmList,
+                            dividerUse = true,
+                            infoDiv = Const.DIV_CMP,
+                            onSelectInfo = {
 //                            cmpCd ->
 //                            viewModel.getCornerList(cmpCd, "8000", "")
-                        }
-                    )
-                }
-                item {
-                    DeviceInfo(
-                        infoNm = stringResource(id = R.string.sales_org_nm),
-                        infoList = viewModel.salesOrgNmList,
-                        dividerUse = true,
-
+                            }
                         )
-                }
-                item {
-                    DeviceInfo(
-                        infoNm = stringResource(id = R.string.store_nm),
-                        infoList = viewModel.storNmList,
-                        dividerUse = true
-                    )
-                }
+                    }
+                    item {
+                        DeviceInfo(
+                            infoNm = stringResource(id = R.string.sales_org_nm),
+                            infoList = viewModel.salesOrgNmList,
+                            dividerUse = true,
 
-                item {
-                    TempDeviceInfo(
-                        infoNm = stringResource(id = R.string.corner_nm),
-                        infoList = viewModel.cornerNmList,
-                        dividerUse = false,
-                        infoDiv = Const.DIV_CORNER,
-                        onSelectInfo = {
+                            )
+                    }
+                    item {
+                        DeviceInfo(
+                            infoNm = stringResource(id = R.string.store_nm),
+                            infoList = viewModel.storNmList,
+                            dividerUse = true
+                        )
+                    }
+
+                    item {
+                        TempDeviceInfo(
+                            infoNm = stringResource(id = R.string.corner_nm),
+                            infoList = viewModel.cornerNmList,
+                            dividerUse = false,
+                            infoDiv = Const.DIV_CORNER,
+                            onSelectInfo = {
 //                            cornerCd ->
 //                            viewModel.getDeviceList(cornerCd)
+                            }
+                        )
+                    }
+
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color(0xFFF5F6F8))
+                                .padding(vertical = 5.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.device_setting),
+                                modifier = Modifier
+                                    .fillMaxWidth(0.2f)
+                                    .padding(25.dp, 10.dp),
+                                style = TextStyle(fontSize = 17.sp),
+                                color = Color(0xFF6F777D),
+                            )
                         }
-                    )
+                    }
+                    item {
+                        DeviceInfo(
+                            infoNm = stringResource(id = R.string.device_no),
+                            infoList = viewModel.deviceNoList,
+                            dividerUse = true
+                        )
+                    }
+                    item {
+
+                        DeviceInfo(
+                            infoNm = stringResource(id = R.string.show_menu),
+                            infoList = viewModel.displayMenuList,
+                            dividerUse = true
+                        )
+                    }
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(25.dp, 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "롤링 : ",
+                                modifier = Modifier.fillMaxWidth(0.2f),
+                                style = TextStyle(fontSize = 19.sp)
+                            )
+                            RadioButton(
+                                selected = viewModel.selectedOption == "fixed",
+                                onClick = { viewModel.onSelectOption("fixed") },
+                                enabled = false
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = stringResource(R.string.rolling_fix),
+                                style = TextStyle(fontSize = 19.sp)
+                            )
+                            Spacer(modifier = Modifier.width(20.dp))
+                            RadioButton(
+                                selected = viewModel.selectedOption == "rolling",
+                                onClick = { viewModel.onSelectOption("rolling") },
+                                enabled = false
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                text = stringResource(R.string.rolling_rolling),
+                                style = TextStyle(fontSize = 19.sp)
+                            )
+                        }
+                    }
+
                 }
 
-                item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFF5F6F8))
+                        .padding(10.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    AppButton(
+                        modifier = Modifier.width(150.dp),
+                        onClick = viewModel::onLogout
+                    ) {
+                        Text(
+                            text = stringResource(R.string.logout_button),
+                            style = MaterialTheme.typography.h6
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(50.dp))
+
+                    AppButton(
+                        modifier = Modifier.width(150.dp),
+                        onClick = viewModel::onShowMenu
+                    ) {
+                        Text(
+                            text = stringResource(R.string.confirm),
+                            style = MaterialTheme.typography.h6
+                        )
+                    }
+                }
+            }
+            if(dialogMessage != null) {
+                AppAlertDialog {
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFF5F6F8))
-                            .padding(vertical = 5.dp)
+                            .fillMaxWidth(0.6f)
+                            .fillMaxHeight(0.6f)
+                            .background(Color.White),
                     ) {
-                        Text(
-                            text = stringResource(id = R.string.device_setting),
-                            modifier = Modifier
-                                .fillMaxWidth(0.2f)
-                                .padding(25.dp, 10.dp),
-                            style = TextStyle(fontSize = 17.sp),
-                            color = Color(0xFF6F777D),
-                        )
-                    }
-                }
-                item {
-                    DeviceInfo(
-                        infoNm = stringResource(id = R.string.device_no),
-                        infoList = viewModel.deviceNoList,
-                        dividerUse = true
-                    )
-                }
-                item {
-
-                    DeviceInfo(
-                        infoNm = stringResource(id = R.string.show_menu),
-                        infoList = viewModel.displayMenuList,
-                        dividerUse = true
-                    )
-                }
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(25.dp, 10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "롤링 : ",
-                            modifier = Modifier.fillMaxWidth(0.2f),
-                            style = TextStyle(fontSize = 19.sp)
-                        )
-                        RadioButton(
-                            selected = viewModel.selectedOption == "fixed",
-                            onClick = { viewModel.onSelectOption("fixed") }
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = stringResource(R.string.rolling_fix),
-                            style = TextStyle(fontSize = 19.sp)
-                        )
-                        Spacer(modifier = Modifier.width(20.dp))
-                        RadioButton(
-                            selected = viewModel.selectedOption == "rolling",
-                            onClick = { viewModel.onSelectOption("rolling") }
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = stringResource(R.string.rolling_rolling),
-                            style = TextStyle(fontSize = 19.sp)
-                        )
-                    }
-                }
-
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFF5F6F8))
-                    .padding(10.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                AppButton(
-                    modifier = Modifier.width(150.dp),
-                    onClick = viewModel::onLogout
-                ) {
-                    Text(
-                        text = stringResource(R.string.logout_button),
-                        style = MaterialTheme.typography.h6
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(50.dp))
-
-                AppButton(
-                    modifier = Modifier.width(150.dp),
-                    onClick = viewModel::onShowMenu
-                ) {
-                    Text(
-                        text = stringResource(R.string.confirm),
-                        style = MaterialTheme.typography.h6
-                    )
-                }
-            }
-        }
-        if(dialogMessage != null) {
-            AppAlertDialog {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(0.6f)
-                        .fillMaxHeight(0.6f)
-                        .background(Color.White),
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        // 텍스트를 가운데 정렬
                         Column(
-                            modifier = Modifier
-                                .weight(1f) // 남은 공간을 차지하도록 설정
-                                .fillMaxWidth(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(
-                                text = "알림",
-                                style = TextStyle(fontSize = 24.sp)
-                            )
-                            Spacer(modifier = Modifier.height(20.dp))
-                            Text(
-                                text = dialogMessage?.asString() ?: "",
-                                style = TextStyle(fontSize = 18.sp)
-                            )
-                        }
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "알림",
+                                    style = TextStyle(fontSize = 24.sp)
+                                )
+                                Spacer(modifier = Modifier.height(20.dp))
+                                Text(
+                                    text = dialogMessage?.asString() ?: "",
+                                    style = TextStyle(fontSize = 18.sp)
+                                )
+                            }
 
-                        // 버튼을 하단에 배치
-                        AppButton(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = viewModel::onLogout,
-                            shape = RoundedCornerShape(0.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.confirm),
-                                style = TextStyle(fontSize = 28.sp)
-                            )
+                            // 버튼을 하단에 배치
+                            AppButton(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = viewModel::onLogout,
+                                shape = RoundedCornerShape(0.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.confirm),
+                                    style = TextStyle(fontSize = 28.sp)
+                                )
+                            }
                         }
                     }
                 }
             }
         }
     }
+
 }
 
 
@@ -423,7 +430,7 @@ fun TempDeviceInfo(
                     selectedItem = infoList[infoIdx].second,
                     itemList = infoList,
                     onSelectItem = {
-                        Log.d(TAG,"it:$it")
+                        infoIdx = it
                         onSelectInfo(it)
                     }
                 )

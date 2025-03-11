@@ -5,10 +5,6 @@ import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.secta9ine.rest.did.presentation.navigation.AppNavHost
 import com.secta9ine.rest.did.ui.theme.RESTDIDTheme
 import com.secta9ine.rest.did.util.hideSystemUi
@@ -38,21 +34,5 @@ class MainActivity : ComponentActivity() {
             return true
         }
         return super.onKeyDown(keyCode, event)
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    RESTDIDTheme {
-        Greeting("Android")
     }
 }

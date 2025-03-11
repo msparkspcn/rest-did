@@ -13,7 +13,7 @@ interface StoreDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(stor: Stor)
 
-    @Query("DELETE FROM STOR")
+    @Query("DELETE FROM MST_STOR")
     suspend fun deleteAll()
 
     @Transaction
@@ -25,10 +25,10 @@ interface StoreDao {
     @Query(
         """
             SELECT * 
-            FROM STOR
+            FROM MST_STOR
             WHERE 1 = 1
-                AND STORE_CD = :storeCd
+                AND STOR_CD = :storCd
         """
     )
-    fun get(storeCd: String): Flow<Stor?>
+    fun get(storCd: String): Flow<Stor?>
 }

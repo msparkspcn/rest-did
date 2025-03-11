@@ -215,12 +215,14 @@ fun DeviceScreen(
                         )
                     }
                     item {
-                        DeviceInfo(
+                        TempDeviceInfo(
                             infoNm = stringResource(id = R.string.sales_org_nm),
                             infoList = viewModel.salesOrgNmList,
                             dividerUse = true,
-
-                            )
+                            infoDiv = Const.DIV_SALESORG,
+                            onSelectInfo = {
+                            }
+                        )
                     }
                     item {
                         DeviceInfo(

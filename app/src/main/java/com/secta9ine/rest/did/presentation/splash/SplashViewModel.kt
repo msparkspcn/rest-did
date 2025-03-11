@@ -1,4 +1,4 @@
-package com.secta9ine.rest.did.presentation.login
+package com.secta9ine.rest.did.presentation.splash
 
 import android.content.res.Resources
 import android.util.Log
@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
+class SplashViewModel @Inject constructor(
     private val dataStoreRepository: DataStoreRepository,
     private val restApiRepository: RestApiRepository,
     private val resources: Resources

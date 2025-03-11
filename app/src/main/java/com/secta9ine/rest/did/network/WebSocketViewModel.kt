@@ -4,9 +4,14 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import android.provider.Settings
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -15,6 +20,7 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.json.JSONException
 import org.json.JSONObject
+import kotlin.system.exitProcess
 
 class WebSocketViewModel(application: Application) : AndroidViewModel(application) {
     private val TAG = this.javaClass.simpleName
@@ -22,12 +28,19 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
     private var isConnected = false
     private var retryJob: Job? = null
     private var reconnectJob: Job? = null
+
+    var androidId by mutableStateOf("")
+        private set
     init {
-//        observeNetworkChanges()
-//        connectWebSocket()
+        observeNetworkChanges()
+        connectWebSocket()
     }
 
     private fun connectWebSocket() {
+        Log.d(TAG,"connectWebSocket")
+        androidId = Settings.Secure.getString(getApplication<Application>().contentResolver, Settings.Secure.ANDROID_ID)
+
+        Log.d(TAG, "ANDROID_ID: $androidId")
         if (isConnected) {
             Log.d(TAG,"already connected")
             return
@@ -46,16 +59,22 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
             override fun onMessage(webSocket: WebSocket, text: String) {
                 try {
                     Log.d(TAG, "Message received: $text")
-                    /*
+
+                    /**/
                     val jsonObject =JSONObject(text)
-                    val event = jsonObject.getString("event")
+                    val event = jsonObject.getString("type")
+                    if(event == "ECHO") {
+                        Log.d(TAG, "앱 재실행")
+                        exitProcess(0)
+
+                    }
 
                     if(event == "order_updated") {
                         val data = jsonObject.getJSONObject("data")
 
                     }
                     
-                     */
+
                 } catch (e: JSONException) {
                     Log.d(TAG,"JSON Parsing Error:${e.message}")
                 }
@@ -108,8 +127,9 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+
     private fun subscribeToEvents() {
-        val subscribeMessage = """{ "type": "subscribe", "topic": "ECHO", "userId": "rest" }"""
+        val subscribeMessage = """{ "type": "subscribe", "topic": "ECHO", "userId": "5000511001" }"""
         sendMessage(subscribeMessage) // 구독 요청 전송
     }
 

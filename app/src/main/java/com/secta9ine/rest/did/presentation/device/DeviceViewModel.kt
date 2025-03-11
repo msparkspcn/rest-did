@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.model.Cmp
 import com.secta9ine.rest.did.domain.model.Corner
+import com.secta9ine.rest.did.domain.model.SalesOrg
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
 import com.secta9ine.rest.did.util.Resource
@@ -41,7 +42,9 @@ class DeviceViewModel @Inject constructor(
     var cmpList by mutableStateOf(emptyList<Cmp>())
     var cmpNmList by mutableStateOf(emptyList<Pair<String, String>>())
         private set
-    var salesOrgNmList by mutableStateOf(emptyList<String>())
+    var salesOrgList by mutableStateOf(emptyList<SalesOrg>())
+        private set
+    var salesOrgNmList by mutableStateOf(emptyList<Pair<String, String>>())
         private set
     var storNmList by mutableStateOf(emptyList<String>())
         private set
@@ -60,7 +63,7 @@ class DeviceViewModel @Inject constructor(
             _uiState.emit(UiState.Init)
 
             userId = dataStoreRepository.getUserId().first()
-            restApiRepository.getCmp(
+            restApiRepository.getCmpList(
                dataStoreRepository.getCmpCd().first()
             ).let { it ->
                 when(it) {
@@ -69,21 +72,42 @@ class DeviceViewModel @Inject constructor(
                         Log.d(TAG,"cmpList:$cmpList")
                         cmpNmList = cmpList.map { Pair(it.cmpCd, it.cmpNm) }
 
-                        restApiRepository.getCornerList(cmpList[0].cmpCd,"8000","")
+                        restApiRepository.geSalesOrgList(cmpList[0].cmpCd)
                             .let { it ->
                                 when(it) {
                                     is Resource.Success -> {
-                                        cornerList = it.data!!
-                                        Log.d(TAG,"cornerList:$cornerList")
-                                        cornerNmList = cornerList.map { Pair(it.cornerCd, it.cornerNm)}
-
+                                        salesOrgList = it.data!!
+                                        Log.d(TAG,"salesOrgList:$salesOrgList")
+                                        salesOrgNmList = salesOrgList.map { Pair(it.salesOrgCd, it.salesOrgNm)}
                                         _uiState.emit(UiState.Idle)
+                                        Log.d(TAG,"cmpCd:${cmpList[0].cmpCd}, salesOrg:${salesOrgList[0].salesOrgCd}")
+                                        restApiRepository.geStorList(
+                                            cmpList[0].cmpCd,salesOrgList[0].salesOrgCd
+                                        )
+//                                        restApiRepository.getCornerList(
+//                                            cmpList[0].cmpCd,salesOrgList[0].salesOrgCd,"")
+//                                            .let { it ->
+//                                                when(it) {
+//                                                    is Resource.Success -> {
+//                                                        cornerList = it.data!!
+//                                                        Log.d(TAG,"cornerList:$cornerList")
+//                                                        cornerNmList = cornerList.map { Pair(it.cornerCd, it.cornerNm)}
+//
+//                                                        _uiState.emit(UiState.Idle)
+//                                                    }
+//                                                    else -> {
+//
+//                                                    }
+//                                                }
+//                                            }
                                     }
                                     else -> {
 
                                     }
                                 }
                             }
+
+
                     }
                     else -> {
 //                        _uiState.emit(UiState.Error("로그인 창으로 이동합니다."))
@@ -107,10 +131,6 @@ class DeviceViewModel @Inject constructor(
                 }
             }
             Log.d(TAG, "### 최종 userId=$userId")
-            salesOrgNmList = listOf(
-                "용인휴게소",
-                "가평휴게소"
-            )
             storNmList = listOf(
                 "식당가",
                 "던킨"

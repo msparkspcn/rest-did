@@ -8,9 +8,11 @@ import com.secta9ine.rest.did.data.remote.dto.CmpRequestDto
 import com.secta9ine.rest.did.data.remote.dto.CornerRequestDto
 import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiRequestDto
+import com.secta9ine.rest.did.data.remote.dto.SalesOrgRequestDto
 import com.secta9ine.rest.did.domain.model.Cmp
 import com.secta9ine.rest.did.domain.model.Corner
 import com.secta9ine.rest.did.domain.model.OrderStatus
+import com.secta9ine.rest.did.domain.model.SalesOrg
 import com.secta9ine.rest.did.domain.model.Stor
 import com.secta9ine.rest.did.domain.model.User
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
@@ -91,11 +93,11 @@ class RestApiRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getCmp(
+    override suspend fun getCmpList(
         cmpCd: String
     ): Resource<List<Cmp>> = withContext(Dispatchers.IO){
         try {
-            val response = restApiService.getCmp(CmpRequestDto(cmpValue = cmpCd))
+            val response = restApiService.getCmpList(CmpRequestDto(cmpValue = cmpCd))
             
             Resource.Success(response.responseBody)
 
@@ -115,6 +117,23 @@ class RestApiRepositoryImpl @Inject constructor(
             Log.d("Impl", "e:$e")
             Resource.Failure(resources.getString(R.string.network_error))
         }
+    }
+
+    override suspend fun geSalesOrgList(
+        cmpCd: String
+    ): Resource<List<SalesOrg>> = withContext(Dispatchers.IO) {
+        try {
+            val response = restApiService.getSalesOrgList(SalesOrgRequestDto(cmpCd = cmpCd, restValue = ""))
+
+            Resource.Success(response.responseBody)
+        }
+        catch(e: Exception) {
+            Resource.Failure(resources.getString(R.string.network_error))
+        }
+    }
+
+    override suspend fun geStorList(cmpCd: String, salesOrgCd: String): Resource<List<Stor>> {
+        TODO("Not yet implemented")
     }
 
     override suspend fun getCornerList(

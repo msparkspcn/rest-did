@@ -1,4 +1,4 @@
-package com.secta9ine.rest.did.presentation.login
+package com.secta9ine.rest.did.presentation.splash
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -48,36 +48,27 @@ import com.secta9ine.rest.did.ui.component.CheckedBox
 import com.secta9ine.rest.did.ui.component.UncheckedBox
 import com.secta9ine.rest.did.util.UiString
 
-private const val TAG = "LoginScreen"
+private const val TAG = "SplashScreen"
 @Composable
-fun LoginScreen(
+fun SplashScreen(
     navController: NavHostController? = null,
-    isFirstLaunch: Boolean,
-    viewModel: LoginViewModel = hiltViewModel(),
+    viewModel: SplashViewModel = hiltViewModel(),
     viewModel2: WebSocketViewModel = hiltViewModel()
 ) {
     var dialogMessage by remember { mutableStateOf<UiString?>(null) }
     var dialogContents by remember { mutableStateOf<UiString?>(null) }
-    val uiState by viewModel.uiState.collectAsState(initial = LoginViewModel.UiState.Idle)
+    val uiState by viewModel.uiState.collectAsState(initial = SplashViewModel.UiState.Idle)
 
-    val focusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(Unit) {
-        Log.d(TAG,"최초 진입 확인:$isFirstLaunch")
-        if (isFirstLaunch) {
-            viewModel.checkAutoLogin()
-        }
-    }
     LaunchedEffect(uiState) {
         Log.d(TAG, "111 uiState:$uiState")
 
         when (uiState) {
-            is LoginViewModel.UiState.Login -> {
+            is SplashViewModel.UiState.Login -> {
                 navController?.navigate(Screen.DeviceScreen.route)
             }
 
-            is LoginViewModel.UiState.Error -> {
-                dialogMessage = UiString.TextString((uiState as LoginViewModel.UiState.Error).message)
+            is SplashViewModel.UiState.Error -> {
+                dialogMessage = UiString.TextString((uiState as SplashViewModel.UiState.Error).message)
             }
 
             else -> {
@@ -96,98 +87,18 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "SR DID",
+                text = viewModel2.androidId,
                 style = TextStyle(fontSize = 40.sp),
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "MEMBER LOGIN",
+                text = "DID 장비 등록 중...",
                 style = TextStyle(fontSize = 25.sp),
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(40.dp))
-            AppTextInput(
-                text = viewModel.userId,
-                modifier = Modifier
-                    .fillMaxWidth(0.5f)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(Color.White)
-                    .clickable { viewModel.onChangeFocus("userId") },
-                color = if (viewModel.currentFocus == "userId") Color(0xFF1BAAFE) else Color(0xFFAFB7BF),
-                focussed = viewModel.currentFocus == "userId",
-                onChangeText = {viewModel.onChangeText("userId", it)},
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                ),
-                placeholder = stringResource(id = R.string.user_id),
-                focusRequester = focusRequester
-            )
-            Spacer(Modifier.height(8.dp))
-            AppTextInput(
-                text = viewModel.password,
-                modifier = Modifier
-                    .fillMaxWidth(0.5f)
-                    .clickable {
-                        viewModel.onChangeFocus("password")
-                        focusRequester.requestFocus()
-                    }
-                    .background(Color.White),
-                color = if (viewModel.currentFocus == "password") Color(0xFF1BAAFE) else Color(0xFFAFB7BF),
-                focussed = viewModel.currentFocus == "password",
-                onChangeText = {viewModel.onChangeText("password", it)},
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                ),
-                placeholder = stringResource(id = R.string.user_password),
-                focusRequester = focusRequester
-            )
-            Spacer(Modifier.height(16.dp))
-            Box(modifier = Modifier.fillMaxWidth(0.5f)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically // Align items vertically
-                ) {
-
-                    AutoLoginCheckBox(
-                        viewModel.isAutoLoginChecked,
-                        changeAutoLoginChecked = {
-                            viewModel.onChangeAutoLoginChecked(currentState = viewModel.isAutoLoginChecked)
-                        })
-                    Spacer(Modifier.width(5.dp))
-                    Text(
-                        text = stringResource(id = R.string.auto_login),
-                        style = TextStyle(fontSize = 18.sp),
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(16.dp))
-            AppButton(
-                modifier = Modifier.fillMaxWidth(0.5f),
-                onClick = viewModel::onLogin,
-                colors = if(viewModel.userId!="" && viewModel.password!="") {
-                    ButtonDefaults.buttonColors(
-                        backgroundColor = Color(0xFF1BAAFE),
-                        contentColor = Color.White
-                    )
-                } else {
-                    ButtonDefaults.buttonColors(
-                        backgroundColor = Color(0xFFCFD4D8),
-                        contentColor = Color.White
-                    )
-                }
-
-            )
-            {
-                Text(
-                    text = stringResource(R.string.login_button),
-                    style = TextStyle(fontSize = 35.sp)
-                )
-            }
-
         }
-        if(dialogMessage != null) {
+        if (dialogMessage != null) {
             AppAlertDialog {
                 Box(
                     modifier = Modifier
@@ -232,24 +143,5 @@ fun LoginScreen(
                 }
             }
         }
-    }
-
-}
-
-@Composable
-fun AutoLoginCheckBox(
-    isAutoLoginChecked: String,
-    changeAutoLoginChecked: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .clickable(onClick = changeAutoLoginChecked) // 클릭 이벤트 처리
-    ) {
-        if (isAutoLoginChecked == "Y") {
-            CheckedBox()
-        } else {
-            UncheckedBox()
-        }
-
     }
 }

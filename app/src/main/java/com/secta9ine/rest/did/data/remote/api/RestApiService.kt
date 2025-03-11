@@ -5,9 +5,11 @@ import com.secta9ine.rest.did.data.remote.dto.CornerRequestDto
 import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiResponseDto
+import com.secta9ine.rest.did.data.remote.dto.SalesOrgRequestDto
 import com.secta9ine.rest.did.domain.model.Cmp
 import com.secta9ine.rest.did.domain.model.Corner
 import com.secta9ine.rest.did.domain.model.OrderStatus
+import com.secta9ine.rest.did.domain.model.SalesOrg
 import com.secta9ine.rest.did.domain.model.Stor
 import com.secta9ine.rest.did.domain.model.User
 import okhttp3.OkHttpClient
@@ -37,9 +39,19 @@ interface RestApiService {
     ):RestApiResponseDto<List<OrderStatus>>
 
     @POST("/api/v1/company/list")
-    suspend fun getCmp (
+    suspend fun getCmpList (
         @Body body: CmpRequestDto
     ):RestApiResponseDto<List<Cmp>>
+
+    @POST("/api/v1/rest/list")
+    suspend fun getSalesOrgList (
+        @Body body: SalesOrgRequestDto
+    ):RestApiResponseDto<List<SalesOrg>>
+
+    @POST("/api/v1/store/list")
+    suspend fun getStorList (
+        @Body body: SalesOrgRequestDto
+    ):RestApiResponseDto<List<SalesOrg>>
 
     @POST("/api/v1/corner/list")
     suspend fun getCornerList (

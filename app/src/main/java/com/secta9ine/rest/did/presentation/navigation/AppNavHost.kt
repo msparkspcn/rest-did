@@ -19,6 +19,7 @@ import com.secta9ine.rest.did.presentation.device.DeviceScreen
 import com.secta9ine.rest.did.presentation.login.LoginScreen
 import com.secta9ine.rest.did.presentation.order.OrderStatusScreen
 import com.secta9ine.rest.did.presentation.product.ProductScreen
+import com.secta9ine.rest.did.presentation.splash.SplashScreen
 
 private const val TAG = "AppNavHost"
 
@@ -41,7 +42,7 @@ fun AppNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.LoginScreen.route,
+        startDestination = Screen.SplashScreen.route,
         modifier = modifier
     ) {
         composable(
@@ -62,6 +63,10 @@ fun AppNavHost(
         }
         composable(route = Screen.ProductScreen.route) {
             ProductScreen(navController = navController)
+        }
+        composable(route = Screen.SplashScreen.route) {
+            SplashScreen(navController = navController,
+                viewModel2 = webSocketViewModel)
         }
     }
 }

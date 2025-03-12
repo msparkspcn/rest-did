@@ -4,8 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 
 @Entity(
-    tableName = "MST_DEVICE",
-    primaryKeys = ["CMP_CD", "SALES_ORG_CD","STOR_CD", "CORNER_CD", "DEVICE_ID"]
+    tableName = "DID_DEVICE_INFO",
+    primaryKeys = ["DEVICE_ID"]
 )
 data class Device (
     @ColumnInfo(name = "DEVICE_ID") val deviceId: String = "",

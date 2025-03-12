@@ -1,7 +1,7 @@
 package com.secta9ine.rest.did.network
 
 import android.util.Log
-import okhttp3.*;
+import okhttp3.*
 import java.util.concurrent.TimeUnit
 
 object WebSocketManager {

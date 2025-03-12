@@ -1,29 +1,27 @@
 package com.secta9ine.rest.did.presentation.splash
 
+import android.app.Application
 import android.content.res.Resources
+import android.provider.Settings
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.secta9ine.rest.did.R
-import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
-import com.secta9ine.rest.did.util.Resource
-import javax.inject.Inject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlin.system.exitProcess
+import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
+    private val application: Application,
     private val dataStoreRepository: DataStoreRepository,
     private val restApiRepository: RestApiRepository,
     private val resources: Resources
@@ -31,151 +29,59 @@ class SplashViewModel @Inject constructor(
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
-    var currentFocus by mutableStateOf("userId")
-        private set
-    var userId by mutableStateOf("")
-        private set
-    var password by mutableStateOf("")
-        private set
-
-    var isAutoLoginChecked: String = "N"
-        private set
 
     var hasCheckedAutoLogin by mutableStateOf(false)
         private set
-
+    var androidId by mutableStateOf("")
+        private set
     init {
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
+        androidId = Settings.Secure.getString(application.contentResolver,
+            Settings.Secure.ANDROID_ID)
 
         viewModelScope.launch {
-            userId = dataStoreRepository.getUserId().first()
-            if (userId.isNotEmpty()) {
-                currentFocus = "password"
+            restApiRepository.getDevice(androidId).let {
+                Log.d(TAG,"device info:${it}")
             }
-            isAutoLoginChecked = dataStoreRepository.getIsAutoLoginChecked().first()
-        }
-    }
+            /*setDevice
+            restApiRepository.setDevice(
+                cmpCd =  "SLKR",
+                salesOrgCd = "8000",
+                storCd = "5000511",
+                cornerCd = "CIHA",
+                deviceId = androidId,
+                deviceNo = "80"
+            ).let {
+                Log.d(TAG,"device set info:${it}")
+            }
+             */
 
-//    fun checkAutoLogin() {
-//        Log.d(TAG, "1.hasCheckedAutoLogin:$hasCheckedAutoLogin")
-//        if(hasCheckedAutoLogin) return
-//
-//        viewModelScope.launch {
-//            isAutoLoginChecked = dataStoreRepository.getIsAutoLoginChecked().first()
-//            if (isAutoLoginChecked == "Y") {
-//                Log.d(TAG, "자동 로그인 시작")
-//                hasCheckedAutoLogin = true
-//                Log.d(TAG, "2.hasCheckedAutoLogin:$hasCheckedAutoLogin")
-//                _uiState.emit(UiState.Login)
+//            userId = dataStoreRepository.getUserId().first()
+//            if (userId.isNotEmpty()) {
+//                currentFocus = "password"
 //            }
-//        }
-//    }
-    fun checkAutoLogin() {
-        viewModelScope.launch {
-            isAutoLoginChecked = dataStoreRepository.getIsAutoLoginChecked().first()
-            Log.d(TAG,"isAutoLoginChecked:$isAutoLoginChecked")
-            if (isAutoLoginChecked == "Y") {
-                Log.d(TAG, "자동 로그인 시작")
-                password = dataStoreRepository.getPassword().first()
-                onLogin()
-//                _uiState.emit(UiState.Login)
-            } else {
+//            isAutoLoginChecked = dataStoreRepository.getIsAutoLoginChecked().first()
+        }
 
-            }
+        //장비 매핑이 완료된 지 확인하고(cmp,sales,stor,coner,deviceNo,displayMenuCd,rollingYn,apiKey)
+        //restApiRepository.getDevice()
+        // or null check -> pass 시 장비 매핑 정보 db 업데이트 -> displayMenu로 이동
+    }
+
+    suspend fun getDevice() {
+
+        restApiRepository.getDevice(androidId).let {
+                Log.d(TAG,"device info:${it}")
         }
     }
 
-    fun onChangeFocus(value: String) {
-        Log.d(TAG,"onChangeFocus currentFocus:$value")
-        currentFocus = value
-    }
-
-    fun onChangeText(field: String, value: String) {
-        when(field) {
-            "userId" -> userId = value
-            "password" -> password = value
-        }
-    }
-
-   fun onChangeAutoLoginChecked(currentState: String) {
-        Log.d(TAG,"1.체크 상태:$currentState")
-        if(currentState=="N") {
-            Log.d(TAG,"2.isAutoLoginChecked Y로 변경")
-            isAutoLoginChecked ="Y"
-        }
-        else isAutoLoginChecked = "N"
-    }
-
-    fun onLogin() {
-        Log.d(TAG,"### 로그인 클릭 userId:$userId, password:$password")
-        viewModelScope.launch {
-            _uiState.emit(UiState.Loading)
-            if(userId.isEmpty()) {
-                _uiState.emit(UiState.Error(resources.getString(R.string.user_id_empty_error)))
-            }
-            else if(password.isEmpty()) {
-                _uiState.emit(UiState.Error(resources.getString(R.string.password_empty_error)))
-            }
-            else {
-                restApiRepository.acceptLogin(
-                    userId = userId,
-                    password = password
-                ).let {
-                    when (it) {
-                        is Resource.Success -> {
-                            if(it.data!=null) {
-                                Log.d(TAG,"data:${it.data}")
-                                val user = it.data!!
-                                dataStoreRepository.setUserId(user.userId)
-                                dataStoreRepository.setPassword(password)
-                                dataStoreRepository.setCmpCd(user.cmpCd)
-                                RestApiService.updateAuthToken(user.apiKey)
-                                Log.d(TAG,"3.isAutoLoginChecked:$isAutoLoginChecked")
-                                dataStoreRepository.setIsAutoLoginChecked(isAutoLoginChecked)
-//                                RestApiService.updateAuthToken("1234")
-                                if(user.userRoleType!=null) {
-                                    dataStoreRepository.setUserRoleType(user.userRoleType)
-                                    when(user.userRoleType) {
-                                        "001" -> {
-                                            dataStoreRepository.setSalesOrgCd("")
-                                            dataStoreRepository.setStorCd("")
-                                        }
-                                        "002" -> {
-                                            user.salesOrgCd?.let { it1 -> dataStoreRepository.setSalesOrgCd(it1) }
-                                            dataStoreRepository.setStorCd("")
-                                        }
-                                        "003" -> {
-                                            user.salesOrgCd?.let { it1 -> dataStoreRepository.setSalesOrgCd(it1) }
-                                            user.storCd?.let { it1 -> dataStoreRepository.setStorCd(it1) }
-                                        }
-
-                                    }
-                                }
-                                _uiState.emit(UiState.Login)
-                            }
-                            else {
-                                Log.d(TAG,"로그인 실패")
-                            }
-                        }
-                        is Resource.Failure -> {
-                            exitProcess(0)
-                            _uiState.emit(UiState.Error(it.message!!))
-                        }
-                    }
-                }
-            }
-
-        }
-
-    }
     sealed interface UiState {
         object Loading : UiState
         object Login : UiState
+        object OrderStatus : UiState
+        object Product : UiState
         object Idle : UiState
         object Restart : UiState
         data class Error(val message: String) : UiState
-
     }
-
-
 }

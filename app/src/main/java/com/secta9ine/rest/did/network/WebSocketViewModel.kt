@@ -11,27 +11,42 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.json.JSONException
 import org.json.JSONObject
+import javax.inject.Inject
 import kotlin.system.exitProcess
 
-class WebSocketViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class WebSocketViewModel
+@Inject constructor
+    (
+    application: Application,
+    private val dataStoreRepository: DataStoreRepository
+) : AndroidViewModel(application) {
     private val TAG = this.javaClass.simpleName
     private var webSocket: WebSocket? = null
     private var isConnected = false
     private var retryJob: Job? = null
     private var reconnectJob: Job? = null
-
+    private val _uiState = MutableSharedFlow<UiState>()
+    val uiState = _uiState.asSharedFlow()
     var androidId by mutableStateOf("")
         private set
     init {
+        uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
         observeNetworkChanges()
         connectWebSocket()
     }
@@ -45,14 +60,17 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
             Log.d(TAG,"already connected")
             return
         }
-        webSocket?.close(1000, "Reconnecting") // 기존 WebSocket 정리
-        webSocket = null
 
         WebSocketManager.connect(object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 Log.d(TAG, "Connected") //connect 후 구독 요청
                 this@WebSocketViewModel.webSocket = webSocket
                 isConnected = true
+                subscribeDeviceEvent() //장비 이벤트 구독(cmp,sales,stor,corner,deviceNo,displayMenuCd,rollingYn,apiKey 변경 여부 감지)
+//                subscribeRestartEvents() //재실행 이벤트 구독
+                //DID 상품 이벤트 구독
+                //DID 상품 부가정보 이벤트 구독
+                //주문 이벤트 구독
                 subscribeToEvents()
             }
 
@@ -63,31 +81,32 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
                     /**/
                     val jsonObject =JSONObject(text)
                     val event = jsonObject.getString("type")
+                    val message = jsonObject.getString("message")
                     if(event == "ECHO") {
                         Log.d(TAG, "앱 재실행")
                         exitProcess(0)
-
+                    }
+                    if(event == "ACTIVE") {     //장비 활성화
+                        Log.d(TAG,"message:$message")
+                        viewModelScope.launch {
+                            setDeviceInfo(JSONObject(message))
+                            _uiState.emit(UiState.UpdateDevice)
+                        }
                     }
 
                     if(event == "order_updated") {
                         val data = jsonObject.getJSONObject("data")
-
                     }
-                    
-
                 } catch (e: JSONException) {
                     Log.d(TAG,"JSON Parsing Error:${e.message}")
                 }
-
-
-
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 Log.e(TAG, "Error: ${t.message ?: "Unknown error"}")
 
                 isConnected = false
-                WebSocketManager.close() // WebSocketManager의 웹소켓도 정리
+                WebSocketManager.close()
                 this@WebSocketViewModel.webSocket = null
 
                 Log.d(TAG, "Attempting to retry connection in 5 seconds...")
@@ -104,7 +123,19 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
         })
     }
 
-    fun sendMessage(message: String) {
+
+    private suspend fun setDeviceInfo(messageObject:JSONObject) {
+
+        dataStoreRepository.setCmpCd(messageObject.getString("cmpCd"))
+//                        dataStoreRepository.setSalesOrgCd(messageObject.getString("salesOrgCd"))
+        dataStoreRepository.setStorCd(messageObject.getString("storCd"))
+        dataStoreRepository.setCornerCd(messageObject.getString("cornerCd"))
+        dataStoreRepository.setDeviceNo(messageObject.getString("deviceNo"))
+        dataStoreRepository.setDeviceNo(messageObject.getString("deviceNo"))
+        RestApiService.updateAuthToken(messageObject.getString("apiKey"))
+    }
+
+    private fun sendMessage(message: String) {
         if (webSocket != null) {
             webSocket?.send(message)
         } else {
@@ -127,6 +158,17 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    private fun subscribeDeviceEvent() {    //장비 이벤트 구독
+        val subscribeMessage = """{"type": "subscribe", "topic":"DEVICE", "deviceId": "$androidId"}"""
+        sendMessage(subscribeMessage)
+    }
+    //구독해지(UserId
+
+    private fun subscribeRestartEvents() {
+        val subscribeMessage = """{ "type": "subscribe", "topic": "RESTART", "deviceId": "$androidId"}"""
+        sendMessage(subscribeMessage)
+    }
+
 
     private fun subscribeToEvents() {
         val subscribeMessage = """{ "type": "subscribe", "topic": "ECHO", "userId": "5000511001" }"""
@@ -142,12 +184,6 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
         val subscribeMessage = """{ "type": "subscribe", "topic": "PRODUCT", "userId": "rest" }"""
         sendMessage(subscribeMessage)
     }   //변경분 수신
-
-    private fun subscribeRestartEvents() {
-        val subscribeMessage = """{ "type": "subscribe", "topic": "RESTART", "cmpCd": "SLKR", 
-            |"salesOrgCd": "8000", "storCd": "5000511", "cornerCd": "CIBA", "deviceNo": "01"  }""".trimMargin()
-        sendMessage(subscribeMessage)
-    }
 
     private fun subscribeProductMasterEvents() {
         val subscribeMessage = """{ "type": "subscribe", "topic": "PRODUCT", "userId": "rest" }"""
@@ -174,7 +210,7 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
         })
     }
     private fun forceReconnect() {
-        if (reconnectJob?.isActive == true) return // 이미 재연결이 진행 중이면 중복 실행 방지
+        if (reconnectJob?.isActive == true) return // 이미 재연결 진행 중이면 중복 실행 방지
 
         reconnectJob = viewModelScope.launch {
             WebSocketManager.close() // 기존 소켓 강제 종료
@@ -184,5 +220,10 @@ class WebSocketViewModel(application: Application) : AndroidViewModel(applicatio
             delay(2000) // 2초 후 재연결 시도
             connectWebSocket()
         }
+    }
+
+    sealed interface UiState {
+        object UpdateDevice : UiState
+        object Idle : UiState
     }
 }

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.model.Cmp
 import com.secta9ine.rest.did.domain.model.Corner
 import com.secta9ine.rest.did.domain.model.SalesOrg
+import com.secta9ine.rest.did.domain.model.Stor
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
 import com.secta9ine.rest.did.util.Resource
@@ -38,7 +39,6 @@ class DeviceViewModel @Inject constructor(
     var deviceCdList: List<String> = emptyList()
         private set
 
-//    var salesOrgList: List<String> = emp
     var cmpList by mutableStateOf(emptyList<Cmp>())
     var cmpNmList by mutableStateOf(emptyList<Pair<String, String>>())
         private set
@@ -46,7 +46,8 @@ class DeviceViewModel @Inject constructor(
         private set
     var salesOrgNmList by mutableStateOf(emptyList<Pair<String, String>>())
         private set
-    var storNmList by mutableStateOf(emptyList<String>())
+    var storList by mutableStateOf(emptyList<Stor>())
+    var storNmList by mutableStateOf(emptyList<Pair<String, String>>())
         private set
     var cornerList by mutableStateOf(emptyList<Corner>())
         private set
@@ -83,23 +84,33 @@ class DeviceViewModel @Inject constructor(
                                         Log.d(TAG,"cmpCd:${cmpList[0].cmpCd}, salesOrg:${salesOrgList[0].salesOrgCd}")
                                         restApiRepository.geStorList(
                                             cmpList[0].cmpCd,salesOrgList[0].salesOrgCd
-                                        )
-//                                        restApiRepository.getCornerList(
-//                                            cmpList[0].cmpCd,salesOrgList[0].salesOrgCd,"")
-//                                            .let { it ->
-//                                                when(it) {
-//                                                    is Resource.Success -> {
-//                                                        cornerList = it.data!!
-//                                                        Log.d(TAG,"cornerList:$cornerList")
-//                                                        cornerNmList = cornerList.map { Pair(it.cornerCd, it.cornerNm)}
-//
-//                                                        _uiState.emit(UiState.Idle)
-//                                                    }
-//                                                    else -> {
-//
-//                                                    }
-//                                                }
-//                                            }
+                                        ).let { it ->
+                                            when(it) {
+                                                is Resource.Success -> {
+                                                    storList = it.data!!
+                                                    storNmList = storList.map { Pair(it.storCd, it.storNm)}
+                                                    restApiRepository.getCornerList(
+                                                        cmpList[0].cmpCd,salesOrgList[0].salesOrgCd,""
+                                                    ).let { it ->
+                                                        when(it) {
+                                                            is Resource.Success -> {
+                                                                cornerList = it.data!!
+                                                                Log.d(TAG,"cornerList:$cornerList")
+                                                                cornerNmList = cornerList.map { Pair(it.cornerCd, it.cornerNm)}
+
+                                                                _uiState.emit(UiState.Idle)
+                                                            }
+                                                            else -> {
+
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                else -> {
+
+                                                }
+                                            }
+                                        }
                                     }
                                     else -> {
 
@@ -121,20 +132,17 @@ class DeviceViewModel @Inject constructor(
             userRoleType = dataStoreRepository.getUserRoleType().first()
             when (userRoleType) {
                 "001" -> {
-                    Log.d(TAG,"### 관리자 계정입니다.")
+                    Log.d(TAG,"### 관리자 계정 입니다.")
                 }
                 "002" -> {
-                    Log.d(TAG,"### 휴게소 관리자 계정입니다.")
+                    Log.d(TAG,"### 휴게소 관리자 계정 입니다.")
                 }
                 "003" -> {
-                    Log.d(TAG,"### 점포 관리자 계정입니다.")
+                    Log.d(TAG,"### 점포 관리자 계정 입니다.")
                 }
             }
             Log.d(TAG, "### 최종 userId=$userId")
-            storNmList = listOf(
-                "식당가",
-                "던킨"
-            )
+
             deviceNoList = listOf(
                 "01",
                 "02",
@@ -175,7 +183,7 @@ class DeviceViewModel @Inject constructor(
     }
 
     fun getCornerList(cmpCd: String, salesOrgCd: String, storCd: String) {
-        Log.d(TAG,"코너 정보 가져오기 cmpCd:$cmpCd")
+        Log.d(TAG,"코너 정보 cmpCd:$cmpCd")
         viewModelScope.launch {
             _uiState.emit(UiState.Loading)
             restApiRepository.getCornerList(cmpCd,salesOrgCd,storCd)
@@ -194,10 +202,6 @@ class DeviceViewModel @Inject constructor(
                     }
                 }
         }
-    }
-
-    fun getDeviceList(cornerCd: String) {
-        Log.d(TAG,"장비 정보 가져오기 cornerCd:$cornerCd")
     }
 
     fun onEnterKeyPressed() {

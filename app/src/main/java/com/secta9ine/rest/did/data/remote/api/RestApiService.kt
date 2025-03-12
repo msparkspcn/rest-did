@@ -2,12 +2,15 @@ package com.secta9ine.rest.did.data.remote.api
 
 import com.secta9ine.rest.did.data.remote.dto.CmpRequestDto
 import com.secta9ine.rest.did.data.remote.dto.CornerRequestDto
+import com.secta9ine.rest.did.data.remote.dto.DeviceRequestDto
 import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiResponseDto
 import com.secta9ine.rest.did.data.remote.dto.SalesOrgRequestDto
+import com.secta9ine.rest.did.data.remote.dto.StorRequestDto
 import com.secta9ine.rest.did.domain.model.Cmp
 import com.secta9ine.rest.did.domain.model.Corner
+import com.secta9ine.rest.did.domain.model.Device
 import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.domain.model.SalesOrg
 import com.secta9ine.rest.did.domain.model.Stor
@@ -17,7 +20,10 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface RestApiService {
@@ -32,6 +38,16 @@ interface RestApiService {
     suspend fun acceptLogin (
         @Body body: LoginRequestDto
     ):RestApiResponseDto<User>
+
+    @GET("/api/v1/did/device/{deviceId}")
+    suspend fun getDevice(
+        @Path("deviceId") storeCd: String
+    ):RestApiResponseDto<Device>
+
+    @PUT("/api/v1/did/device")
+    suspend fun setDevice(
+        @Body body: DeviceRequestDto
+    ):RestApiResponseDto<Unit>
 
     @POST("/api/v1/did/order")
     suspend fun getOrderList (
@@ -50,8 +66,8 @@ interface RestApiService {
 
     @POST("/api/v1/store/list")
     suspend fun getStorList (
-        @Body body: SalesOrgRequestDto
-    ):RestApiResponseDto<List<SalesOrg>>
+        @Body body: StorRequestDto
+    ):RestApiResponseDto<List<Stor>>
 
     @POST("/api/v1/corner/list")
     suspend fun getCornerList (

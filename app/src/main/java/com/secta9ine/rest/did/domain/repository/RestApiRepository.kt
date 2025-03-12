@@ -2,6 +2,7 @@ package com.secta9ine.rest.did.domain.repository
 
 import com.secta9ine.rest.did.domain.model.Cmp
 import com.secta9ine.rest.did.domain.model.Corner
+import com.secta9ine.rest.did.domain.model.Device
 import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.domain.model.SalesOrg
 import com.secta9ine.rest.did.domain.model.Stor
@@ -11,6 +12,9 @@ import com.secta9ine.rest.did.util.Resource
 interface RestApiRepository {
     suspend fun getStoreInfo(storeCd: String, storePassword: String): Resource<Stor?>
     suspend fun acceptLogin(userId: String, password: String): Resource<User?>
+    suspend fun getDevice(deviceId: String): Resource<Device>
+    suspend fun setDevice(deviceId: String, cmpCd: String, salesOrgCd:
+    String, storCd: String, cornerCd: String, deviceNo: String): Resource<Unit>
     suspend fun getOrderList(cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Resource<List<OrderStatus?>>
     suspend fun getCmpList(cmpCd: String): Resource<List<Cmp>>
     suspend fun geSalesOrgList(cmpCd: String): Resource<List<SalesOrg>>

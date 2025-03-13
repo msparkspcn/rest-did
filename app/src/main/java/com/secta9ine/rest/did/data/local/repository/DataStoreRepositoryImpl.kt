@@ -26,10 +26,10 @@ class DataStoreRepositoryImpl @Inject constructor(
 
     override fun getStorCd(): Flow<String> = getValue(STOR_CD, "")
     override suspend fun setStorCd(value: String) = setValue(STOR_CD, value)
-    override fun getCornerCd(): Flow<String?> = getValue(CORNER_CD, "")
+    override fun getCornerCd(): Flow<String> = getValue(CORNER_CD, "")
 
     override suspend fun setCornerCd(value: String) = setValue(CORNER_CD, value)
-    override fun getDeviceNo(): Flow<String?> = getValue(DEVICE_NO, "")
+    override fun getDeviceNo(): Flow<String> = getValue(DEVICE_NO, "")
 
     override suspend fun setDeviceNo(value: String) = setValue(DEVICE_NO, value)
 
@@ -39,7 +39,7 @@ class DataStoreRepositoryImpl @Inject constructor(
     override fun getCmpCd(): Flow<String> = getValue(CMP_CD, "")
     override suspend fun setCmpCd(value: String) = setValue(CMP_CD, value)
 
-    override fun getSalesOrgCd(): Flow<String?> = getValue(SALES_ORG_CD, "")
+    override fun getSalesOrgCd(): Flow<String> = getValue(SALES_ORG_CD, "")
 
     override suspend fun setSalesOrgCd(value: String) = setValue(SALES_ORG_CD, value)
     override fun getUserRoleType(): Flow<String> = getValue(USER_ROLE_TYPE, "")

@@ -42,7 +42,7 @@ fun AppNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.SplashScreen.route,
+        startDestination = Screen.DeviceScreen.route,
         modifier = modifier
     ) {
         composable(
@@ -58,8 +58,7 @@ fun AppNavHost(
             DeviceScreen(navController = navController)
         }
         composable(route = Screen.OrderStatusScreen.route) {
-            OrderStatusScreen(
-                navController = navController)
+            OrderStatusScreen(navController = navController)
         }
         composable(route = Screen.ProductScreen.route) {
             ProductScreen(navController = navController)

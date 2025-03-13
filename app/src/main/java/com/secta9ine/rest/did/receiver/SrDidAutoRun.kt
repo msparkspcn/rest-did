@@ -15,7 +15,7 @@ import androidx.annotation.RequiresApi
 import com.secta9ine.rest.did.MainActivity
 import java.util.TreeMap
 
-
+private val TAG = "SrDidAutoRun"
 class SrDidAutoRun : BroadcastReceiver() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onReceive(context: Context, intent: Intent) {
@@ -24,31 +24,30 @@ class SrDidAutoRun : BroadcastReceiver() {
             val packageName = context.packageName
             if (!isAppRunning(context, packageName)) {
                 Log.d("SrDidAutoRun", "not opened")
-                val serviceIntent = Intent(context, AutoStartService::class.java)
-                context.startForegroundService(serviceIntent)
-//                scheduleAppLaunch(context)
 
-//                val it = Intent(context, MainActivity::class.java).apply {
-//                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//                }
-//                Log.d("SrDidAutoRun", "Starting MainActivity")
-//                context.startActivity(it)
+                if (!isAppRunning(context, packageName)) {
+                    Log.d(TAG, "not opened")
+
+                    // Android 8.0 (API 26) 이상 startForegroundService 사용
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        Log.d(TAG,"Main start1")
+                        // Foreground Service를 시작하는 방법
+                        val serviceIntent = Intent(context, AutoStartService::class.java)
+                        context.startForegroundService(serviceIntent)
+                    } else {
+                        // Android 8.0 미만 Activity 시작
+                        Log.d(TAG,"Main start2")
+                        val intent = Intent(context, MainActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(intent)
+                    }
+                } else {
+                    Log.d(TAG, "opened")
+                }
             } else {
                 Log.d("SrDidAutoRun", "opened")
             }
         }
-    }
-    private fun scheduleAppLaunch(context: Context) {
-        val launchIntent = Intent(context, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            context, 0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager?.setExact(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + 5000,  // 5초 후 실행
-            pendingIntent
-        )
     }
 
     private fun isAppRunning(context: Context, packageName: String): Boolean {
@@ -56,8 +55,8 @@ class SrDidAutoRun : BroadcastReceiver() {
         val runningAppProcesses = activityManager.runningAppProcesses
         Log.d("SrDidAutoRun","packageName:$packageName")
         for (process in runningAppProcesses) {
-            Log.d("SrDidAutoRun","packageName2:${process.processName}")
-            if (process.processName == packageName && process.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+            if (process.processName == packageName &&
+                process.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
                 Log.d("SrDidAutoRun", "${process.processName} is running!!")
                 return true
             }

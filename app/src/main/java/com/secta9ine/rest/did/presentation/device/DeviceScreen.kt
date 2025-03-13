@@ -66,6 +66,9 @@ import com.secta9ine.rest.did.ui.component.AppButton
 import com.secta9ine.rest.did.util.CommonUtils
 import com.secta9ine.rest.did.util.Const
 import com.secta9ine.rest.did.util.UiString
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+
 private const val TAG = "DeviceScreen"
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -78,27 +81,42 @@ fun DeviceScreen(
     val focusRequester = remember { FocusRequester() }
     val uiState by viewModel.uiState.collectAsState(initial = DeviceViewModel.UiState.Init)
 //    val uiState by viewModel.uiState.collectAsState(initial = null)
-    LaunchedEffect(uiState) {
-        when(uiState) {
-            is DeviceViewModel.UiState.Logout -> {
-                navController?.popBackStack()
-            }
-            is DeviceViewModel.UiState.OrderStatus -> {
-                navController?.navigate(Screen.OrderStatusScreen.route)
-            }
-            is DeviceViewModel.UiState.Error -> {
-                Log.d(TAG,"Error message:${UiString.TextString((uiState as DeviceViewModel.UiState.Error).message)}")
-                dialogMessage = UiString.TextString((uiState as DeviceViewModel.UiState.Error).message)
+    var salesOrgNmList by remember (viewModel.salesOrgNmList) {
+        mutableStateOf(0)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.reload()
+        coroutineScope {
+            launch {
+                viewModel.uiState.collect {
+                    when(it) {
+                        is DeviceViewModel.UiState.Logout -> {
+                            navController?.popBackStack()
+                        }
+                        is DeviceViewModel.UiState.OrderStatus -> {
+                            navController?.navigate(Screen.OrderStatusScreen.route)
+                        }
+                        is DeviceViewModel.UiState.Error -> {
+                            Log.d(TAG,"Error message:${UiString.TextString(it.message)}")
+                            dialogMessage = UiString.TextString((it.message))
+                        }
+
+                        else -> {}
+                    }
+                }
+
             }
 
-            else -> {}
         }
+
     }
 
     if(uiState is DeviceViewModel.UiState.Init) {
 
     }
     else {
+        Log.d(TAG,"current uiState:$uiState")
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
@@ -205,10 +223,17 @@ fun DeviceScreen(
                     item {
                         TempDeviceInfo(
                             infoNm = stringResource(id = R.string.cmp_nm),
+                            infoIdx = viewModel.cmpNmList.indexOfFirst
+                            {
+                                Log.d(TAG,"${it.first}, cmpCd:${viewModel.cmpCd}")
+                                it.first == viewModel.cmpCd
+                                                                       },
                             infoList = viewModel.cmpNmList,
                             dividerUse = true,
                             infoDiv = Const.DIV_CMP,
                             onSelectInfo = {
+                                viewModel.cmpCd = viewModel.cmpNmList.getOrNull(it)?.first ?: ""
+//                                viewModel.getCmpList()
 //                            cmpCd ->
 //                            viewModel.getCornerList(cmpCd, "8000", "")
                             }
@@ -217,21 +242,30 @@ fun DeviceScreen(
                     item {
                         TempDeviceInfo(
                             infoNm = stringResource(id = R.string.sales_org_nm),
+                            infoIdx = viewModel.salesOrgNmList.indexOfFirst {it.first == viewModel.salesOrgCd},
                             infoList = viewModel.salesOrgNmList,
                             dividerUse = true,
                             infoDiv = Const.DIV_SALESORG,
                             onSelectInfo = {
+                                Log.d(TAG,"salesOrg it:$it")
+                                viewModel.salesOrgCd = viewModel.salesOrgNmList.getOrNull(it)?.first ?:""
+//                                salesOrgNmList = viewModel.salesOrgNmList.get(it)
+                                viewModel.getStorList("", viewModel.salesOrgNmList[it].first)
+//                                salesOrgCd ->
+//                                viewModel.getStorList(cmpCd, s)
                             }
                         )
                     }
                     item {
                         TempDeviceInfo(
                             infoNm = stringResource(id = R.string.store_nm),
+                            infoIdx = viewModel.storNmList.indexOfFirst { it.first == viewModel.storCd },
                             infoList = viewModel.storNmList,
                             dividerUse = true,
                             infoDiv = Const.DIV_STORE,
                             onSelectInfo = {
-
+                                Log.d(TAG,"stor it:$it")
+                                viewModel.storCd = viewModel.storNmList.getOrNull(it)?.first ?:""
                             }
                         )
                     }
@@ -239,10 +273,12 @@ fun DeviceScreen(
                     item {
                         TempDeviceInfo(
                             infoNm = stringResource(id = R.string.corner_nm),
+                            infoIdx = viewModel.cornerNmList.indexOfFirst { it.first == viewModel.cornerCd },
                             infoList = viewModel.cornerNmList,
                             dividerUse = false,
                             infoDiv = Const.DIV_CORNER,
                             onSelectInfo = {
+                                viewModel.cornerCd = viewModel.cornerNmList.getOrNull(it)?.first ?:""
 //                            cornerCd ->
 //                            viewModel.getDeviceList(cornerCd)
                             }
@@ -404,13 +440,14 @@ fun DeviceScreen(
 @Composable
 fun TempDeviceInfo(
     infoNm: String,
+    infoIdx: Int,
     infoList: List<Pair<String, String>>,
     dividerUse : Boolean,
     infoDiv: String,
     onSelectInfo: (index: Int) -> Unit = {}
 ) {
-    Log.d("TAG","infoList:$infoList")
-    var infoIdx by remember { mutableStateOf(0) }
+    Log.d("TAG","infoList:$infoList, infoIdx:$infoIdx")
+    val adjustedInfoIdx = if (infoIdx == -1) 0 else infoIdx
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -433,10 +470,10 @@ fun TempDeviceInfo(
             if(infoList.isNotEmpty()) {
                 TempDeviceDropdownMenuBox(
                     modifier = Modifier,
-                    selectedItem = infoList[infoIdx].second,
+                    selectedItem = infoList[adjustedInfoIdx].second,
                     itemList = infoList,
                     onSelectItem = {
-                        infoIdx = it
+//                        infoIdx = it
                         onSelectInfo(it)
                     }
                 )

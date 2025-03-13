@@ -1,12 +1,14 @@
 package com.secta9ine.rest.did.presentation.splash
 
 import android.app.Application
+import android.content.Intent
 import android.content.res.Resources
 import android.provider.Settings
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
@@ -30,8 +32,6 @@ class SplashViewModel @Inject constructor(
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
 
-    var hasCheckedAutoLogin by mutableStateOf(false)
-        private set
     var androidId by mutableStateOf("")
         private set
     init {
@@ -43,6 +43,7 @@ class SplashViewModel @Inject constructor(
             restApiRepository.getDevice(androidId).let {
                 Log.d(TAG,"device info:${it}")
             }
+
             /*setDevice
             restApiRepository.setDevice(
                 cmpCd =  "SLKR",

@@ -51,13 +51,14 @@ class OrderStatusViewModel @Inject constructor(
     fun onEnterKeyPressed() {
         Log.d(TAG,"환경 설정 화면 이동")
         viewModelScope.launch {
-            _uiState.emit(UiState.Device)
+            _uiState.emit(UiState.NavigateToDevice)
         }
     }
 
     sealed interface UiState {
         object Loading : UiState
-        object Device : UiState
+        object NavigateToDevice : UiState
+        object NavigateToProduct : UiState
         object Idle : UiState
         data class Error(val message: String) : UiState
 

@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.secta9ine.rest.did.data.remote.api.AuthInterceptor
 import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.domain.model.Cmp
 import com.secta9ine.rest.did.domain.model.Corner
@@ -127,7 +126,7 @@ class DeviceViewModel @Inject constructor(
 
     fun onShowMenu() {
         viewModelScope.launch {
-            _uiState.emit(UiState.OrderStatus)
+            _uiState.emit(UiState.NavigateToOrderStatus)
         }
     }
 
@@ -247,7 +246,7 @@ class DeviceViewModel @Inject constructor(
     fun onEnterKeyPressed() {
         Log.d(TAG,"장비설정화면 이동")
         viewModelScope.launch {
-            _uiState.emit(UiState.OrderStatus)
+            _uiState.emit(UiState.NavigateToOrderStatus)
         }
     }
 
@@ -263,7 +262,8 @@ class DeviceViewModel @Inject constructor(
         object Init : UiState
         object Loading : UiState
         object Logout : UiState
-        object OrderStatus : UiState
+        object NavigateToOrderStatus : UiState
+        object NavigateToProduct : UiState
         object Idle : UiState
         data class Error(val message: String) : UiState
 

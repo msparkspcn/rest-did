@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.secta9ine.rest.did.R
+import com.secta9ine.rest.did.presentation.navigation.NavUtils.navigateAsSecondScreen
 import com.secta9ine.rest.did.presentation.navigation.Screen
 import com.secta9ine.rest.did.ui.component.AppAlertDialog
 import com.secta9ine.rest.did.ui.component.AppButton
@@ -94,8 +95,11 @@ fun DeviceScreen(
                         is DeviceViewModel.UiState.Logout -> {
                             navController?.popBackStack()
                         }
-                        is DeviceViewModel.UiState.OrderStatus -> {
-                            navController?.navigate(Screen.OrderStatusScreen.route)
+                        is DeviceViewModel.UiState.NavigateToOrderStatus -> {
+                            navController?.navigateAsSecondScreen(Screen.OrderStatusScreen.route)
+                        }
+                        is DeviceViewModel.UiState.NavigateToProduct -> {
+                            navController?.navigateAsSecondScreen(Screen.ProductScreen.route)
                         }
                         is DeviceViewModel.UiState.Error -> {
                             Log.d(TAG,"Error message:${UiString.TextString(it.message)}")

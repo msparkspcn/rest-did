@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.secta9ine.rest.did.presentation.navigation.NavUtils.navigateAsSecondScreen
 import com.secta9ine.rest.did.presentation.navigation.Screen
 import com.secta9ine.rest.did.util.UiString
 
@@ -42,8 +43,11 @@ fun ProductScreen(
         focusRequester.requestFocus()
         viewModel.uiState.collect {
             when(it) {
-                is ProductViewModel.UiState.Device -> {
-                    navController?.navigate(Screen.DeviceScreen.route)
+                is ProductViewModel.UiState.NavigateToDevice -> {
+                    navController?.navigateAsSecondScreen(Screen.DeviceScreen.route)
+                }
+                is ProductViewModel.UiState.NavigateToOrderStatus -> {
+                    navController?.navigateAsSecondScreen(Screen.OrderStatusScreen.route)
                 }
                 is ProductViewModel.UiState.Error -> {
                     dialogMessage = UiString.TextString(it.message)

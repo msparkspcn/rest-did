@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.secta9ine.rest.did.R
+import com.secta9ine.rest.did.presentation.navigation.NavUtils.navigateAsSecondScreen
+import com.secta9ine.rest.did.presentation.navigation.Screen
 import com.secta9ine.rest.did.util.UiString
 import kotlinx.coroutines.delay
 
@@ -67,9 +69,13 @@ fun OrderStatusScreen(
         focusRequester.requestFocus()
         viewModel.uiState.collect {
             when(it) {
-                is OrderStatusViewModel.UiState.Device -> {
+                is OrderStatusViewModel.UiState.NavigateToDevice -> {
 //                    navController?.navigate(Screen.DeviceScreen.route)
-                    navController?.popBackStack()
+//                    navController?.popBackStack()
+                    navController?.navigateAsSecondScreen(Screen.DeviceScreen.route)
+                }
+                is OrderStatusViewModel.UiState.NavigateToProduct -> {
+                    navController?.navigateAsSecondScreen(Screen.ProductScreen.route)
                 }
                 is OrderStatusViewModel.UiState.Error -> {
                     dialogMessage = UiString.TextString(it.message)

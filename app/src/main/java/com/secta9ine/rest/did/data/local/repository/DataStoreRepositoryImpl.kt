@@ -27,10 +27,13 @@ class DataStoreRepositoryImpl @Inject constructor(
     override fun getStorCd(): Flow<String> = getValue(STOR_CD, "")
     override suspend fun setStorCd(value: String) = setValue(STOR_CD, value)
     override fun getCornerCd(): Flow<String> = getValue(CORNER_CD, "")
-
     override suspend fun setCornerCd(value: String) = setValue(CORNER_CD, value)
-    override fun getDeviceNo(): Flow<String> = getValue(DEVICE_NO, "")
 
+    override fun getDeviceId(): Flow<String> = getValue(DEVICE_ID, "")
+
+    override suspend fun setDeviceId(value: String) = setValue(DEVICE_ID, value)
+
+    override fun getDeviceNo(): Flow<String> = getValue(DEVICE_NO, "")
     override suspend fun setDeviceNo(value: String) = setValue(DEVICE_NO, value)
 
     override fun getPassword(): Flow<String> = getValue(STORE_PASSWORD, "")
@@ -73,6 +76,7 @@ class DataStoreRepositoryImpl @Inject constructor(
         val STOR_CD = stringPreferencesKey("STOR_CD")
         val CORNER_CD = stringPreferencesKey("CORNER_CD")
         val DEVICE_NO = stringPreferencesKey("DEVICE_NO")
+        val DEVICE_ID = stringPreferencesKey("DEVICE_ID")
         val USER_ROLE_TYPE = stringPreferencesKey("USER_ROLE_TYPE")
         val STORE_PASSWORD = stringPreferencesKey("STOR_PASSWORD")
         val USER_ID = stringPreferencesKey("USER_ID")

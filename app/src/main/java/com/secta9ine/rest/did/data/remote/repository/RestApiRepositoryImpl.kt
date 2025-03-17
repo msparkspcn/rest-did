@@ -15,6 +15,7 @@ import com.secta9ine.rest.did.domain.model.Cmp
 import com.secta9ine.rest.did.domain.model.Corner
 import com.secta9ine.rest.did.domain.model.Device
 import com.secta9ine.rest.did.domain.model.OrderStatus
+import com.secta9ine.rest.did.domain.model.Product
 import com.secta9ine.rest.did.domain.model.SalesOrg
 import com.secta9ine.rest.did.domain.model.Stor
 import com.secta9ine.rest.did.domain.model.User
@@ -71,6 +72,32 @@ class RestApiRepositoryImpl @Inject constructor(
             }
         }
         catch (e: Exception) {
+            Resource.Failure(resources.getString(R.string.network_error))
+        }
+    }
+
+    override suspend fun registerDeviceId(
+        deviceId: String
+    ): Resource<Device> = withContext(Dispatchers.IO){
+        try {
+
+            restApiService.registerDeviceId(deviceId).let {
+                Resource.Success(it.responseBody)
+            }
+        } catch (e: Exception) {
+            Resource.Failure(resources.getString(R.string.network_error))
+        }
+    }
+
+    override suspend fun checkDevice(
+        deviceId: String
+    ): Resource<Device> = withContext(Dispatchers.IO){
+        try {
+
+            restApiService.checkDevice(deviceId).let {
+                Resource.Success(it.responseBody)
+            }
+        } catch (e: Exception) {
             Resource.Failure(resources.getString(R.string.network_error))
         }
     }
@@ -201,6 +228,27 @@ class RestApiRepositoryImpl @Inject constructor(
                     storCd = storCd,
                 )).let {
                 Resource.Success(it.responseBody)
+            }
+        } catch (e: Exception) {
+            Resource.Failure(resources.getString(R.string.network_error))
+        }
+    }
+
+    override suspend fun getProductList(
+        cmpCd: String,
+        salesOrgCd: String,
+        storCd: String,
+        cornerCd: String
+    ): Resource<List<Product>>  = withContext(Dispatchers.IO) {
+        try {
+            restApiService.getProductList(
+                RestApiRequestDto(
+                    cmpCd = cmpCd,
+                    salesOrgCd = salesOrgCd,
+                    storCd = storCd,
+                    cornerCd = cornerCd
+                )).let {
+                    Resource.Success(it.responseBody)
             }
         } catch (e: Exception) {
             Resource.Failure(resources.getString(R.string.network_error))

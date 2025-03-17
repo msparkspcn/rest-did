@@ -21,15 +21,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.presentation.navigation.NavUtils.navigateAsSecondScreen
 import com.secta9ine.rest.did.presentation.navigation.Screen
 import com.secta9ine.rest.did.util.UiString
 
+private const val TAG = "ProductScreen"
 @Composable
 fun ProductScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController? = null,
-    viewModel: ProductViewModel = hiltViewModel()
+    viewModel: ProductViewModel = hiltViewModel(),
+    wsViewModel: WebSocketViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
@@ -43,12 +46,16 @@ fun ProductScreen(
         focusRequester.requestFocus()
         viewModel.uiState.collect {
             when(it) {
-                is ProductViewModel.UiState.NavigateToDevice -> {
-                    navController?.navigateAsSecondScreen(Screen.DeviceScreen.route)
+                is ProductViewModel.UiState.UpdateDevice -> {
+                    var displayCd = viewModel.getDisplayCd()
+                    if(displayCd=="1234") {
+                        navController?.navigateAsSecondScreen(Screen.OrderStatusScreen.route)
+                    }
+                    else {
+                        //같은 화면으로 이동할 필요 없고 업데이트된 로컬 db에서 조회에서 데이터 렌더링 다시 실행
+                    }
                 }
-                is ProductViewModel.UiState.NavigateToOrderStatus -> {
-                    navController?.navigateAsSecondScreen(Screen.OrderStatusScreen.route)
-                }
+
                 is ProductViewModel.UiState.Error -> {
                     dialogMessage = UiString.TextString(it.message)
                 }
@@ -75,10 +82,20 @@ fun ProductScreen(
                 }
             }
     ) {
-//            SingleProduct(productList = viewModel.productList)
-            TwoProducts(productList = viewModel.productList)
-//        ProductList(productList = viewModel.productList)
-//        SpecialProductList(productList = viewModel.productList)
+        when (viewModel.displayCd) {
+            "1" -> {
+                SingleProduct(productList = viewModel.productList)
+            }
+            "2" -> {
+                TwoProducts(productList = viewModel.productList)
+            }
+            "3" -> {
+                ProductList(productList = viewModel.productList)
+            }
+            "4" -> {
+                SpecialProductList(productList = viewModel.productList)
+            }
+        }
     }
 
 }

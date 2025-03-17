@@ -25,4 +25,5 @@
     <string name="unauthorized_error">유효하지 않은 API 키입니다.\n다시 로그인 해주세요.</string>
     <string name="completed_order_msg">주문하신 음식\n나왔습니다</string>
     <string name="currency_unit">원</string>
+    <string name="no_device_config_error">디바이스 정보가 없습니다.</string>
 </resources>

@@ -10,11 +10,14 @@ import com.secta9ine.rest.did.domain.model.OrderStatus
 @Dao
 interface OrderStatusDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(orderStatus: OrderStatus)
+    suspend fun insertAll(orderStatus: List<OrderStatus>)
 
     @Query("DELETE FROM ORDER_STATUS")
     suspend fun deleteAll()
 
     @Transaction
-    suspend fun sync()
+    suspend fun sync(list: List<OrderStatus>) {
+        deleteAll()
+        insertAll(list)
+    }
 }

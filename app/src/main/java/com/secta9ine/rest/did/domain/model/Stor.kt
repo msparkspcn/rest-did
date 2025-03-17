@@ -5,7 +5,7 @@ import androidx.room.Entity
 
 @Entity(
     tableName = "MST_STOR",
-    primaryKeys = ["CMP_CD", "STORE_CD"]
+    primaryKeys = ["CMP_CD", "SALES_ORG_CD", "STOR_CD"]
 )
 data class Stor (
     @ColumnInfo(name = "CMP_CD") val cmpCd: String = "",

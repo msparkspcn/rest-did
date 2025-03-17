@@ -11,13 +11,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
+import com.secta9ine.rest.did.domain.usecase.RegisterUseCases
+import com.secta9ine.rest.did.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -27,16 +29,15 @@ import okhttp3.WebSocketListener
 import org.json.JSONException
 import org.json.JSONObject
 import javax.inject.Inject
-import kotlin.system.exitProcess
 
 @HiltViewModel
 class WebSocketViewModel
-@Inject constructor
-    (
+@Inject constructor(
     application: Application,
-    private val dataStoreRepository: DataStoreRepository
+    private val dataStoreRepository: DataStoreRepository,
+    private val registerUseCases: RegisterUseCases,
 ) : AndroidViewModel(application) {
-    private val TAG = this.javaClass.simpleName
+    private val tag = this.javaClass.simpleName
     private var webSocket: WebSocket? = null
     private var isConnected = false
     private var retryJob: Job? = null
@@ -46,24 +47,24 @@ class WebSocketViewModel
     var androidId by mutableStateOf("")
         private set
     init {
-        uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
+        uiState.onEach { Log.d(tag, "uiState=$it") }.launchIn(viewModelScope)
         observeNetworkChanges()
         connectWebSocket()
     }
 
     private fun connectWebSocket() {
-        Log.d(TAG,"connectWebSocket")
+        Log.d(tag,"connectWebSocket")
         androidId = Settings.Secure.getString(getApplication<Application>().contentResolver, Settings.Secure.ANDROID_ID)
 
-        Log.d(TAG, "ANDROID_ID: $androidId")
+        Log.d(tag, "ANDROID_ID: $androidId")
         if (isConnected) {
-            Log.d(TAG,"already connected")
+            Log.d(tag,"already connected")
             return
         }
 
         WebSocketManager.connect(object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
-                Log.d(TAG, "Connected") //connect 후 구독 요청
+                Log.d(tag, "Connected") //connect 후 구독 요청
                 this@WebSocketViewModel.webSocket = webSocket
                 isConnected = true
                 subscribeDeviceEvent() //장비 이벤트 구독(cmp,sales,stor,corner,deviceNo,displayMenuCd,rollingYn,apiKey 변경 여부 감지)
@@ -76,45 +77,75 @@ class WebSocketViewModel
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 try {
-                    Log.d(TAG, "Message received: $text")
+                    Log.d(tag, "Message received: $text")
 
                     /**/
                     val jsonObject =JSONObject(text)
                     val event = jsonObject.getString("type")
                     val message = jsonObject.getString("message")
-                    if(event == "ECHO") {
-                        Log.d(TAG, "앱 재실행")
-                        exitProcess(0)
-                    }
-                    if(event == "ACTIVE") {     //장비 활성화
-                        Log.d(TAG,"message:$message")
-                        viewModelScope.launch {
-                            setDeviceInfo(JSONObject(message))
-                            _uiState.emit(UiState.UpdateDevice)
+                    when (event) {
+                        "ECHO" -> {
+                            Log.d(tag, "앱 재실행")
+                            viewModelScope.launch {
+                                _uiState.emit(UiState.UpdateDevice)
+                            }
+//                            exitProcess(0)
+                        }
+                        "ACTIVE" -> {     //장비 활성화
+                            Log.d(tag,"message:$message")
+                            viewModelScope.launch {
+                                setDeviceInfo(JSONObject(message))
+                                androidId = dataStoreRepository.getDeviceId().first()
+                                Log.d(tag,"ws androidId:$androidId")
+                                registerUseCases.fetch(
+                                    deviceId = androidId
+                                ).let {
+                                    when(it) {
+                                        is Resource.Success -> {
+                                            Log.d(tag,"ws fetch Success")
+                                            registerUseCases.register(it.data!!)
+                                            _uiState.emit(UiState.UpdateDevice)
+                                        }
+                                        is Resource.Failure -> {
+                                            Log.d(tag,"ws fetch Failure")
+                                        }
+                                    }
+                                }
+//                                navController.navigate(Screen.OrderStatusScreen.route)
+                //                            _uiState.emit(UiState.UpdateDevice)
+                            }
+                        }
+                        "DEVICE" -> {   //
+                //                        navC
+                        }
+                        "order_updated" -> {
+                            val data = jsonObject.getJSONObject("data")
+                        }
+                        "product_updated" -> {
+                            val data = jsonObject.getJSONObject("data")
+                        }
+                        "div_updated" -> {
+
                         }
                     }
-
-                    if(event == "order_updated") {
-                        val data = jsonObject.getJSONObject("data")
-                    }
                 } catch (e: JSONException) {
-                    Log.d(TAG,"JSON Parsing Error:${e.message}")
+                    Log.d(tag,"JSON Parsing Error:${e.message}")
                 }
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                Log.e(TAG, "Error: ${t.message ?: "Unknown error"}")
+                Log.e(tag, "Error: ${t.message ?: "Unknown error"}")
 
                 isConnected = false
                 WebSocketManager.close()
                 this@WebSocketViewModel.webSocket = null
 
-                Log.d(TAG, "Attempting to retry connection in 5 seconds...")
+                Log.d(tag, "Attempting to retry connection in 5 seconds...")
                 retryWebSocket()
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                Log.d(TAG, "Closed: $reason")
+                Log.d(tag, "Closed: $reason")
                 isConnected = false
                 if(code != 1000) {
                     retryWebSocket() // 수동으로 종료되지 않았다면 재연결
@@ -130,9 +161,9 @@ class WebSocketViewModel
 //                        dataStoreRepository.setSalesOrgCd(messageObject.getString("salesOrgCd"))
         dataStoreRepository.setStorCd(messageObject.getString("storCd"))
         dataStoreRepository.setCornerCd(messageObject.getString("cornerCd"))
+        dataStoreRepository.setDeviceId(messageObject.getString("deviceId"))
         dataStoreRepository.setDeviceNo(messageObject.getString("deviceNo"))
-        dataStoreRepository.setDeviceNo(messageObject.getString("deviceNo"))
-        RestApiService.updateAuthToken(messageObject.getString("apiKey"))
+//        RestApiService.updateAuthToken(messageObject.getString("apiKey"))
     }
 
     private fun sendMessage(message: String) {
@@ -195,7 +226,7 @@ class WebSocketViewModel
             getApplication<Application>().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         connectivityManager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                Log.d(TAG, "Network available, reconnecting...")
+                Log.d(tag, "Network available, reconnecting...")
 
                 viewModelScope.launch {
                     delay(1000) // 네트워크 복구 후 안정화 대기
@@ -204,7 +235,7 @@ class WebSocketViewModel
             }
 
             override fun onLost(network: Network) {
-                Log.e(TAG, "Network lost")
+                Log.e(tag, "Network lost")
                 isConnected = false
             }
         })

@@ -1,24 +1,28 @@
 package com.secta9ine.rest.did.presentation.splash
 
 import android.app.Application
-import android.content.Intent
 import android.content.res.Resources
 import android.provider.Settings
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
+import com.secta9ine.rest.did.domain.repository.DeviceRepository
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
+import com.secta9ine.rest.did.domain.usecase.RegisterUseCases
+import com.secta9ine.rest.did.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.lang.RuntimeException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,6 +30,8 @@ class SplashViewModel @Inject constructor(
     private val application: Application,
     private val dataStoreRepository: DataStoreRepository,
     private val restApiRepository: RestApiRepository,
+    private val deviceRepository: DeviceRepository,
+    private val registerUseCases: RegisterUseCases,
     private val resources: Resources
 ) : ViewModel() {
     private val TAG = this.javaClass.simpleName
@@ -40,8 +46,41 @@ class SplashViewModel @Inject constructor(
             Settings.Secure.ANDROID_ID)
 
         viewModelScope.launch {
-            restApiRepository.getDevice(androidId).let {
-                Log.d(TAG,"device info:${it}")
+            restApiRepository.checkDevice(androidId).let {
+                when(it) {
+                    is Resource.Success -> {
+                        if(it.data!=null) {  //인증된 경우 재등록 필요 없음.
+                            var device = it.data
+                            if(device.apiKey!=null) {
+                                RestApiService.updateAuthToken(device.apiKey!!)
+                            }
+                            registerUseCases.fetch(androidId).let {
+                                when(it) {
+                                    is Resource.Success -> {
+                                        Log.d(TAG,"마스터 수신 성공")
+                                        if(it.data!=null) {
+                                            registerUseCases.register(it.data!!)
+                                            _uiState.emit(UiState.UpdateDevice)
+                                        } else {
+
+                                        }
+
+                                    }
+                                    is Resource.Failure -> {
+                                        Log.d(TAG,"설정완료 필요 it:$it")
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            restApiRepository.registerDeviceId(androidId).let {    //등록
+                                Log.d(TAG,"device info:${it}")
+                            }
+                        }
+                    }
+                    is Resource.Failure -> {}
+                }
+
             }
 
             /*setDevice
@@ -69,11 +108,19 @@ class SplashViewModel @Inject constructor(
         // or null check -> pass 시 장비 매핑 정보 db 업데이트 -> displayMenu로 이동
     }
 
-    suspend fun getDevice() {
+    suspend fun updateUiState(state: UiState) {
+        _uiState.emit(state)
+    }
 
-        restApiRepository.getDevice(androidId).let {
-                Log.d(TAG,"device info:${it}")
+    suspend fun getDisplayCd(): String {
+        val device = deviceRepository.getDevice(
+            androidId
+        ).firstOrNull() ?: throw RuntimeException("")
+        val displayCd = device.displayMenuCd
+        if(displayCd == "1234") {
+            return "1234"
         }
+        return ""
     }
 
     sealed interface UiState {
@@ -83,6 +130,7 @@ class SplashViewModel @Inject constructor(
         object Product : UiState
         object Idle : UiState
         object Restart : UiState
+        object UpdateDevice : UiState
         data class Error(val message: String) : UiState
     }
 }

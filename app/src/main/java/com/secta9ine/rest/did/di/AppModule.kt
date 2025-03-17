@@ -2,12 +2,19 @@ package com.secta9ine.rest.did.di
 
 import android.app.Application
 import android.content.res.Resources
+import com.secta9ine.rest.did.data.local.database.AppDatabase
 import com.secta9ine.rest.did.data.local.repository.DataStoreRepositoryImpl
+import com.secta9ine.rest.did.data.local.repository.DeviceRepositoryImpl
+import com.secta9ine.rest.did.data.local.repository.OrderStatusRepositoryImpl
+import com.secta9ine.rest.did.data.local.repository.ProductRepositoryImpl
 import com.secta9ine.rest.did.data.local.repository.dataStore
 import com.secta9ine.rest.did.data.remote.api.AuthInterceptor
 import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.data.remote.repository.RestApiRepositoryImpl
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
+import com.secta9ine.rest.did.domain.repository.DeviceRepository
+import com.secta9ine.rest.did.domain.repository.OrderStatusRepository
+import com.secta9ine.rest.did.domain.repository.ProductRepository
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
 import dagger.Module
 import dagger.Provides
@@ -38,4 +45,22 @@ class AppModule {
     @Provides
     fun provideRestApiRepository(restApiService: RestApiService, app: Application): RestApiRepository =
         RestApiRepositoryImpl(app.resources, restApiService)
+    @Singleton
+    @Provides
+    fun provideAppDatabase(app: Application): AppDatabase = AppDatabase.create(app)
+
+    @Singleton
+    @Provides
+    fun provideDeviceRepository(db: AppDatabase): DeviceRepository =
+        DeviceRepositoryImpl(db.deviceDao)
+
+    @Singleton
+    @Provides
+    fun provideOrderStatusRepository(db: AppDatabase): OrderStatusRepository =
+        OrderStatusRepositoryImpl(db.orderStatusDao)
+
+    @Singleton
+    @Provides
+    fun provideProductRepository(db: AppDatabase): ProductRepository =
+        ProductRepositoryImpl(db.productDao)
 }

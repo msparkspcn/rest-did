@@ -10,6 +10,8 @@ interface DataStoreRepository {
     suspend fun setStorCd(value: String)
     fun getCornerCd(): Flow<String>
     suspend fun setCornerCd(value: String)
+    fun getDeviceId(): Flow<String>
+    suspend fun setDeviceId(value: String)
     fun getDeviceNo(): Flow<String>
     suspend fun setDeviceNo(value: String)
 

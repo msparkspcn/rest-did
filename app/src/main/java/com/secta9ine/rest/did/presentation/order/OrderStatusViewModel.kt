@@ -3,15 +3,22 @@ package com.secta9ine.rest.did.presentation.order
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.secta9ine.rest.did.domain.repository.DataStoreRepository
+import com.secta9ine.rest.did.domain.repository.DeviceRepository
+import com.secta9ine.rest.did.presentation.splash.SplashViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import java.lang.RuntimeException
 import javax.inject.Inject
 
 @HiltViewModel
 class OrderStatusViewModel @Inject constructor(
-
+    private val dataStoreRepository: DataStoreRepository,
+    private val deviceRepository: DeviceRepository,
 ) : ViewModel() {
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
@@ -55,8 +62,24 @@ class OrderStatusViewModel @Inject constructor(
         }
     }
 
+    suspend fun getDisplayCd(): String {
+        val device = deviceRepository.getDevice(
+            dataStoreRepository.getDeviceId().first()
+        ).firstOrNull() ?: throw RuntimeException("")
+        val displayCd = device.displayMenuCd
+        if(displayCd == "1234") {
+            return "1234"
+        }
+        return ""
+    }
+
+    suspend fun updateUiState(state: UiState) {
+        _uiState.emit(state)
+    }
+
     sealed interface UiState {
         object Loading : UiState
+        object UpdateDevice : UiState
         object NavigateToDevice : UiState
         object NavigateToProduct : UiState
         object Idle : UiState

@@ -42,7 +42,7 @@ fun AppNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.DeviceScreen.route,
+        startDestination = Screen.SplashScreen.route,
         modifier = modifier
     ) {
         composable(
@@ -65,7 +65,7 @@ fun AppNavHost(
         }
         composable(route = Screen.SplashScreen.route) {
             SplashScreen(navController = navController,
-                viewModel2 = webSocketViewModel)
+                wsViewModel = webSocketViewModel)
         }
     }
 }

@@ -6,18 +6,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.secta9ine.rest.did.domain.model.Device
 import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.repository.DataStoreRepository
+import com.secta9ine.rest.did.domain.repository.DeviceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.lang.RuntimeException
 import javax.inject.Inject
 
 @HiltViewModel
 class ProductViewModel @Inject constructor(
-    
+    private val deviceRepository: DeviceRepository,
+    private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
@@ -25,11 +32,16 @@ class ProductViewModel @Inject constructor(
     
     var productList by mutableStateOf(emptyList<Product>())
         private set
-
+    var device by mutableStateOf(Device())
+    var displayCd: String? = null
     init {
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
 
+
         viewModelScope.launch {
+            val deviceId =dataStoreRepository.getDeviceId().first()
+            device = deviceRepository.getDevice(deviceId).first()
+
             productList = listOf(
                 Product(
                     productNm = "탐라 흑돼지 김치찌개",
@@ -103,8 +115,20 @@ class ProductViewModel @Inject constructor(
         }
     }
 
+    suspend fun getDisplayCd(): String {
+        val device = deviceRepository.getDevice(
+            dataStoreRepository.getDeviceId().first()
+        ).firstOrNull() ?: throw RuntimeException("")
+        val displayCd = device.displayMenuCd
+        if(displayCd == "1234") {
+            return "1234"
+        }
+        return ""
+    }
+
     sealed interface UiState {
         object Loading : UiState
+        object UpdateDevice : UiState
         object NavigateToDevice : UiState
         object NavigateToOrderStatus :UiState
         object Idle : UiState

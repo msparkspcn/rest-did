@@ -12,6 +12,7 @@ import com.secta9ine.rest.did.domain.model.Cmp
 import com.secta9ine.rest.did.domain.model.Corner
 import com.secta9ine.rest.did.domain.model.Device
 import com.secta9ine.rest.did.domain.model.OrderStatus
+import com.secta9ine.rest.did.domain.model.Product
 import com.secta9ine.rest.did.domain.model.SalesOrg
 import com.secta9ine.rest.did.domain.model.Stor
 import com.secta9ine.rest.did.domain.model.User
@@ -40,9 +41,20 @@ interface RestApiService {
     ):RestApiResponseDto<User>
 
     @GET("/api/v1/did/device/{deviceId}")
+    suspend fun registerDeviceId(
+        @Path("deviceId") storeCd: String
+    ):RestApiResponseDto<Device>
+
+    @GET("/api/v1/did/auth/{deviceId}")
+    suspend fun checkDevice(
+        @Path("deviceId") storeCd: String
+    ):RestApiResponseDto<Device>
+
+    @GET("/api/v1/did/device/{deviceId}")
     suspend fun getDevice(
         @Path("deviceId") storeCd: String
     ):RestApiResponseDto<Device>
+
 
     @PUT("/api/v1/did/device")
     suspend fun setDevice(
@@ -73,6 +85,12 @@ interface RestApiService {
     suspend fun getCornerList (
         @Body body: CornerRequestDto
     ):RestApiResponseDto<List<Corner>>
+
+    @POST("/api/v1/product/list")
+    suspend fun getProductList (
+        @Body body: RestApiRequestDto
+    ):RestApiResponseDto<List<Product>>
+
     companion object {
         private const val BASE_URL = "https://s9rest.ngrok.io/"
 

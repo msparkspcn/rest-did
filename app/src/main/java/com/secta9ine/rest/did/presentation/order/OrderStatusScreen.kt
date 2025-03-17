@@ -1,5 +1,6 @@
 package com.secta9ine.rest.did.presentation.order
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -46,16 +47,19 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.secta9ine.rest.did.R
+import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.presentation.navigation.NavUtils.navigateAsSecondScreen
 import com.secta9ine.rest.did.presentation.navigation.Screen
 import com.secta9ine.rest.did.util.UiString
 import kotlinx.coroutines.delay
 
+private const val TAG = "OrderStatusScreen"
 @Composable
 fun OrderStatusScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController? = null,
-    viewModel: OrderStatusViewModel = hiltViewModel()
+    viewModel: OrderStatusViewModel = hiltViewModel(),
+    wsViewModel: WebSocketViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
@@ -64,17 +68,22 @@ fun OrderStatusScreen(
     var dialogMessage by remember { mutableStateOf<UiString?>(null) }
 
     val uiState by viewModel.uiState.collectAsState(initial = null)
+    val uiState2 by wsViewModel.uiState.collectAsState(initial = null)
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
         viewModel.uiState.collect {
             when(it) {
-                is OrderStatusViewModel.UiState.NavigateToDevice -> {
-//                    navController?.navigate(Screen.DeviceScreen.route)
-//                    navController?.popBackStack()
-                    navController?.navigateAsSecondScreen(Screen.DeviceScreen.route)
-                }
-                is OrderStatusViewModel.UiState.NavigateToProduct -> {
+                is OrderStatusViewModel.UiState.UpdateDevice -> {
+                    Log.d(TAG,"H2222")
+//                    var displayCd = viewModel.getDisplayCd()
+//                    if(displayCd=="1234") {
+//                        //같은 화면으로 이동할 필요 없고 업데이트된 로컬 db에서 조회에서 데이터 렌더링 다시 실행
+//                    }
+//                    else {
+//                        navController?.navigateAsSecondScreen(Screen.ProductScreen.route)
+//                    }
+                    Log.d(TAG,"OrderStatusViewModel updateDevice")
                     navController?.navigateAsSecondScreen(Screen.ProductScreen.route)
                 }
                 is OrderStatusViewModel.UiState.Error -> {
@@ -82,6 +91,16 @@ fun OrderStatusScreen(
                 }
                 else -> {}
             }
+        }
+    }
+
+    LaunchedEffect(uiState2) {
+        when(uiState2) {
+            is WebSocketViewModel.UiState.UpdateDevice -> {
+                Log.d(TAG,"ws updateDevice")
+                viewModel.updateUiState(OrderStatusViewModel.UiState.UpdateDevice)
+            }
+            else->{}
         }
     }
     Scaffold {
@@ -94,7 +113,9 @@ fun OrderStatusScreen(
                 .onKeyEvent { keyEvent ->
                     if (keyEvent.type == KeyEventType.KeyUp) {
                         viewModel.onEnterKeyPressed()
-                        Toast.makeText(context, "Enter key pressed!", Toast.LENGTH_SHORT).show()
+                        Toast
+                            .makeText(context, "Enter key pressed!", Toast.LENGTH_SHORT)
+                            .show()
                         true
                     } else {
                         false

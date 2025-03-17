@@ -41,12 +41,12 @@ private const val TAG = "SplashScreen"
 fun SplashScreen(
     navController: NavHostController? = null,
     viewModel: SplashViewModel = hiltViewModel(),
-    viewModel2: WebSocketViewModel = hiltViewModel()
+    wsViewModel: WebSocketViewModel = hiltViewModel()
 ) {
     var dialogMessage by remember { mutableStateOf<UiString?>(null) }
     var dialogContents by remember { mutableStateOf<UiString?>(null) }
     val uiState by viewModel.uiState.collectAsState(initial = SplashViewModel.UiState.Idle)
-    val uiState2 by viewModel2.uiState.collectAsState(initial = WebSocketViewModel.UiState.Idle)
+    val uiState2 by wsViewModel.uiState.collectAsState(initial = WebSocketViewModel.UiState.Idle)
 
     LaunchedEffect(uiState) {
         Log.d(TAG, "111 uiState:$uiState")
@@ -55,11 +55,17 @@ fun SplashScreen(
             is SplashViewModel.UiState.Login -> {
                 navController?.navigate(Screen.DeviceScreen.route)
             }
-            is SplashViewModel.UiState.OrderStatus -> {
+
+            is SplashViewModel.UiState.UpdateDevice -> {
+                Log.d(TAG,"splash updateDevice")
                 navController?.navigate(Screen.OrderStatusScreen.route)
-            }
-            is SplashViewModel.UiState.Product -> {
-                navController?.navigate(Screen.ProductScreen.route)
+//                var displayCd = viewModel.getDisplayCd()
+//                if(displayCd=="1234") {
+//                    navController?.navigate(Screen.OrderStatusScreen.route)
+//                }
+//                else {
+//                    navController?.navigate(Screen.ProductScreen.route)
+//                }
             }
             is SplashViewModel.UiState.Error -> {
                 dialogMessage = UiString.TextString((uiState as SplashViewModel.UiState.Error).message)
@@ -74,8 +80,10 @@ fun SplashScreen(
 
         when (uiState2) {
             is WebSocketViewModel.UiState.UpdateDevice -> {
+                Log.d(TAG,"ws updateDevice")
+                //usecase 에서 장비 설정 완료 후 display할 화면으로 이동
 //                viewModel.getDevice()
-                navController?.navigate(Screen.ProductScreen.route)
+                viewModel.updateUiState(SplashViewModel.UiState.UpdateDevice)
             }
 
 //            is WebSocketViewModel.UiState.Error -> {
@@ -97,7 +105,7 @@ fun SplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = viewModel2.androidId,
+                text = wsViewModel.androidId,
                 style = TextStyle(fontSize = 40.sp),
                 fontWeight = FontWeight.Bold
             )

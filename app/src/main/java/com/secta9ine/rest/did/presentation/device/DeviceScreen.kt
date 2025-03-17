@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.secta9ine.rest.did.R
+import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.presentation.navigation.NavUtils.navigateAsSecondScreen
 import com.secta9ine.rest.did.presentation.navigation.Screen
 import com.secta9ine.rest.did.ui.component.AppAlertDialog
@@ -75,13 +76,16 @@ private const val TAG = "DeviceScreen"
 @Composable
 fun DeviceScreen(
     navController: NavHostController? = null,
-    viewModel: DeviceViewModel = hiltViewModel()
+    viewModel: DeviceViewModel = hiltViewModel(),
+    viewModel2: WebSocketViewModel = hiltViewModel()
 ) {
     var dialogMessage by remember { mutableStateOf<UiString?>(null) }
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
     val uiState by viewModel.uiState.collectAsState(initial = DeviceViewModel.UiState.Init)
 //    val uiState by viewModel.uiState.collectAsState(initial = null)
+    val uiState2 by viewModel2.uiState.collectAsState(initial = WebSocketViewModel.UiState.Idle)
+
     var salesOrgNmList by remember (viewModel.salesOrgNmList) {
         mutableStateOf(0)
     }
@@ -111,9 +115,19 @@ fun DeviceScreen(
                 }
 
             }
-
         }
+    }
+    LaunchedEffect(uiState2) {
+        when (uiState2) {
+            is WebSocketViewModel.UiState.UpdateDevice -> {
+                Log.d(TAG, "여기서도 업데이트")
 
+            }
+
+            else -> {
+
+            }
+        }
     }
 
     if(uiState is DeviceViewModel.UiState.Init) {

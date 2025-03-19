@@ -18,4 +18,7 @@ data class Device (
     @ColumnInfo(name = "ROLLING_YN") val rollingYn: String? = null,
     @ColumnInfo(name = "API_KEY") val apiKey: String? = null,
     @ColumnInfo(name = "USE_YN") val useYn: String? = null,
+    @ColumnInfo(name = "MESSAGE1") val message1: String? = null,
+    @ColumnInfo(name = "MESSAGE2") val message2: String? = null,
+    @ColumnInfo(name = "MESSAGE3") val message3: String? = null,
 )

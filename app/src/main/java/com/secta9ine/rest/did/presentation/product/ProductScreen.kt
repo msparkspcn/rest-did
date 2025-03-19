@@ -83,17 +83,25 @@ fun ProductScreen(
             }
     ) {
         when (viewModel.displayCd) {
-            "1" -> {
-                SingleProduct(productList = viewModel.productList)
+            "01" -> {
+                SingleProduct(
+                    productList = viewModel.productList,
+                    rollingYn = viewModel.rollingYn)
             }
-            "2" -> {
-                TwoProducts(productList = viewModel.productList)
+            "03" -> {
+                TwoProducts(
+                    productList = viewModel.productList,
+                    rollingYn = viewModel.rollingYn)
             }
-            "3" -> {
-                ProductList(productList = viewModel.productList)
+            "04" -> {
+                ProductList(
+                    productList = viewModel.productList,
+                    rollingYn = viewModel.rollingYn)
             }
-            "4" -> {
-                SpecialProductList(productList = viewModel.productList)
+            "05" -> {
+                SpecialProductList(
+                    productList = viewModel.productList,
+                    rollingYn = viewModel.rollingYn)
             }
         }
     }

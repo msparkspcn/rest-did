@@ -29,7 +29,8 @@ import kotlinx.coroutines.delay
 private const val TAG = "ProductList"
 @Composable
 fun ProductList(
-    productList: List<Product>
+    productList: List<Product>,
+    rollingYn: String,
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp

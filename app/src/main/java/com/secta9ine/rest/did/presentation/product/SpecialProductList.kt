@@ -28,7 +28,8 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SpecialProductList(
-    productList: List<Product>
+    productList: List<Product>,
+    rollingYn: String,
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp

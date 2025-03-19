@@ -28,10 +28,10 @@ import javax.inject.Inject
 @HiltViewModel
 class SplashViewModel @Inject constructor(
     private val application: Application,
-    private val dataStoreRepository: DataStoreRepository,
     private val restApiRepository: RestApiRepository,
     private val deviceRepository: DeviceRepository,
     private val registerUseCases: RegisterUseCases,
+    private val dataStoreRepository: DataStoreRepository,
     private val resources: Resources
 ) : ViewModel() {
     private val TAG = this.javaClass.simpleName
@@ -46,6 +46,7 @@ class SplashViewModel @Inject constructor(
             Settings.Secure.ANDROID_ID)
 
         viewModelScope.launch {
+            dataStoreRepository.setDeviceId(androidId)
             restApiRepository.checkDevice(androidId).let {
                 when(it) {
                     is Resource.Success -> {
@@ -54,7 +55,8 @@ class SplashViewModel @Inject constructor(
                             if(device.apiKey!=null) {
                                 RestApiService.updateAuthToken(device.apiKey!!)
                             }
-                            registerUseCases.fetch(androidId).let {
+                            /*상품, 주문 마스터 수신 전까지 주석
+                            registerUseCases.fetch(device).let {
                                 when(it) {
                                     is Resource.Success -> {
                                         Log.d(TAG,"마스터 수신 성공")
@@ -70,6 +72,13 @@ class SplashViewModel @Inject constructor(
                                         Log.d(TAG,"설정완료 필요 it:$it")
                                     }
                                 }
+                            }
+                            */
+                            if(it.data!=null) {
+                                registerUseCases.register(device)
+                                _uiState.emit(UiState.UpdateDevice)
+                            } else {
+
                             }
                         }
                         else {
@@ -112,15 +121,13 @@ class SplashViewModel @Inject constructor(
         _uiState.emit(state)
     }
 
-    suspend fun getDisplayCd(): String {
+    suspend fun getDisplayMenuCd(): String {
         val device = deviceRepository.getDevice(
             androidId
         ).firstOrNull() ?: throw RuntimeException("")
-        val displayCd = device.displayMenuCd
-        if(displayCd == "1234") {
-            return "1234"
-        }
-        return ""
+        Log.d(TAG,"device:$device")
+        return device.displayMenuCd!!
+
     }
 
     sealed interface UiState {

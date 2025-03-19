@@ -49,6 +49,13 @@ android {
     lint {
         baseline = file("lint-baseline.xml")
     }
+    buildToolsVersion = "28.0.3"
+}
+
+kapt {
+    arguments {
+        arg("room.schemaLocation", file("$projectDir/schemas").path)
+    }
 }
 
 dependencies {

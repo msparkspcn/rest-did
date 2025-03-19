@@ -57,15 +57,15 @@ fun SplashScreen(
             }
 
             is SplashViewModel.UiState.UpdateDevice -> {
-                Log.d(TAG,"splash updateDevice")
-                navController?.navigate(Screen.OrderStatusScreen.route)
-//                var displayCd = viewModel.getDisplayCd()
-//                if(displayCd=="1234") {
-//                    navController?.navigate(Screen.OrderStatusScreen.route)
-//                }
-//                else {
-//                    navController?.navigate(Screen.ProductScreen.route)
-//                }
+                Log.d(TAG,"### splash updateDevice")
+                var displayCd = viewModel.getDisplayMenuCd()
+                Log.d(TAG,"### displayCd:$displayCd")
+                if(displayCd=="02") {
+                    navController?.navigate(Screen.OrderStatusScreen.route)
+                }
+                else {
+                    navController?.navigate(Screen.ProductScreen.route)
+                }
             }
             is SplashViewModel.UiState.Error -> {
                 dialogMessage = UiString.TextString((uiState as SplashViewModel.UiState.Error).message)

@@ -34,14 +34,18 @@ class ProductViewModel @Inject constructor(
         private set
     var device by mutableStateOf(Device())
     var displayCd: String? = null
+    var rollingYn: String = "N"
     init {
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
 
 
         viewModelScope.launch {
             val deviceId =dataStoreRepository.getDeviceId().first()
+            Log.d(TAG,"###상품화면 deviceId:$deviceId")
             device = deviceRepository.getDevice(deviceId).first()
-
+            Log.d(TAG,"###상품화면 device:$device")
+            displayCd = device.displayMenuCd!!
+            rollingYn = device.rollingYn!!
             productList = listOf(
                 Product(
                     productNm = "탐라 흑돼지 김치찌개",
@@ -119,11 +123,8 @@ class ProductViewModel @Inject constructor(
         val device = deviceRepository.getDevice(
             dataStoreRepository.getDeviceId().first()
         ).firstOrNull() ?: throw RuntimeException("")
-        val displayCd = device.displayMenuCd
-        if(displayCd == "1234") {
-            return "1234"
-        }
-        return ""
+        return device.displayMenuCd!!
+
     }
 
     sealed interface UiState {

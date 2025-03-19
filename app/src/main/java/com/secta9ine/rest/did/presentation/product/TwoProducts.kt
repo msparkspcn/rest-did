@@ -23,14 +23,13 @@ import kotlinx.coroutines.delay
 private const val TAG = "TwoProducts"
 @Composable
 fun TwoProducts(
-    productList: List<Product>
+    productList: List<Product>,
+    rollingYn: String,
 ) {
     var displayedProducts by remember { mutableStateOf(productList.take(2)) }
     var productIndex by remember { mutableStateOf(0) }
     LaunchedEffect(Unit) {
-        if(productList.size<3) {
-            displayedProducts = productList
-        } else {
+        if(productList.size>2&&rollingYn=="Y") {
             while(true) {
                 delay(5000)
                 Log.d(TAG,"productIndex:$productIndex, displayedProducts:$displayedProducts")

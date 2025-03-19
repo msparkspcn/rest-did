@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.data.local.database.AppDatabase
+import com.secta9ine.rest.did.domain.model.Device
 import com.secta9ine.rest.did.domain.model.DeviceInfo
 import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.domain.model.Product
@@ -28,69 +29,67 @@ class RegisterUseCases @Inject constructor(
 
 ) {
     private val tag = this.javaClass.simpleName
-    suspend fun fetch(deviceId: String): Resource<DeviceInfo> =
+    suspend fun fetch(device: Device): Resource<DeviceInfo> =
         withContext(Dispatchers.IO) {
-            restApiRepository.getDevice(deviceId).let { //device 조회 하는 api 로 교체
-                when(it) {
-                    is Resource.Success -> {
-                        val device = it.data
-                            ?:return@withContext Resource.Failure("")
+            Log.d(tag,"device:$device")
 
-                        Log.d(tag,"device:$device")
-
-                        // 필수 필드 체크
-                        if (device.cmpCd == null || device.salesOrgCd == null ||
-                            device.storCd == null || device.cornerCd == null) {
-                            return@withContext Resource.Failure(app.resources.getString(R.string.no_device_config_error))
-                        }
-                        val results = listOf(
-                            async {
-                                restApiRepository.getProductList(
-                                    device.cmpCd,
-                                    device.salesOrgCd,
-                                    device.storCd,
-                                    device.cornerCd
-                                )
-                            },
-                            async {
-                                restApiRepository.getOrderList(
-                                    device.cmpCd,
-                                    device.salesOrgCd,
-                                    device.storCd,
-                                    device.cornerCd
-                                )
-                            },
-                        )
-                            .awaitAll()
-                            .also {
-                                it.firstOrNull { it is Resource.Failure }?.let {
-                                    return@withContext Resource.Failure(it.message!!)
-                                }
-                                it.firstOrNull { it.data == null }?.let {
-                                    return@withContext Resource.Failure(app.resources.getString(R.string.no_device_config_error))
-                                }
-                            }
-                        Resource.Success(
-                            DeviceInfo(
-                                device = device,
-                                productList = results[0].data!! as List<Product>,
-                                orderStatusList = results[1].data!! as List<OrderStatus>,
-                            )
-                        )
-                    }
-                    is Resource.Failure -> {
-                        Resource.Failure(it.message!!)
-                    }
-                }
+            // 필수 필드 체크
+            if (device.cmpCd == null || device.salesOrgCd == null ||
+                device.storCd == null || device.cornerCd == null) {
+                return@withContext Resource.Failure(app.resources.getString(R.string.no_device_config_error))
             }
+//            val results = listOf(
+//                async {
+//                    restApiRepository.getProductList(
+//                        device.cmpCd,
+//                        device.salesOrgCd,
+//                        device.storCd,
+//                        device.cornerCd
+//                    )
+//                },
+//                async {
+//                    restApiRepository.getOrderList(
+//                        device.cmpCd,
+//                        device.salesOrgCd,
+//                        device.storCd,
+//                        device.cornerCd
+//                    )
+//                },
+//            )
+//                .awaitAll()
+//                .also {
+//                    it.firstOrNull { it is Resource.Failure }?.let {
+//                        return@withContext Resource.Failure(it.message!!)
+//                    }
+//                    it.firstOrNull { it.data == null }?.let {
+//                        return@withContext Resource.Failure(app.resources.getString(R.string.no_device_config_error))
+//                    }
+//                }
+            Resource.Success(
+                DeviceInfo(
+                    device = device,
+//                    productList = results[0].data!! as List<Product>,
+//                    orderStatusList = results[1].data!! as List<OrderStatus>,
+                )
+            )
         }
 
+    /*
     suspend fun register(deviceInfo: DeviceInfo) = withContext(Dispatchers.IO) {
         database.clearAllTables()
 
         deviceRepository.sync(deviceInfo.device)
 
-        productRepository.sync(deviceInfo.productList)
-        orderStatusRepository.sync(deviceInfo.orderStatusList)
+//        productRepository.sync(deviceInfo.productList)
+//        orderStatusRepository.sync(deviceInfo.orderStatusList)
+    }
+     */
+
+    //temp
+    suspend fun register(device: Device) = withContext(Dispatchers.IO) {
+        database.clearAllTables()
+
+        deviceRepository.sync(device)
+
     }
 }

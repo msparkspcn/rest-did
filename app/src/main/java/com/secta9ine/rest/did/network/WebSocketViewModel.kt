@@ -11,8 +11,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.usecase.RegisterUseCases
+import com.secta9ine.rest.did.presentation.splash.SplashViewModel
 import com.secta9ine.rest.did.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -97,6 +99,33 @@ class WebSocketViewModel
                                 setDeviceInfo(JSONObject(message))
                                 androidId = dataStoreRepository.getDeviceId().first()
                                 Log.d(tag,"ws androidId:$androidId")
+
+//                                restApiRepository.checkDevice(androidId).let {
+//                                    when (it) {
+//                                        is Resource.Success -> {
+//                                            if (it.data != null) {  //인증된 경우 재등록 필요 없음.
+//                                                var device = it.data
+//                                                if (device.apiKey != null) {
+//                                                    RestApiService.updateAuthToken(device.apiKey!!)
+//                                                }
+//                                                if (it.data != null) {
+//                                                    registerUseCases.register(device)
+//                                                    _uiState.emit(SplashViewModel.UiState.UpdateDevice)
+//                                                } else {
+//
+//                                                }
+//                                            } else {
+//                                                restApiRepository.registerDeviceId(androidId).let {    //등록
+//                                                    Log.d(TAG, "device info:${it}")
+//                                                }
+//                                            }
+//                                        }
+//
+//                                        is Resource.Failure -> {}
+//                                    }
+//                                }
+
+                                /*
                                 registerUseCases.fetch(
                                     deviceId = androidId
                                 ).let {
@@ -111,6 +140,7 @@ class WebSocketViewModel
                                         }
                                     }
                                 }
+                                 */
 //                                navController.navigate(Screen.OrderStatusScreen.route)
                 //                            _uiState.emit(UiState.UpdateDevice)
                             }

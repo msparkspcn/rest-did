@@ -15,7 +15,6 @@ interface RestApiRepository {
     suspend fun acceptLogin(userId: String, password: String): Resource<User?>
     suspend fun registerDeviceId(deviceId: String): Resource<Device>
     suspend fun checkDevice(deviceId: String): Resource<Device>
-    suspend fun getDevice(deviceId: String): Resource<Device>
     suspend fun setDevice(deviceId: String, cmpCd: String, salesOrgCd:
     String, storCd: String, cornerCd: String, deviceNo: String): Resource<Unit>
     suspend fun getOrderList(cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Resource<List<OrderStatus?>>

@@ -32,8 +32,8 @@ class SrDidAutoRun : BroadcastReceiver() {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         Log.d(TAG,"Main start1")
                         // Foreground Service를 시작하는 방법
-                        val serviceIntent = Intent(context, AutoStartService::class.java)
-                        context.startForegroundService(serviceIntent)
+//                        val serviceIntent = Intent(context, AutoStartService::class.java)
+//                        context.startForegroundService(serviceIntent)
                     } else {
                         // Android 8.0 미만 Activity 시작
                         Log.d(TAG,"Main start2")

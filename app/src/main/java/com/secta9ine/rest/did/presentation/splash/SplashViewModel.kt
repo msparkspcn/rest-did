@@ -1,12 +1,20 @@
 package com.secta9ine.rest.did.presentation.splash
 
+import android.Manifest
+import android.app.Activity
 import android.app.Application
+import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.provider.Settings
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.data.remote.api.RestApiService
@@ -40,6 +48,10 @@ class SplashViewModel @Inject constructor(
 
     var androidId by mutableStateOf("")
         private set
+
+    private val _permissionGranted = MutableLiveData<Boolean>()
+    val permissionGranted: LiveData<Boolean> get() = _permissionGranted
+
     init {
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
         androidId = Settings.Secure.getString(application.contentResolver,
@@ -47,50 +59,7 @@ class SplashViewModel @Inject constructor(
 
         viewModelScope.launch {
             dataStoreRepository.setDeviceId(androidId)
-            restApiRepository.checkDevice(androidId).let {
-                when(it) {
-                    is Resource.Success -> {
-                        if(it.data!=null) {  //인증된 경우 재등록 필요 없음.
-                            var device = it.data
-                            if(device.apiKey!=null) {
-                                RestApiService.updateAuthToken(device.apiKey!!)
-                            }
-                            /*상품, 주문 마스터 수신 전까지 주석
-                            registerUseCases.fetch(device).let {
-                                when(it) {
-                                    is Resource.Success -> {
-                                        Log.d(TAG,"마스터 수신 성공")
-                                        if(it.data!=null) {
-                                            registerUseCases.register(it.data!!)
-                                            _uiState.emit(UiState.UpdateDevice)
-                                        } else {
-
-                                        }
-
-                                    }
-                                    is Resource.Failure -> {
-                                        Log.d(TAG,"설정완료 필요 it:$it")
-                                    }
-                                }
-                            }
-                            */
-                            if(it.data!=null) {
-                                registerUseCases.register(device)
-                                _uiState.emit(UiState.UpdateDevice)
-                            } else {
-
-                            }
-                        }
-                        else {
-                            restApiRepository.registerDeviceId(androidId).let {    //등록
-                                Log.d(TAG,"device info:${it}")
-                            }
-                        }
-                    }
-                    is Resource.Failure -> {}
-                }
-
-            }
+            checkDevice()
 
             /*setDevice
             restApiRepository.setDevice(
@@ -117,6 +86,47 @@ class SplashViewModel @Inject constructor(
         // or null check -> pass 시 장비 매핑 정보 db 업데이트 -> displayMenu로 이동
     }
 
+    suspend fun checkDevice() {
+        Log.d(TAG,"checkDevice")
+        when (val result = restApiRepository.checkDevice(androidId)) {
+            is Resource.Success -> {
+                val device = result.data
+                if (device != null) {
+                    device.apiKey?.let { RestApiService.updateAuthToken(it) }
+
+                    // 상품, 주문 마스터 수신 전까지 주석
+                    /*
+                    when (val masterResult = registerUseCases.fetch(device)) {
+                        is Resource.Success -> {
+                            Log.d(TAG, "마스터 수신 성공")
+                            masterResult.data?.let {
+                                registerUseCases.register(it)
+                                _uiState.emit(UiState.UpdateDevice)
+                            }
+                        }
+                        is Resource.Failure -> {
+                            Log.d(TAG, "설정완료 필요 it:$masterResult")
+                        }
+                    }
+                    */
+
+                    registerUseCases.register(device)
+                    _uiState.emit(UiState.UpdateDevice)
+
+                } else {
+                    registerNewDevice()
+                }
+            }
+            is Resource.Failure -> {
+                Log.d(TAG, "Device check 실패: $result")
+            }
+        }
+    }
+
+    private suspend fun registerNewDevice() {
+        val registerResult = restApiRepository.registerDeviceId(androidId)
+        Log.d(TAG, "device info: $registerResult")
+    }
     suspend fun updateUiState(state: UiState) {
         _uiState.emit(state)
     }
@@ -129,6 +139,19 @@ class SplashViewModel @Inject constructor(
         return device.displayMenuCd!!
 
     }
+    suspend fun checkPermissions(context: Context) {
+        // Check if permissions are granted
+        Log.d(TAG,"권한 확인")
+        val writePermission = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        val readPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
+
+        _permissionGranted.value = (writePermission == PackageManager.PERMISSION_GRANTED && readPermission == PackageManager.PERMISSION_GRANTED)
+        Log.d(TAG,"권한 확인 ${_permissionGranted.value}")
+        if(_permissionGranted.value==false) {
+            _uiState.emit(UiState.GetPermission)
+        }
+    }
+
 
     sealed interface UiState {
         object Loading : UiState
@@ -138,6 +161,8 @@ class SplashViewModel @Inject constructor(
         object Idle : UiState
         object Restart : UiState
         object UpdateDevice : UiState
+        object CheckDevice : UiState
+        object GetPermission : UiState
         data class Error(val message: String) : UiState
     }
 }

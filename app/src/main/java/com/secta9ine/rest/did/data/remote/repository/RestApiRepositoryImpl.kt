@@ -102,19 +102,6 @@ class RestApiRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getDevice(
-        deviceId: String
-    ): Resource<Device> = withContext(Dispatchers.IO){
-        try {
-
-            restApiService.getDevice(deviceId).let {
-                Resource.Success(it.responseBody)
-            }
-        } catch (e: Exception) {
-            Resource.Failure(resources.getString(R.string.network_error))
-        }
-    }
-
     override suspend fun setDevice(
         deviceId: String,
         cmpCd: String,

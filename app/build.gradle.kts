@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -5,9 +8,30 @@ plugins {
     id("com.google.dagger.hilt.android")
 }
 
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+
+val keystoreProperties = Properties()
+
+keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+
 android {
     namespace = "com.secta9ine.rest.did"
     compileSdk = 31
+
+    signingConfigs {
+        create("config") {
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+            storeFile = file(keystoreProperties.getProperty("storeFile"))
+            storePassword = keystoreProperties.getProperty("storePassword")
+        }
+    }
+
+    buildFeatures {
+        aidl = true // Enable AIDL support
+        compose = true
+    }
+
 
     defaultConfig {
         applicationId = "com.secta9ine.rest.did"
@@ -25,15 +49,16 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("config")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
@@ -49,13 +74,16 @@ android {
     lint {
         baseline = file("lint-baseline.xml")
     }
-    buildToolsVersion = "28.0.3"
 }
 
 kapt {
     arguments {
         arg("room.schemaLocation", file("$projectDir/schemas").path)
     }
+}
+
+kotlin {
+    jvmToolchain(11)
 }
 
 dependencies {
@@ -100,4 +128,8 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.1.0")
 
+
+//    implementation(files("libs/gson-2.9.0.jar"))
+    implementation(files("libs/QuberSecurity.jar"))
+    implementation("androidx.appcompat:appcompat:1.4.2")
 }

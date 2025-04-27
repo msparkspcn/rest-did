@@ -33,7 +33,7 @@ fun AppNavHost(
 
     DisposableEffect(navController) {
         val callback = NavController.OnDestinationChangedListener { _, destination, _ ->
-            Log.d(TAG, "### 화면이동: route=${destination.route}")
+            Log.d(TAG, "### 1.0화면이동: route=${destination.route}")
         }
 
         navController.addOnDestinationChangedListener(callback)

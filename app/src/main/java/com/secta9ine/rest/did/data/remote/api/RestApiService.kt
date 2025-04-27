@@ -50,11 +50,6 @@ interface RestApiService {
         @Path("deviceId") storeCd: String
     ):RestApiResponseDto<Device>
 
-    @GET("/api/v1/did/device/{deviceId}")
-    suspend fun getDevice(
-        @Path("deviceId") storeCd: String
-    ):RestApiResponseDto<Device>
-
 
     @PUT("/api/v1/did/device")
     suspend fun setDevice(

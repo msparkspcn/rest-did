@@ -70,6 +70,7 @@ class WebSocketViewModel
                 this@WebSocketViewModel.webSocket = webSocket
                 isConnected = true
                 subscribeDeviceEvent() //장비 이벤트 구독(cmp,sales,stor,corner,deviceNo,displayMenuCd,rollingYn,apiKey 변경 여부 감지)
+                subscribeSoldOutEvent()
 //                subscribeRestartEvents() //재실행 이벤트 구독
                 //DID 상품 이벤트 구독
                 //DID 상품 부가정보 이벤트 구독
@@ -93,12 +94,17 @@ class WebSocketViewModel
                             }
 //                            exitProcess(0)
                         }
+                        "SOLDOUT" -> {
+                            Log.d(tag, "상품 품절 이벤트 message:$message")
+
+                        }
                         "ACTIVE" -> {     //장비 활성화
                             Log.d(tag,"message:$message")
                             viewModelScope.launch {
                                 setDeviceInfo(JSONObject(message))
                                 androidId = dataStoreRepository.getDeviceId().first()
                                 Log.d(tag,"ws androidId:$androidId")
+                                _uiState.emit(UiState.CheckDevice)
 
 //                                restApiRepository.checkDevice(androidId).let {
 //                                    when (it) {
@@ -223,7 +229,10 @@ class WebSocketViewModel
         val subscribeMessage = """{"type": "subscribe", "topic":"DEVICE", "deviceId": "$androidId"}"""
         sendMessage(subscribeMessage)
     }
-    //구독해지(UserId
+    private fun subscribeSoldOutEvent() {    //장비 이벤트 구독
+        val subscribeMessage = """{"type": "subscribe", "topic":"item", "deviceId": "$androidId"}"""
+        sendMessage(subscribeMessage)
+    }
 
     private fun subscribeRestartEvents() {
         val subscribeMessage = """{ "type": "subscribe", "topic": "RESTART", "deviceId": "$androidId"}"""
@@ -285,6 +294,8 @@ class WebSocketViewModel
 
     sealed interface UiState {
         object UpdateDevice : UiState
+        object CheckDevice : UiState
         object Idle : UiState
+
     }
 }

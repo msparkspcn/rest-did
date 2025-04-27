@@ -42,7 +42,7 @@ fun ProductList(
         } else {
             while(true) {
                 delay(5000)
-                Log.d(TAG,"productIndex:$productIndex, displayedProducts:$displayedProducts")
+//                Log.d(TAG,"productIndex:$productIndex, displayedProducts:$displayedProducts")
 
                 if(productIndex + 8 <= productList.size) {
                     displayedProducts = productList.subList(productIndex, productIndex+8)

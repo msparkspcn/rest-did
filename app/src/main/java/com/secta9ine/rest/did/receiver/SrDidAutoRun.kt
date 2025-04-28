@@ -13,6 +13,7 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.secta9ine.rest.did.MainActivity
+import com.secta9ine.rest.did.service.AutoStartService
 import java.util.TreeMap
 
 private val TAG = "SrDidAutoRun"
@@ -32,8 +33,8 @@ class SrDidAutoRun : BroadcastReceiver() {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         Log.d(TAG,"Main start1")
                         // Foreground Service를 시작하는 방법
-//                        val serviceIntent = Intent(context, AutoStartService::class.java)
-//                        context.startForegroundService(serviceIntent)
+                        val serviceIntent = Intent(context, AutoStartService::class.java)
+                        context.startForegroundService(serviceIntent)
                     } else {
                         // Android 8.0 미만 Activity 시작
                         Log.d(TAG,"Main start2")
@@ -48,6 +49,18 @@ class SrDidAutoRun : BroadcastReceiver() {
                 Log.d("SrDidAutoRun", "opened")
             }
         }
+        else if(intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
+            Log.d(TAG,"ACTION_MY_PACKAGE_REPLACED")
+            handleAppUpdated(context)
+        }
+    }
+
+    private fun handleAppUpdated(context: Context) {
+        Log.d("SrDidAutoRun", "App updated, starting MainActivity...")
+
+        val intent = Intent(context, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
     }
 
     private fun isAppRunning(context: Context, packageName: String): Boolean {

@@ -31,6 +31,7 @@ private const val TAG = "ProductList"
 fun ProductList(
     productList: List<Product>,
     rollingYn: String,
+    version:String
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -56,7 +57,7 @@ fun ProductList(
         }
     }
     Column {
-        Header()
+        Header(version=version)
         Box(
             modifier = Modifier
                 .fillMaxSize() // 전체 화면을 100% 차지
@@ -96,7 +97,7 @@ fun ProductList(
 }
 
 @Composable
-fun Header() {
+fun Header(version: String) {
     Row(
         modifier = Modifier
             .background(Color(0xFF283237))
@@ -110,7 +111,7 @@ fun Header() {
             color = Color.White
         )
         Text(
-            text = " 메뉴",
+            text = " 메뉴 $version",
             style = MaterialTheme.typography.h5,
             color = Color.Yellow,
         )

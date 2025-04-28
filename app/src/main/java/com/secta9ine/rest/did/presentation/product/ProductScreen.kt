@@ -3,8 +3,11 @@ package com.secta9ine.rest.did.presentation.product
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.focusable
@@ -33,6 +36,7 @@ import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.presentation.navigation.NavUtils.navigateAsSecondScreen
 import com.secta9ine.rest.did.presentation.navigation.Screen
 import com.secta9ine.rest.did.presentation.splash.SplashViewModel
+import com.secta9ine.rest.did.util.CommonUtils
 import com.secta9ine.rest.did.util.UiString
 
 private const val TAG = "ProductScreen"
@@ -55,6 +59,7 @@ fun ProductScreen(
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
         requestPermissions(context)
+
         viewModel.uiState.collect {
             when(it) {
                 is ProductViewModel.UiState.UpdateDevice -> {
@@ -83,7 +88,7 @@ fun ProductScreen(
                 Log.d(TAG,"ws updateDevice")
                 //usecase 에서 장비 설정 완료 후 display할 화면으로 이동
 //                viewModel.getDevice()
-                viewModel.updateVersion(context)
+//                viewModel.updateVersion(context)
             }
             else -> {
 
@@ -124,7 +129,11 @@ fun ProductScreen(
             "04" -> {
                 ProductList(
                     productList = viewModel.productList,
-                    rollingYn = viewModel.rollingYn)
+                    rollingYn = viewModel.rollingYn,
+                    version= CommonUtils.getAppVersion(context)
+
+                )
+
             }
             "05" -> {
                 SpecialProductList(
@@ -147,6 +156,12 @@ private fun requestPermissions(context: Context) {
             arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
             1000)
     }
+    else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !canRequestInstallPackages(context)) {
+        // INSTALL_PACKAGES 권한 요청
+        val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+        intent.data = Uri.parse("package:${context.packageName}")
+        context.startActivity(intent)
+    }
     else {
         Log.d(TAG,"권한 있음")
     }
@@ -156,6 +171,6 @@ private fun canRequestInstallPackages(context: Context): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         context.packageManager.canRequestPackageInstalls()
     } else {
-        true // Android 8.0 미만에서는 항상 true
+        true
     }
 }

@@ -1,19 +1,24 @@
 package com.secta9ine.rest.did.presentation.product
 
+import android.Manifest
+import android.app.Activity
 import android.app.DownloadManager
-import android.content.BroadcastReceiver
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInstaller
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat.startActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,7 +27,10 @@ import com.secta9ine.rest.did.domain.model.Device
 import com.secta9ine.rest.did.domain.model.Product
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.repository.DeviceRepository
+import com.secta9ine.rest.did.receiver.UpdateReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
@@ -30,7 +38,13 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.BufferedInputStream
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.net.URL
 import javax.inject.Inject
 
 
@@ -127,10 +141,62 @@ class ProductViewModel @Inject constructor(
 
     fun onEnterKeyPressed(context: Context) {
         Log.d(TAG,"장비설정화면 이동")
-//        viewModelScope.launch {
-//            _uiState.emit(UiState.NavigateToDevice)
-//        }
-        updateVersion(context)
+        viewModelScope.launch {
+            isSystemApp(context)
+            val apkUrl = "http://o2pos.spcnetworks.kr/files/app/o2pos/download/backup/1123.apk"
+
+            downloadApkToExternal(context,apkUrl) { downloadedFile ->
+                installApk(context, downloadedFile)}
+            _uiState.emit(UiState.NavigateToDevice)
+        }
+    }
+
+    private fun installApk(context: Context, apkFile: File) {
+        Log.d(TAG,"installApk")
+        // Android 7.0 (API 24) 이상에서는 FileProvider를 사용해야 하지만, 이 방법은 직접 경로를 사용합니다.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Log.d(TAG,"기준 버전 이상")
+            // ADB를 통해 APK 설치
+            val packageInstaller = context.packageManager.packageInstaller
+            val sessionParams = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+            val sessionId = packageInstaller.createSession(sessionParams)
+
+            val session = packageInstaller.openSession(sessionId)
+            try {
+                val inputStream = FileInputStream(apkFile)
+                val outStream = session.openWrite("package", 0, apkFile.length())
+
+                inputStream.use { input ->
+                    outStream.use { output ->
+                        input.copyTo(output)
+                        session.fsync(output) // 세션에 작성한 내용을 동기화
+                    }
+                }
+
+                // 세션 커밋을 위한 PendingIntent 생성
+                val intent = Intent(context, UpdateReceiver::class.java)
+                val pendingIntent = PendingIntent.getBroadcast(context, sessionId, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+                try {
+                    session.commit(pendingIntent.intentSender)
+                } catch (e: Exception) {
+                    Log.e("InstallAPK", "Error committing session", e)
+                }
+            } catch (e: IOException) {
+                Log.e("InstallAPK", "Error writing APK to session", e)
+            } finally {
+                session.close() // 세션을 닫아줍니다.
+            }
+        } else {
+            // Android 7.0 미만에서는 직접 설치
+            Log.d(TAG,"직접 설치")
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive")
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+        }
     }
 
     suspend fun getDisplayCd(): String {
@@ -140,104 +206,53 @@ class ProductViewModel @Inject constructor(
         return device.displayMenuCd!!
 
     }
+    private fun downloadApkToExternal(context: Context, apkUrl: String, onDownloaded: (File) -> Unit) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG,"권한 요청")
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                1001
+            )
+        } else {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    Log.d(TAG,"다운로드")
+                    val url = URL(apkUrl)
+                    val connection = url.openConnection()
+                    connection.connect()
 
-    fun updateVersion(context: Context) {
-        Log.d(TAG,"1.3updateVersion")
-        isSystemApp(context)
-        val request = DownloadManager.Request(Uri.parse("http://o2pos.spcnetworks.kr/files/app/o2pos/download/backup/1123.apk"))
-        request.setTitle("App Update")
-        request.setDescription("Downloading new version...")
-        val apkFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "1123.apk")
+                    val inputStream = BufferedInputStream(url.openStream())
+                    val downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    if (!downloadDir.exists()) {
+                        downloadDir.mkdirs()
+                    }
 
-        val apkUri = Uri.fromFile(apkFile)
-        request.setDestinationUri(apkUri)  // 내부 저장소에 저장
+                    val apkFile = File(downloadDir, "1123.apk")
+                    val outputStream = FileOutputStream(apkFile)
 
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                    val data = ByteArray(1024)
+                    var count: Int
+                    while (inputStream.read(data).also { count = it } != -1) {
+                        outputStream.write(data, 0, count)
+                    }
 
-        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        val downloadId = downloadManager.enqueue(request)
+                    outputStream.flush()
+                    outputStream.close()
+                    inputStream.close()
 
-        // 다운로드 완료 후 설치
-        // 다운로드가 완료되면 PackageInstaller를 사용하여 APK를 설치합니다.
-        // 다운로드 완료를 확인하기 위해 BroadcastReceiver를 등록합니다.
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                Log.d(TAG,"업데이트 버전. 다운로드 완료")
-                val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-                if (id == downloadId) {
-                    Log.d(TAG,"설치")
-                    val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "1123.apk")
-//                    installSystemApp(context, file)
-                    val apkPath = context.filesDir.absolutePath +"/1123.apk";
-                    Log.d(TAG, "apkPath:$apkPath");
-                    val apkUri = FileProvider.getUriForFile(context,
-                            BuildConfig.APPLICATION_ID + ".fileprovider", File(apkPath))  // 1
+                    withContext(Dispatchers.Main) {
+                        onDownloaded(apkFile)   // 파일 다운로드 완료 후 콜백 호출
+                    }
 
-                    val intent = Intent(Intent.ACTION_VIEW)   // 2
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)  // 3
-                    intent.setDataAndType(apkUri, "application/vnd.android.package-archive")  // 4
-
-                    context.startActivity(intent)
-                }
-                else {
-                    Log.d(TAG,"설치 불가")
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
         }
-        context.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
     }
 
-
-    fun installSystemApp(context: Context, apkFile: File) {
-        try {
-            // APK 파일을 시스템 폴더에 복사
-            copyApkToSystem(context, apkFile)
-
-            // 시스템 앱 설치
-            val command = "pm install -r /system/priv-app/SRDID/srdid.apk"
-            executeShellCommand(command)
-
-            // 기기 재부팅
-            rebootDevice()
-
-
-            Log.d(TAG, "시스템 앱 업데이트 완료")
-        } catch (e: Exception) {
-            Log.e(TAG, "시스템 앱 설치 실패", e)
-        }
-    }
-
-    fun copyApkToSystem(context: Context, apkFile: File) {
-        val systemAppDir = File("/system/priv-app/SRDID")
-        if (!systemAppDir.exists()) {
-            systemAppDir.mkdirs()
-        }
-
-        val destinationFile = File(systemAppDir, "srdid.apk")
-        apkFile.copyTo(destinationFile, overwrite = true)
-
-        // 권한 설정
-        destinationFile.setReadable(true, false)
-        destinationFile.setWritable(true, false)
-        destinationFile.setExecutable(true, false)
-
-        // 권한 부여 (루팅 필요)
-        val command = "chmod 644 ${destinationFile.absolutePath}"
-        executeShellCommand(command)
-    }
-
-    fun executeShellCommand(command: String) {
-        val process = Runtime.getRuntime().exec(arrayOf("su", "-c", command))
-        process.waitFor()
-    }
-
-    fun rebootDevice() {
-        val command = "reboot"
-        executeShellCommand(command)
-    }
-
-    fun isSystemApp(context: Context): Boolean {
+    private fun isSystemApp(context: Context): Boolean {
         return try {
             val appInfo = context.packageManager
                 .getApplicationInfo(context.packageName, 0)
@@ -246,10 +261,10 @@ class ProductViewModel @Inject constructor(
             Log.d(TAG, "FLAG_SYSTEM: $isSystem")
             Log.d(TAG, "FLAG_UPDATED_SYSTEM_APP: $isUpdatedSystem")
             if (isSystem || isUpdatedSystem) {
-                Log.i(TAG, "✅ 앱은 시스템 앱입니다.")
+                Log.i(TAG, "앱은 시스템 앱입니다.")
                 true
             } else {
-                Log.w(TAG, "❌ 앱은 시스템 앱이 아닙니다.")
+                Log.w(TAG, "앱은 시스템 앱이 아닙니다.")
                 false
             }
         } catch (e: PackageManager.NameNotFoundException) {

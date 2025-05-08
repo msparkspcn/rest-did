@@ -37,13 +37,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.secta9ine.rest.did.R
@@ -69,7 +71,13 @@ fun OrderStatusScreen(
 
     val uiState by viewModel.uiState.collectAsState(initial = null)
     val uiState2 by wsViewModel.uiState.collectAsState(initial = null)
-
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    Log.d(TAG,"screenWidth:$screenWidth")
+    val density = LocalDensity.current
+    val titleNmSize = with(density) { (screenWidth * 0.02f).toSp() }
+    val titleMsgSize = with(density) { (screenWidth * 0.02f).toSp() }
+    val msgTextSize = with(density) { (screenWidth * 0.05f).toSp() }
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
         viewModel.uiState.collect {
@@ -123,7 +131,10 @@ fun OrderStatusScreen(
                 }
         ) {
             Column {
-                OrderHeader()
+                OrderHeader(
+                    titleNmSize = titleNmSize,
+                    titleMsgSize = titleMsgSize
+                )
                 OrderContents(
                     completedOrderList = viewModel.completedOrderList,
                     waitingOrderList = viewModel.waitingOrderList
@@ -134,7 +145,10 @@ fun OrderStatusScreen(
 }
 
 @Composable
-fun OrderHeader() {
+fun OrderHeader(
+    titleNmSize:TextUnit,
+    titleMsgSize:TextUnit
+) {
     Row(
         modifier = Modifier
             .background(Color(0xFF283237))
@@ -144,11 +158,12 @@ fun OrderHeader() {
     ) {
         Text(
             text = "SR DID",
-            style = MaterialTheme.typography.h5,
+            fontSize = titleNmSize,
+            color = Color(0xFF1BAAFE),
         )
         Text(
             text = "번호가 표시되면 음식을 찾아가세요.",
-            style = MaterialTheme.typography.h5,
+            fontSize = titleMsgSize,
             color = Color.White,
         )
     }
@@ -236,13 +251,20 @@ fun OrderContents(
                     .align(Alignment.Center)
                     .padding(20.dp, 0.dp)
             ) {
+                val configuration = LocalConfiguration.current
+                val screenWidth = configuration.screenWidthDp.dp
+                Log.d(TAG,"screenWidth:$screenWidth")
+                val density = LocalDensity.current
+                val textSize = with(density) { (screenWidth * 0.15f).toSp() }
+                val msgTextSize = with(density) { (screenWidth * 0.05f).toSp() }
+
                 Text(
                     text = "1132",
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.CenterHorizontally)
                         .alpha(if (isVisible) 1f else 0f),
-                    fontSize = 140.sp,
+                    fontSize = textSize,
                     color = Color(0xFF1BAAFE),
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -259,13 +281,19 @@ fun OrderContents(
                 Text(
                     text = stringResource(id = R.string.completed_order_msg),
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    fontSize = 42.sp,
+                    fontSize = msgTextSize,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
             }
         }
         Column(Modifier.weight(5.5f)) {
+            val configuration2 = LocalConfiguration.current
+            val screenWidth2 = configuration2.screenWidthDp.dp
+            Log.d(TAG,"screenWidth2:$screenWidth2")
+            val density2 = LocalDensity.current
+            val statusSize = with(density2) { (screenWidth2 * 0.025f).toSp() }
+            val msgTextSize = with(density2) { (screenWidth2 * 0.05f).toSp() }
             Box(modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
@@ -275,37 +303,36 @@ fun OrderContents(
                         .fillMaxWidth()
                         .align(Alignment.TopStart)
                 ) {
+
                     Text(
                         text = "준비완료 | Complete",
-                        style = MaterialTheme.typography.h6,
+                        fontSize = statusSize,
                     )
-                    Row(modifier = Modifier.fillMaxWidth()) {
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween) {
                         displayedCompletedOrders.take(3).forEach { order ->
                             Text(
                                 text = order,
-                                style = MaterialTheme.typography.h3,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(4.dp)
+                                fontSize = msgTextSize,
+                                modifier = Modifier.padding(4.dp)
                             )
                         }
                     }
 
                     // 두 번째 행
-                    Row(modifier = Modifier.fillMaxWidth()) {
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween) {
                         displayedCompletedOrders.drop(3).take(3).forEach { order ->
                             Text(
                                 text = order,
-                                style = MaterialTheme.typography.h3,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(4.dp)
+                                fontSize = msgTextSize,
+                                modifier = Modifier.padding(4.dp)
                             )
                         }
                     }
                 }
             }
-
+            Spacer(modifier = Modifier.height(30.dp))
             Box(modifier = Modifier
                 .fillMaxWidth()
                 .weight(2f)
@@ -317,41 +344,38 @@ fun OrderContents(
                 ) {
                     Text(
                         text = "준비중 | Preparing",
-                        style = MaterialTheme.typography.h6,
+                        fontSize = statusSize,
                     )
-                    Row(modifier = Modifier.fillMaxWidth()) {
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween) {
                         displayedWaitingOrders.take(3).forEach { order ->
                             Text(
                                 text = order,
-                                style = MaterialTheme.typography.h3,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(4.dp)
+                                fontSize = msgTextSize,
+                                modifier = Modifier.padding(4.dp)
                             )
                         }
                     }
 
                     // 두 번째 행
-                    Row(modifier = Modifier.fillMaxWidth()) {
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween) {
                         displayedWaitingOrders.drop(3).take(3).forEach { order ->
                             Text(
                                 text = order,
-                                style = MaterialTheme.typography.h3,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(4.dp)
+                                fontSize = msgTextSize,
+                                modifier = Modifier.padding(4.dp)
                             )
                         }
                     }
 
-                    Row(modifier = Modifier.fillMaxWidth()) {
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween) {
                         displayedWaitingOrders.drop(6).take(3).forEach { order ->
                             Text(
                                 text = order,
-                                style = MaterialTheme.typography.h3,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(4.dp)
+                                fontSize = msgTextSize,
+                                modifier = Modifier.padding(4.dp)
                             )
                         }
                     }
@@ -359,5 +383,4 @@ fun OrderContents(
             }
         }
     }
-
 }

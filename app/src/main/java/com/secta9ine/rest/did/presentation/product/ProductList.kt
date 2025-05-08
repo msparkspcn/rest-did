@@ -110,10 +110,10 @@ fun Header(version: String) {
             style = MaterialTheme.typography.h4,
             color = Color.White
         )
-        Text(
-            text = " 메뉴 $version",
-            style = MaterialTheme.typography.h5,
-            color = Color.Yellow,
-        )
+//        Text(
+//            text = " 메뉴 $version",
+//            style = MaterialTheme.typography.h5,
+//            color = Color.Yellow,
+//        )
     }
 }

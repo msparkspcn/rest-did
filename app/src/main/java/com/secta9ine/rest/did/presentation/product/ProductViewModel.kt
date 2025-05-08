@@ -79,62 +79,72 @@ class ProductViewModel @Inject constructor(
                     productEngNm = "Tamra BlackPork Kimchi Jjigae",
                     price = 7500,
                     productExpln = "탐라의 깊은 맛을 담은 진한 흑돼지 김치찌개",
-                    calorie = "365"
+                    calorie = "365",
+                    imgPath = "https://i.namu.wiki/i/aKNgsjY5dvXBsKQkE4DPnvGoLCuE5XBMpObIFQHFHO_CAapAu-UsstNAMdQK-KIKgAfChx76FHaCs--xJrliyFZGujctT1Mkovb8xNxXGvT8_tbP55IyGh9cx09Xk4d2gE0M9PrK1k4mimO2j-riOg.webp"
                 ),
                 Product(
                     productNm = "제주 고기국수",
                     productEngNm = "Jeju Meat Noodles",
                     price = 8500,
-                    calorie = "600"
-
+                    calorie = "600",
+                    imgPath = "https://www.jejunews.com/news/photo/202201/2189019_211318_325.jpg"
                 ),
                 Product(
                     productNm = "제주 흑돼지 갈비",
                     productEngNm = "Jeju Black Pork Ribs",
                     price = 9500,
-                    calorie = "1000"
+                    calorie = "1000",
+                    imgPath = "https://thumbnail10.coupangcdn.com/thumbnails/remote/492x492ex/image/vendor_inventory/ce64/9d0915b99fed846bffbbf01e72847880966f0a80172544284d3a0484f2cf.jpg"
                 ),
                 Product(
                     productNm = "올레길 비빔밥",
                     productEngNm = "Olleh Trail Bibimbap",
                     price = 12000,
-                    calorie = "800"
+                    calorie = "800",
+                    imgPath = "https://img.etoday.co.kr/pto_db/2019/07/20190726153503_1350707_1200_876.jpg"
                 ),
-                Product(
-                    productNm = "한라산 백숙",
-                    productEngNm = "Hallasan Chicken Soup",
-                    price = 13500
-                ),
-                Product(
-                    productNm = "제주 감귤 빙수",
-                    productEngNm = "Jeju Tangerine Bingsu",
-                    price = 6000
-                ),
-                Product(
-                    productNm = "제주도 전복죽",
-                    productEngNm = "Jeju Abalone Porridge",
-                    price = 18000
-                ),
-                Product(
-                    productNm = "흑돼지 스테이크",
-                    productEngNm = "Black Pig Steak",
-                    price = 22000
-                ),
-                Product(
-                    productNm = "제주 연어회",
-                    productEngNm = "Jeju Salmon Sashimi",
-                    price = 17000
-                ),
-                Product(
-                    productNm = "서귀포 한우 갈비찜",
-                    productEngNm = "Seogwipo Hanwoo Braised Ribs",
-                    price = 25000
-                ),
-                Product(
-                    productNm = "흑돼지 삼겹살",
-                    productEngNm = "Black Pig Samgubsal",
-                    price = 25000
-                )
+//                Product(
+//                    productNm = "한라산 백숙",
+//                    productEngNm = "Hallasan Chicken Soup",
+//                    price = 13500,
+//                    imgPath = "https://shop.hansalim.or.kr/shopping/is/fo/img/%EC%B0%B9%EC%8C%80%EB%88%84%EB%A3%BD%EC%A7%80%EB%B0%B1%EC%88%99_1.jpg"
+//                ),
+//                Product(
+//                    productNm = "제주 감귤 빙수",
+//                    productEngNm = "Jeju Tangerine Bingsu",
+//                    price = 6000,
+//                    imgPath = "https://lounge.josunhotel.com/wp-content/uploads/2022/05/josun-bingsu-2.jpg"
+//                ),
+//                Product(
+//                    productNm = "제주도 전복죽",
+//                    productEngNm = "Jeju Abalone Porridge",
+//                    price = 18000,
+//                    imgPath = "https://i.namu.wiki/i/vBl7qtWof-daNBn8BMF0vAYXQoobrrYsOLyzVx68DZCABG4qTtkhQzOnT0JlHh7lIcr3R8MI10LX1GoqEh1DwA.webp"
+//                ),
+//                Product(
+//                    productNm = "흑돼지 스테이크",
+//                    productEngNm = "Black Pig Steak",
+//                    price = 22000,
+//                    imgPath = "https://previews.123rf.com/images/lenyvavsha/lenyvavsha1704/lenyvavsha170400166/75488495-%EA%B5%AC%EC%9A%B4-%EB%90%9C-%EB%8F%BC%EC%A7%80-%EA%B3%A0%EA%B8%B0-%EC%8A%A4%ED%85%8C%EC%9D%B4%ED%81%AC%EC%99%80-%EB%BC%88-%EC%A0%91%EC%8B%9C%EC%97%90-%EC%8B%A0%EC%84%A0%ED%95%9C-%EC%95%BC%EC%B1%84-%EC%83%90%EB%9F%AC%EB%93%9C-%EA%B7%BC%EC%A0%91-%EC%88%98%ED%8F%89.jpg"
+//                ),
+//                Product(
+//                    productNm = "제주 연어회",
+//                    productEngNm = "Jeju Salmon Sashimi",
+//                    price = 17000,
+//                    imgPath = ""
+//                ),
+//                Product(
+//                    productNm = "서귀포 한우 갈비찜",
+//                    productEngNm = "Seogwipo Hanwoo Braised Ribs",
+//                    price = 25000,
+//                    imgPath = ""
+//                ),
+//                Product(
+//                    productNm = "흑돼지 삼겹살",
+//                    productEngNm = "Black Pig Samgubsal",
+//                    price = 25000,
+//                    imgPath = ""
+//                )
             )
         }
     }

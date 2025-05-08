@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,6 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,6 +44,14 @@ fun SingleProduct(
 ) {
     var displayedProducts by remember { mutableStateOf(productList.take(1)) }
     var productIndex by remember { mutableStateOf(0) }
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    Log.d(TAG,"screenWidth:$screenWidth")
+    val density = LocalDensity.current
+    val productNmSize = with(density) { (screenWidth * 0.05f).toSp() }
+    val productEngNmSize = with(density) { (screenWidth * 0.02f).toSp() }
+    val priceSize = with(density) { (screenWidth * 0.1f).toSp() }
+    val unitSize = with(density) { (screenWidth * 0.07f).toSp() }
     LaunchedEffect(Unit) {
         if(productList.size>1&&rollingYn=="Y") {
             while(true) {
@@ -58,16 +69,18 @@ fun SingleProduct(
                 Column(
                     modifier = Modifier
                         .padding(20.dp, 20.dp)
-                        .weight(1f)
+                        .weight(4f)
                 ) {
                     Text(
                         text = item.productNm,
-                        fontSize = 50.sp
+                        fontSize = productNmSize,
+                        fontWeight = FontWeight.Bold,
                     )
                     item.productEngNm?.let {
                         Text(
                             text = it,
-                            fontSize = 25.sp
+                            fontSize = productEngNmSize,
+                            color = Color(0xFF1BAAFE)
                         )
                     }
                     Divider(
@@ -87,13 +100,13 @@ fun SingleProduct(
                     ) {
                         Text(
                             text = "${item.price}".formatCurrency() ?: "0",
-                            fontSize = 70.sp,
+                            fontSize = priceSize,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF1BAAFE)
                         )
                         Text(
                             text = "원",
-                            fontSize = 50.sp,
+                            fontSize = unitSize,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -110,20 +123,28 @@ fun SingleProduct(
                 }
                 Box(
                     modifier = Modifier
-                        .weight(1f)
-                        .aspectRatio(5f / 4f)
+                        .weight(6f)
+                        .fillMaxHeight()
                         .background((Color.White))
-                        .border(
-                            width = 2.dp,
-                            color = Color(0xFF1BAAFE)
-                        )
+//                        .border(
+//                            width = 2.dp,
+//                            color = Color(0xFF1BAAFE)
+//                        )
                 ) {
-                    Image(
-                        painter = rememberAsyncImagePainter("http://o2pos.spcnetworks.kr/files/pos/2022/04/04/1110/tmb_product_00F144.png"),
-                        contentDescription = "content",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+//                            .aspectRatio(5f / 4f)
+                            .align(Alignment.Center) // 이미지 컨테이너를 중앙에 배치
+                    ) {
+                        Image(
+                            painter = rememberAsyncImagePainter(item.imgPath),
+                            contentDescription = "content",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.FillBounds
+                        )
+                    }
+
                 }
             }
         }

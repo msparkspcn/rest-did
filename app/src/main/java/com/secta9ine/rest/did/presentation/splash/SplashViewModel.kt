@@ -87,11 +87,12 @@ class SplashViewModel @Inject constructor(
     }
 
     suspend fun checkDevice() {
-        Log.d(TAG,"checkDevice")
+        Log.d(TAG,"checkDevice androidId:$androidId")
         when (val result = restApiRepository.checkDevice(androidId)) {
             is Resource.Success -> {
                 val device = result.data
                 if (device != null) {
+                    Log.d(TAG,"apiKey:${device.apiKey}")
                     device.apiKey?.let { RestApiService.updateAuthToken(it) }
 
                     // 상품, 주문 마스터 수신 전까지 주석

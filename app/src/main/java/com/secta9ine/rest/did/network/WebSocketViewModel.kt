@@ -85,6 +85,7 @@ class WebSocketViewModel
                     /**/
                     val jsonObject =JSONObject(text)
                     val event = jsonObject.getString("type")
+                    val data = jsonObject.getString("body")
                     val message = jsonObject.getString("message")
                     when (event) {
                         "ECHO" -> {
@@ -95,8 +96,13 @@ class WebSocketViewModel
 //                            exitProcess(0)
                         }
                         "SOLDOUT" -> {
-                            Log.d(tag, "상품 품절 이벤트 message:$message")
+                            Log.d(tag, "상품 품절 이벤트 data:$data")
 
+
+                        }
+                        "MASTER" -> {
+                            Log.d(tag, "마스터 재수신")
+                            //품절 외 마스터 정보 업데이트 됐을 때 재수신. 화면에는 상품 업데이트 중입니다. 등 띄워두기
                         }
                         "ACTIVE" -> {     //장비 활성화
                             Log.d(tag,"message:$message")

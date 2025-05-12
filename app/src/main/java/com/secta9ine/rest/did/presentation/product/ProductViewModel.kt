@@ -2,7 +2,6 @@ package com.secta9ine.rest.did.presentation.product
 
 import android.Manifest
 import android.app.Activity
-import android.app.DownloadManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -13,16 +12,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.secta9ine.rest.did.BuildConfig
 import com.secta9ine.rest.did.domain.model.Device
 import com.secta9ine.rest.did.domain.model.Product
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
@@ -47,7 +43,6 @@ import java.io.IOException
 import java.net.URL
 import javax.inject.Inject
 
-
 @HiltViewModel
 class ProductViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
@@ -68,9 +63,9 @@ class ProductViewModel @Inject constructor(
 
         viewModelScope.launch {
             val deviceId =dataStoreRepository.getDeviceId().first()
-            Log.d(TAG,"###상품화면 deviceId:$deviceId")
+            Log.d(TAG,"### 상품 화면 deviceId:$deviceId")
             device = deviceRepository.getDevice(deviceId).first()
-            Log.d(TAG,"###상품화면 device:$device")
+            Log.d(TAG,"### 상품 화면 device:$device")
             displayCd = device.displayMenuCd!!
             rollingYn = device.rollingYn!!
             productList = listOf(
@@ -103,48 +98,48 @@ class ProductViewModel @Inject constructor(
                     calorie = "800",
                     imgPath = "https://img.etoday.co.kr/pto_db/2019/07/20190726153503_1350707_1200_876.jpg"
                 ),
-//                Product(
-//                    productNm = "한라산 백숙",
-//                    productEngNm = "Hallasan Chicken Soup",
-//                    price = 13500,
-//                    imgPath = "https://shop.hansalim.or.kr/shopping/is/fo/img/%EC%B0%B9%EC%8C%80%EB%88%84%EB%A3%BD%EC%A7%80%EB%B0%B1%EC%88%99_1.jpg"
-//                ),
-//                Product(
-//                    productNm = "제주 감귤 빙수",
-//                    productEngNm = "Jeju Tangerine Bingsu",
-//                    price = 6000,
-//                    imgPath = "https://lounge.josunhotel.com/wp-content/uploads/2022/05/josun-bingsu-2.jpg"
-//                ),
-//                Product(
-//                    productNm = "제주도 전복죽",
-//                    productEngNm = "Jeju Abalone Porridge",
-//                    price = 18000,
-//                    imgPath = "https://i.namu.wiki/i/vBl7qtWof-daNBn8BMF0vAYXQoobrrYsOLyzVx68DZCABG4qTtkhQzOnT0JlHh7lIcr3R8MI10LX1GoqEh1DwA.webp"
-//                ),
-//                Product(
-//                    productNm = "흑돼지 스테이크",
-//                    productEngNm = "Black Pig Steak",
-//                    price = 22000,
-//                    imgPath = "https://previews.123rf.com/images/lenyvavsha/lenyvavsha1704/lenyvavsha170400166/75488495-%EA%B5%AC%EC%9A%B4-%EB%90%9C-%EB%8F%BC%EC%A7%80-%EA%B3%A0%EA%B8%B0-%EC%8A%A4%ED%85%8C%EC%9D%B4%ED%81%AC%EC%99%80-%EB%BC%88-%EC%A0%91%EC%8B%9C%EC%97%90-%EC%8B%A0%EC%84%A0%ED%95%9C-%EC%95%BC%EC%B1%84-%EC%83%90%EB%9F%AC%EB%93%9C-%EA%B7%BC%EC%A0%91-%EC%88%98%ED%8F%89.jpg"
-//                ),
-//                Product(
-//                    productNm = "제주 연어회",
-//                    productEngNm = "Jeju Salmon Sashimi",
-//                    price = 17000,
-//                    imgPath = ""
-//                ),
-//                Product(
-//                    productNm = "서귀포 한우 갈비찜",
-//                    productEngNm = "Seogwipo Hanwoo Braised Ribs",
-//                    price = 25000,
-//                    imgPath = ""
-//                ),
-//                Product(
-//                    productNm = "흑돼지 삼겹살",
-//                    productEngNm = "Black Pig Samgubsal",
-//                    price = 25000,
-//                    imgPath = ""
-//                )
+                Product(
+                    productNm = "한라산 백숙",
+                    productEngNm = "Hallasan Chicken Soup",
+                    price = 13500,
+                    imgPath = "https://shop.hansalim.or.kr/shopping/is/fo/img/%EC%B0%B9%EC%8C%80%EB%88%84%EB%A3%BD%EC%A7%80%EB%B0%B1%EC%88%99_1.jpg"
+                ),
+                Product(
+                    productNm = "제주 감귤 빙수",
+                    productEngNm = "Jeju Tangerine Bingsu",
+                    price = 6000,
+                    imgPath = "https://lounge.josunhotel.com/wp-content/uploads/2022/05/josun-bingsu-2.jpg"
+                ),
+                Product(
+                    productNm = "제주도 전복죽",
+                    productEngNm = "Jeju Abalone Porridge",
+                    price = 18000,
+                    imgPath = "https://i.namu.wiki/i/vBl7qtWof-daNBn8BMF0vAYXQoobrrYsOLyzVx68DZCABG4qTtkhQzOnT0JlHh7lIcr3R8MI10LX1GoqEh1DwA.webp"
+                ),
+                Product(
+                    productNm = "흑돼지 스테이크",
+                    productEngNm = "Black Pig Steak",
+                    price = 22000,
+                    imgPath = "https://previews.123rf.com/images/lenyvavsha/lenyvavsha1704/lenyvavsha170400166/75488495-%EA%B5%AC%EC%9A%B4-%EB%90%9C-%EB%8F%BC%EC%A7%80-%EA%B3%A0%EA%B8%B0-%EC%8A%A4%ED%85%8C%EC%9D%B4%ED%81%AC%EC%99%80-%EB%BC%88-%EC%A0%91%EC%8B%9C%EC%97%90-%EC%8B%A0%EC%84%A0%ED%95%9C-%EC%95%BC%EC%B1%84-%EC%83%90%EB%9F%AC%EB%93%9C-%EA%B7%BC%EC%A0%91-%EC%88%98%ED%8F%89.jpg"
+                ),
+                Product(
+                    productNm = "제주 연어회",
+                    productEngNm = "Jeju Salmon Sashimi",
+                    price = 17000,
+                    imgPath = ""
+                ),
+                Product(
+                    productNm = "서귀포 한우 갈비찜",
+                    productEngNm = "Seogwipo Hanwoo Braised Ribs",
+                    price = 25000,
+                    imgPath = ""
+                ),
+                Product(
+                    productNm = "흑돼지 삼겹살",
+                    productEngNm = "Black Pig Samgubsal",
+                    price = 25000,
+                    imgPath = ""
+                )
             )
         }
     }

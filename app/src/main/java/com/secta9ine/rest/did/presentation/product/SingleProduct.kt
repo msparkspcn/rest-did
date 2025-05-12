@@ -27,11 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.domain.model.Product
 import com.secta9ine.rest.did.util.formatCurrency
 import kotlinx.coroutines.delay
@@ -135,10 +138,17 @@ fun SingleProduct(
                         modifier = Modifier
                             .fillMaxWidth()
 //                            .aspectRatio(5f / 4f)
-                            .align(Alignment.Center) // 이미지 컨테이너를 중앙에 배치
+                            .align(Alignment.Center)
                     ) {
                         Image(
-                            painter = rememberAsyncImagePainter(item.imgPath),
+                            painter = rememberAsyncImagePainter(
+                                ImageRequest.Builder(LocalContext.current)
+                                    .data(item.imgPath)
+                                    .crossfade(true) // 부드러운 전환
+//                                    .placeholder(R.drawable.placeholder) // 로딩 중 이미지
+//                                    .error(R.drawable.error) // 에러 시 이미지
+                                    .build()
+                            ),
                             contentDescription = "content",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.FillBounds

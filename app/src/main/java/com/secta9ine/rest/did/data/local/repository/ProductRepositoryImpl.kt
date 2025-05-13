@@ -16,4 +16,23 @@ class ProductRepositoryImpl @Inject constructor(
         productDao.sync(productList)
     }
 
+    override suspend fun getProductList(cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<Product>> =
+        productDao.get(
+            cmpCd = cmpCd,
+            salesOrgCd = salesOrgCd,
+            storCd = storCd,
+            cornerCd = cornerCd
+        )
+
+    override suspend fun updateSoldoutYn(cmpCd: String, salesOrgCd: String, storCd: String, itemCd: String, soldoutYn: String) =
+        productDao.updateSoldoutYn(
+            cmpCd = cmpCd,
+            salesOrgCd = salesOrgCd,
+            storCd = storCd,
+            itemCd = itemCd,
+            soldoutYn = soldoutYn
+        )
+
+
+
 }

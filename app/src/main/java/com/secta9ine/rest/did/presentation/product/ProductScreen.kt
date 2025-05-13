@@ -55,7 +55,7 @@ fun ProductScreen(
     }
     val uiState by viewModel.uiState.collectAsState(initial = null)
     val uiState2 by wsViewModel.uiState.collectAsState(initial = WebSocketViewModel.UiState.Idle)
-
+    val productList by viewModel.productList.collectAsState()
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
         requestPermissions(context)
@@ -90,6 +90,11 @@ fun ProductScreen(
 //                viewModel.getDevice()
 //                viewModel.updateVersion(context)
             }
+            is WebSocketViewModel.UiState.SoldOut -> {
+                val data = (uiState2 as WebSocketViewModel.UiState.SoldOut).data
+                Log.d(TAG, "상품 품절 처리: $data")
+                viewModel.updateSoldoutYn(data)
+            }
             else -> {
 
             }
@@ -118,17 +123,17 @@ fun ProductScreen(
         when (viewModel.displayCd) {
             "01" -> {
                 SingleProduct(
-                    productList = viewModel.productList,
+                    productList = productList,
                     rollingYn = viewModel.rollingYn)
             }
             "03" -> {
                 TwoProducts(
-                    productList = viewModel.productList,
+                    productList = productList,
                     rollingYn = viewModel.rollingYn)
             }
             "04" -> {
                 ProductList(
-                    productList = viewModel.productList,
+                    productList = productList,
                     rollingYn = viewModel.rollingYn,
                     version= CommonUtils.getAppVersion(context)
 
@@ -137,7 +142,7 @@ fun ProductScreen(
             }
             "05" -> {
                 SpecialProductList(
-                    productList = viewModel.productList,
+                    productList = productList,
                     rollingYn = viewModel.rollingYn)
             }
         }

@@ -18,6 +18,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.data.remote.api.RestApiService
+import com.secta9ine.rest.did.domain.model.DeviceInfo
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.repository.DeviceRepository
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
@@ -45,6 +46,8 @@ class SplashViewModel @Inject constructor(
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
+    var deviceInfo by mutableStateOf<DeviceInfo?>(null)
+        private set
 
     var androidId by mutableStateOf("")
         private set
@@ -94,9 +97,12 @@ class SplashViewModel @Inject constructor(
                 if (device != null) {
                     Log.d(TAG,"apiKey:${device.apiKey}")
                     device.apiKey?.let { RestApiService.updateAuthToken(it) }
-
+                    dataStoreRepository.setCmpCd(device.cmpCd!!)
+                    dataStoreRepository.setSalesOrgCd(device.salesOrgCd!!)
+                    dataStoreRepository.setStorCd(device.storCd!!)
+                    dataStoreRepository.setCornerCd(device.cornerCd!!)
                     // 상품, 주문 마스터 수신 전까지 주석
-                    /*
+                    /**/
                     when (val masterResult = registerUseCases.fetch(device)) {
                         is Resource.Success -> {
                             Log.d(TAG, "마스터 수신 성공")
@@ -109,9 +115,9 @@ class SplashViewModel @Inject constructor(
                             Log.d(TAG, "설정완료 필요 it:$masterResult")
                         }
                     }
-                    */
 
-                    registerUseCases.register(device)
+
+//                    registerUseCases.register(device)
                     _uiState.emit(UiState.UpdateDevice)
 
                 } else {

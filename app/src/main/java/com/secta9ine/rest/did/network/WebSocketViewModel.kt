@@ -97,6 +97,9 @@ class WebSocketViewModel
                         }
                         "SOLDOUT" -> {
                             Log.d(tag, "상품 품절 이벤트 data:$data")
+                            viewModelScope.launch {
+                                _uiState.emit(UiState.SoldOut(data))
+                            }
 
 
                         }
@@ -302,6 +305,6 @@ class WebSocketViewModel
         object UpdateDevice : UiState
         object CheckDevice : UiState
         object Idle : UiState
-
+        data class SoldOut(val data: String) : UiState
     }
 }

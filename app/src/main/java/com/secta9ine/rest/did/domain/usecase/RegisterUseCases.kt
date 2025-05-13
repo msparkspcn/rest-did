@@ -38,15 +38,15 @@ class RegisterUseCases @Inject constructor(
                 device.storCd == null || device.cornerCd == null) {
                 return@withContext Resource.Failure(app.resources.getString(R.string.no_device_config_error))
             }
-//            val results = listOf(
-//                async {
-//                    restApiRepository.getProductList(
-//                        device.cmpCd,
-//                        device.salesOrgCd,
-//                        device.storCd,
-//                        device.cornerCd
-//                    )
-//                },
+            val results = listOf(
+                async {
+                    restApiRepository.getProductList(
+                        device.cmpCd!!,
+                        device.salesOrgCd!!,
+                        device.storCd!!,
+                        device.cornerCd!!
+                    )
+                },
 //                async {
 //                    restApiRepository.getOrderList(
 //                        device.cmpCd,
@@ -55,20 +55,20 @@ class RegisterUseCases @Inject constructor(
 //                        device.cornerCd
 //                    )
 //                },
-//            )
-//                .awaitAll()
-//                .also {
-//                    it.firstOrNull { it is Resource.Failure }?.let {
-//                        return@withContext Resource.Failure(it.message!!)
-//                    }
-//                    it.firstOrNull { it.data == null }?.let {
-//                        return@withContext Resource.Failure(app.resources.getString(R.string.no_device_config_error))
-//                    }
-//                }
+            )
+                .awaitAll()
+                .also {
+                    it.firstOrNull { it is Resource.Failure }?.let {
+                        return@withContext Resource.Failure(it.message!!)
+                    }
+                    it.firstOrNull { it.data == null }?.let {
+                        return@withContext Resource.Failure(app.resources.getString(R.string.no_device_config_error))
+                    }
+                }
             Resource.Success(
                 DeviceInfo(
                     device = device,
-//                    productList = results[0].data!! as List<Product>,
+                    productList = results[0].data!! as List<Product>,
 //                    orderStatusList = results[1].data!! as List<OrderStatus>,
                 )
             )
@@ -86,10 +86,10 @@ class RegisterUseCases @Inject constructor(
      */
 
     //temp
-    suspend fun register(device: Device) = withContext(Dispatchers.IO) {
+    suspend fun register(deviceInfo: DeviceInfo) = withContext(Dispatchers.IO) {
         database.clearAllTables()
-
-        deviceRepository.sync(device)
+        productRepository.sync(deviceInfo.productList)
+        deviceRepository.sync(deviceInfo.device)
 
     }
 }

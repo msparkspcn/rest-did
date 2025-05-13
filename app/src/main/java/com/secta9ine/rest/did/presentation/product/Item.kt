@@ -114,14 +114,14 @@ fun Item(
                     .fillMaxWidth(0.65f)
             ) {
                 Text(
-                    text = item.productNm,
+                    text = item.itemNm,
                     fontSize = textSizeProductNm,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth()
                 )
-                item.productEngNm?.let {
+                item.itemNmEn?.let {
                     Text(
                         text = it,
                         fontSize = textSizeProductEngNm,

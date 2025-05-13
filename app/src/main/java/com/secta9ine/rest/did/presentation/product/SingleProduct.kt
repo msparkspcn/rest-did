@@ -47,15 +47,24 @@ fun SingleProduct(
 ) {
     var displayedProducts by remember { mutableStateOf(productList.take(1)) }
     var productIndex by remember { mutableStateOf(0) }
+
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     Log.d(TAG,"screenWidth:$screenWidth")
     val density = LocalDensity.current
-    val productNmSize = with(density) { (screenWidth * 0.05f).toSp() }
-    val productEngNmSize = with(density) { (screenWidth * 0.02f).toSp() }
+    val itemNmSize = with(density) { (screenWidth * 0.05f).toSp() }
+    val itemNmEnSize = with(density) { (screenWidth * 0.02f).toSp() }
     val priceSize = with(density) { (screenWidth * 0.1f).toSp() }
     val unitSize = with(density) { (screenWidth * 0.07f).toSp() }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(productList) {
+        Log.d(TAG,"productList 변경")
+        // 새로운 productList가 들어올 때마다 초기화
+        productIndex = 0
+        displayedProducts = productList.take(1)
+    }
+
+    LaunchedEffect(productList, rollingYn) {
+        Log.d(TAG,"productList, rollingYn 변경")
         if(productList.size>1&&rollingYn=="Y") {
             while(true) {
                 delay(5000)
@@ -75,14 +84,14 @@ fun SingleProduct(
                         .weight(4f)
                 ) {
                     Text(
-                        text = item.productNm,
-                        fontSize = productNmSize,
+                        text = item.itemNm,
+                        fontSize = itemNmSize,
                         fontWeight = FontWeight.Bold,
                     )
-                    item.productEngNm?.let {
+                    item.itemNmEn?.let {
                         Text(
                             text = it,
-                            fontSize = productEngNmSize,
+                            fontSize = itemNmEnSize,
                             color = Color(0xFF1BAAFE)
                         )
                     }

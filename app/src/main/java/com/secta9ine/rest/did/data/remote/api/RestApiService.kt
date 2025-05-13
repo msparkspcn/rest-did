@@ -81,7 +81,7 @@ interface RestApiService {
         @Body body: CornerRequestDto
     ):RestApiResponseDto<List<Corner>>
 
-    @POST("/api/v1/product/list")
+    @POST("/api/v1/did/item")
     suspend fun getProductList (
         @Body body: RestApiRequestDto
     ):RestApiResponseDto<List<Product>>

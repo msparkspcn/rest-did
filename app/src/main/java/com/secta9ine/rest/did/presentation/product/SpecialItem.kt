@@ -45,7 +45,7 @@ fun SpecialItem(
     isEven: Boolean
 ) {
     var itemWidth by remember { mutableStateOf(0) }
-    Log.d(TAG,"itemWidth:$itemWidth, productEngNm:${item.productEngNm}, calorie:${item.calorie}" +
+    Log.d(TAG,"itemWidth:$itemWidth, itemNmEn:${item.itemNmEn}, calorie:${item.calorie}" +
             "isEven:$isEven")
     Row(
         modifier = modifier
@@ -172,13 +172,13 @@ fun ItemMainInfo(
             horizontalAlignment = horizontalAlignment
         ) {
             Text(
-                text = item.productNm,
+                text = item.itemNm,
                 fontSize = textSizeProductNm,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            item.productEngNm?.let {
+            item.itemNmEn?.let {
                 Text(
                     text = it,
                     fontSize = textSizeProductEngNm,

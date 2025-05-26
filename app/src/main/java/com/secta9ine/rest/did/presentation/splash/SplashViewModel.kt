@@ -1,17 +1,14 @@
 package com.secta9ine.rest.did.presentation.splash
 
 import android.Manifest
-import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.provider.Settings
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -31,7 +28,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.lang.RuntimeException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,7 +37,6 @@ class SplashViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val registerUseCases: RegisterUseCases,
     private val dataStoreRepository: DataStoreRepository,
-    private val resources: Resources
 ) : ViewModel() {
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
@@ -59,10 +54,6 @@ class SplashViewModel @Inject constructor(
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
         androidId = Settings.Secure.getString(application.contentResolver,
             Settings.Secure.ANDROID_ID)
-
-        viewModelScope.launch {
-            dataStoreRepository.setDeviceId(androidId)
-            checkDevice()
 
             /*setDevice
             restApiRepository.setDevice(
@@ -82,11 +73,20 @@ class SplashViewModel @Inject constructor(
 //                currentFocus = "password"
 //            }
 //            isAutoLoginChecked = dataStoreRepository.getIsAutoLoginChecked().first()
-        }
+
 
         //장비 매핑이 완료된 지 확인하고(cmp,sales,stor,coner,deviceNo,displayMenuCd,rollingYn,apiKey)
         //restApiRepository.getDevice()
         // or null check -> pass 시 장비 매핑 정보 db 업데이트 -> displayMenu로 이동
+    }
+    fun onPermissionResult(isGranted: Boolean) {
+        _permissionGranted.value = isGranted
+        if(isGranted) {
+            viewModelScope.launch {
+                dataStoreRepository.setDeviceId(androidId)
+                checkDevice()
+            }
+        }
     }
 
     suspend fun checkDevice() {

@@ -100,8 +100,6 @@ class WebSocketViewModel
                             viewModelScope.launch {
                                 _uiState.emit(UiState.SoldOut(data))
                             }
-
-
                         }
                         "MASTER" -> {
                             Log.d(tag, "마스터 재수신")

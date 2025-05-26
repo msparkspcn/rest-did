@@ -26,7 +26,7 @@ interface ProductDao {
         """
             SELECT CMP_CD, SALES_ORG_CD, STOR_CD, CORNER_CD, ITEM_CD, 
             ITEM_NM, ITEM_NM_EN, PRICE, TAG, IMG_PATH, SOLDOUT_YN, WEEK_DIV,
-            SALE_CLOSE_START_TIME, SALE_CLOSE_END_TIME, SORT_ORDER, DID_USE_YN,
+            SALE_CLOSE_START_TIME, SALE_CLOSE_END_TIME, SORT_ORDER, USE_YN,
             PRODUCT_EXPLN, CALORY
             FROM PRODUCT
             WHERE 1 = 1
@@ -34,8 +34,8 @@ interface ProductDao {
                 AND SALES_ORG_CD = :salesOrgCd
                 AND STOR_CD = :storCd
                 AND CORNER_CD = :cornerCd
-                AND DID_USE_YN = '1'
-                AND SOLDOUT_YN = '1'
+                AND USE_YN = '1'
+                AND SOLDOUT_YN = '0'
         """
     )
     fun get(cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<Product>>

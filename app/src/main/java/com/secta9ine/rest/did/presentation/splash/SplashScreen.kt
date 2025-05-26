@@ -5,6 +5,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,9 +57,25 @@ fun SplashScreen(
     val uiState by viewModel.uiState.collectAsState(initial = SplashViewModel.UiState.Idle)
     val uiState2 by wsViewModel.uiState.collectAsState(initial = WebSocketViewModel.UiState.Idle)
     val context = LocalContext.current
+    val permissionState = remember { mutableStateOf(false) }
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        permissionState.value = permissions.all { it.value }
+        viewModel.onPermissionResult(permissionState.value)
+    }
+    LaunchedEffect(Unit) {
+        launcher.launch(
+            arrayOf(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        )
+    }
+
     LaunchedEffect(uiState) {
         Log.d(TAG, "111 uiState:$uiState")
-        viewModel.checkPermissions(context)
+//        viewModel.checkPermissions(context)
         when (uiState) {
             is SplashViewModel.UiState.Login -> {
                 navController?.navigate(Screen.DeviceScreen.route)
@@ -73,9 +91,6 @@ fun SplashScreen(
                 else {
                     navController?.navigate(Screen.ProductScreen.route)
                 }
-            }
-            is SplashViewModel.UiState.GetPermission -> {
-                requestPermissions(context)
             }
             is SplashViewModel.UiState.Error -> {
                 dialogMessage = UiString.TextString((uiState as SplashViewModel.UiState.Error).message)
@@ -175,17 +190,5 @@ fun SplashScreen(
                 }
             }
         }
-    }
-}
-
-private fun requestPermissions(context: Context) {
-    Log.d(TAG,"권한 요청")
-    if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-        ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-        // 권한 요청
-        ActivityCompat.requestPermissions(context as Activity,
-            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),
-            1000)
     }
 }

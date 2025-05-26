@@ -24,7 +24,7 @@ data class Product(
     @ColumnInfo(name = "SALE_CLOSE_START_TIME") val saleCloseStartTime: String? =null,
     @ColumnInfo(name = "SALE_CLOSE_END_TIME") val saleCloseEndTime: String? =null,
     @ColumnInfo(name = "SORT_ORDER") val sortOrder: Int = 0,
-    @ColumnInfo(name = "DID_USE_YN") val didUseYn: String? =null,
+    @ColumnInfo(name = "USE_YN") val useYn: String? =null,
     @ColumnInfo(name = "PRODUCT_EXPLN") val productExpln: String? =null, //상품 설명
     @ColumnInfo(name = "CALORY") val calorie: String? =null //열량
 )

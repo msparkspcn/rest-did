@@ -20,7 +20,7 @@ data class Product(
     @ColumnInfo(name = "TAG") val tag: String? = null,
     @ColumnInfo(name = "IMG_PATH") val imgPath: String? =null,
     @ColumnInfo(name = "SOLDOUT_YN") val soldoutYn: String? =null,
-    @ColumnInfo(name = "WEEK_DIV") val weekDiv: String? =null,
+    @ColumnInfo(name = "WEEK_DIV") val weekDiv: String ="",
     @ColumnInfo(name = "SALE_CLOSE_START_TIME") val saleCloseStartTime: String? =null,
     @ColumnInfo(name = "SALE_CLOSE_END_TIME") val saleCloseEndTime: String? =null,
     @ColumnInfo(name = "SORT_ORDER") val sortOrder: Int = 0,

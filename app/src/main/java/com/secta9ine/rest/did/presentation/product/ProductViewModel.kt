@@ -28,6 +28,7 @@ import com.secta9ine.rest.did.receiver.UpdateReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,6 +37,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -45,6 +47,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -58,14 +61,17 @@ class ProductViewModel @Inject constructor(
     val uiState = _uiState.asSharedFlow()
 
     private val _productList = MutableStateFlow<List<Product>>(emptyList())
-    val productList: StateFlow<List<Product>> = _productList
+    private val _filteredProducts = MutableStateFlow<List<Product>>(emptyList())
+    val productList: StateFlow<List<Product>> = _filteredProducts
 
     var device by mutableStateOf(Device())
     var displayCd: String? = null
     var rollingYn: String = "N"
+    private val _currentTime = MutableStateFlow(getCurrentTime())
+
     init {
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
-
+        startTimer()
 
         viewModelScope.launch {
             val deviceId =dataStoreRepository.getDeviceId().first()
@@ -79,27 +85,63 @@ class ProductViewModel @Inject constructor(
             Log.d(TAG,"### 상품 화면 device:$device")
             displayCd = device.displayMenuCd!!
             rollingYn = device.rollingYn!!
-//            productRepository.getProductList(
-//                cmpCd, salesOrgCd, storCd, cornerCd
-//            ).first().let {
-//                if(it!=null) {
-//                    Log.d(TAG,"상품 목록:${it}")
-//                    productList=it
-//                }
-//            }
+
             productRepository.getProductList(
                 cmpCd, salesOrgCd, storCd, cornerCd
             ).collect { list ->
                 _productList.value = list
                 Log.d(TAG,"상품 목록:${list}")
+                checkProductSale()
             }
         }
     }
 
-    fun getProductList() {
+    private fun getCurrentTime(): String {
+        val calendar = Calendar.getInstance()
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)  // 0 ~ 23
+        val minute = calendar.get(Calendar.MINUTE)     // 0 ~ 59
 
+        return String.format("%02d%02d", hour, minute)  // "HHmm" 형식 문자열 반환
     }
 
+    private fun startTimer() {
+        viewModelScope.launch {
+            while (isActive) {
+                _currentTime.value = getCurrentTime()
+
+                checkProductSale()
+
+                delay(60 * 1000L)
+            }
+        }
+    }
+
+    private fun checkProductSale() {
+        val now = getCurrentTime()
+        Log.d(TAG, "현재 시간: $now")
+
+        val todayIndex = getTodayIndex()
+
+        _filteredProducts.value = _productList.value.filter { product ->
+            val isToday = product.weekDiv[todayIndex] == '1'
+            val inTimeRange = isInSaleTime(now, product.saleCloseStartTime, product.saleCloseEndTime)
+            isToday && inTimeRange
+        }
+        Log.d(TAG,"_filteredProducts:${_filteredProducts.value }")
+    }
+
+    private fun getTodayIndex(): Int {
+        return Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 1 // 0=일
+    }
+
+    private fun isInSaleTime(now: String, start: String?, end: String?): Boolean {
+        if (start.isNullOrBlank() || end.isNullOrBlank()) return true
+        return if (start <= end) {
+            now < start || now > end
+        } else {
+            now > end && now < start
+        }
+    }
     fun updateSoldoutYn(data: String) {
         Log.d(TAG,"updateSoldoutYn data:$data")
         viewModelScope.launch(Dispatchers.IO) {

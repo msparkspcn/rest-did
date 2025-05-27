@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,10 +38,17 @@ fun ProductList(
     val screenWidth = configuration.screenWidthDp.dp
     var displayedProducts by remember { mutableStateOf(productList.take(8)) }
     var productIndex by remember { mutableStateOf(0) }
-    LaunchedEffect(Unit) {
-        if(productList.size<9) {
-            displayedProducts = productList
-        } else {
+
+    LaunchedEffect(productList) {
+        Log.d(TAG,"productList 변경")
+        // 새로운 productList가 들어올 때마다 초기화
+        productIndex = 0
+        displayedProducts = productList.take(8)
+    }
+
+    LaunchedEffect(productList, rollingYn) {
+        Log.d(TAG,"productList, rollingYn 변경")
+        if(productList.size>8 &&rollingYn=="Y") {
             while(true) {
                 delay(5000)
 //                Log.d(TAG,"productIndex:$productIndex, displayedProducts:$displayedProducts")
@@ -83,6 +91,14 @@ fun ProductList(
                         rowItems.forEach { item ->
                             Item(
                                 item = item,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .padding(horizontal = screenWidth * 0.02f)
+                            )
+                        }
+                        if (rowItems.size == 1) {
+                            Spacer(
                                 modifier = Modifier
                                     .weight(1f)
                                     .fillMaxHeight()

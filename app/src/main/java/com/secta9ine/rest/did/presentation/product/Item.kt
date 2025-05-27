@@ -26,12 +26,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.domain.model.Product
 import com.secta9ine.rest.did.util.formatCurrency
@@ -59,10 +61,17 @@ fun Item(
                 .background((Color.White))
         ) {
             Image(
-                painter = rememberAsyncImagePainter("http://o2pos.spcnetworks.kr/files/pos/2022/04/04/1110/tmb_product_00F144.png"),
+                painter = rememberAsyncImagePainter(
+                    ImageRequest.Builder(LocalContext.current)
+                        .data(item.imgPath)
+                        .crossfade(true) // 부드러운 전환
+//                                    .placeholder(R.drawable.placeholder) // 로딩 중 이미지
+//                                    .error(R.drawable.error) // 에러 시 이미지
+                        .build()
+                ),
                 contentDescription = "content",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.FillBounds
             )
         }
         val textSizePrice = when {

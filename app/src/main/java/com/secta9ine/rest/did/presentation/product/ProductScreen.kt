@@ -27,15 +27,11 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.secta9ine.rest.did.network.WebSocketViewModel
-import com.secta9ine.rest.did.presentation.navigation.NavUtils.navigateAsSecondScreen
-import com.secta9ine.rest.did.presentation.navigation.Screen
-import com.secta9ine.rest.did.presentation.splash.SplashViewModel
 import com.secta9ine.rest.did.util.CommonUtils
 import com.secta9ine.rest.did.util.UiString
 
@@ -49,7 +45,6 @@ fun ProductScreen(
 ) {
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
 
     var dialogMessage by remember { mutableStateOf<UiString?>(null)
     }
@@ -147,7 +142,6 @@ fun ProductScreen(
             }
         }
     }
-
 }
 private fun requestPermissions(context: Context) {
     val isPermit =canRequestInstallPackages(context)

@@ -1,5 +1,6 @@
 package com.secta9ine.rest.did.presentation.product
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,7 +26,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.secta9ine.rest.did.domain.model.Product
 import kotlinx.coroutines.delay
-
+private const val TAG = "SpecialProductList"
 @Composable
 fun SpecialProductList(
     productList: List<Product>,
@@ -39,6 +40,7 @@ fun SpecialProductList(
         SpecialProductHeader()
         SpecialProductContents(
             productList = productList,
+            rollingYn = rollingYn,
             screenWidth = screenWidth,
             screenHeight = screenHeight
         )
@@ -70,15 +72,22 @@ fun SpecialProductHeader() {
 @Composable
 fun SpecialProductContents(
     productList: List<Product>,
+    rollingYn: String,
     screenWidth: Dp,
     screenHeight:Dp,
 ) {
     var displayedSpecialProducts by remember { mutableStateOf(productList.take(3)) }
     var productIndex by remember { mutableStateOf(0) }
-    LaunchedEffect(Unit) {
-        if(productList.size<4) {
-            displayedSpecialProducts = productList
-        } else {
+    LaunchedEffect(productList) {
+        Log.d(TAG,"productList 변경")
+        // 새로운 productList가 들어올 때마다 초기화
+        productIndex = 0
+        displayedSpecialProducts = productList.take(3)
+    }
+
+    LaunchedEffect(productList, rollingYn) {
+        Log.d(TAG,"productList, rollingYn 변경")
+        if(productList.size>3 &&rollingYn=="Y") {
             while (true) {
                 delay(5000)
 

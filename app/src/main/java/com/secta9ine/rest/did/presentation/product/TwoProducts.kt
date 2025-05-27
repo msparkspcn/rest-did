@@ -28,7 +28,15 @@ fun TwoProducts(
 ) {
     var displayedProducts by remember { mutableStateOf(productList.take(2)) }
     var productIndex by remember { mutableStateOf(0) }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(productList) {
+        Log.d(TAG,"productList 변경")
+        // 새로운 productList가 들어올 때마다 초기화
+        productIndex = 0
+        displayedProducts = productList.take(2)
+    }
+
+    LaunchedEffect(productList, rollingYn) {
+        Log.d(TAG,"productList, rollingYn 변경")
         if(productList.size>2&&rollingYn=="Y") {
             while(true) {
                 delay(5000)

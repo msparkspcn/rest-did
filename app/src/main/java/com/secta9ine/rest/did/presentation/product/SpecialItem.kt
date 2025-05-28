@@ -5,12 +5,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
@@ -27,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -46,90 +49,102 @@ fun SpecialItem(
     modifier: Modifier,
     isEven: Boolean
 ) {
-    var itemWidth by remember { mutableStateOf(0) }
-    Log.d(TAG,"itemWidth:$itemWidth, itemNmEn:${item.itemNmEn}, calorie:${item.calorie}" +
-            "isEven:$isEven")
-    Row(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .background(Color.White)
             .clip(RoundedCornerShape(8.dp))
             .border(2.dp, Color.White, RoundedCornerShape(16.dp))
             .padding(15.dp, 5.dp)
-            .onGloballyPositioned { layoutCoordinates ->
-                itemWidth = layoutCoordinates.size.width
+    ) {
+        val density = LocalDensity.current
+        val initialWidth = with(density) { maxWidth.toPx().toInt() }
+
+        var itemWidth by remember { mutableStateOf(initialWidth) }
+//        Log.d(TAG,"itemWidth:$itemWidth, itemNmEn:${item.itemNmEn}, calorie:${item.calorie}" + "isEven:$isEven")
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(Color.White)
+                .clip(RoundedCornerShape(8.dp))
+                .border(2.dp, Color.White, RoundedCornerShape(16.dp))
+                .padding(15.dp, 5.dp)
+                .onGloballyPositioned { layoutCoordinates ->
+                    itemWidth = layoutCoordinates.size.width
+                }
+
+        ) {
+            val textSizePrice = when {
+                itemWidth < 200 -> 12.sp
+                itemWidth < 400 -> 14.sp
+                itemWidth < 800 -> 30.sp
+                itemWidth > 1200 -> 16.sp
+                else -> 50.sp
             }
 
-    ) {
-        val textSizePrice = when {
-            itemWidth < 200 -> 12.sp
-            itemWidth < 400 -> 14.sp
-            itemWidth < 800 -> 30.sp
-            itemWidth > 1200 -> 16.sp
-            else -> 50.sp
-        }
+            val textSizeProductNm = when {
+                itemWidth < 200 -> 10.sp
+                itemWidth < 400 -> 12.sp
+                itemWidth < 800 -> 28.sp
+                itemWidth > 1200 -> 14.sp
+                else -> 33.sp
+            }
 
-        val textSizeProductNm = when {
-            itemWidth < 200 -> 10.sp
-            itemWidth < 400 -> 12.sp
-            itemWidth < 800 -> 28.sp
-            itemWidth > 1200 -> 14.sp
-            else -> 33.sp
-        }
+            val textSizeExpln = when {
+                itemWidth < 200 -> 7.sp
+                itemWidth < 400 -> 9.sp
+                itemWidth < 800 -> 22.sp
+                itemWidth > 1200 -> 12.sp
+                else -> 20.sp
+            }
 
-        val textSizeExpln = when {
-            itemWidth < 200 -> 7.sp
-            itemWidth < 400 -> 9.sp
-            itemWidth < 800 -> 22.sp
-            itemWidth > 1200 -> 12.sp
-            else -> 20.sp
-        }
+            val textSizeKcal = when {
+                itemWidth < 200 -> 6.sp
+                itemWidth < 400 -> 8.sp
+                itemWidth < 800 -> 22.sp
+                itemWidth > 1200 -> 10.sp
+                else -> 18.sp
+            }
 
-        val textSizeKcal = when {
-            itemWidth < 200 -> 6.sp
-            itemWidth < 400 -> 8.sp
-            itemWidth < 800 -> 22.sp
-            itemWidth > 1200 -> 10.sp
-            else -> 18.sp
-        }
+            val textSizeProductEngNm = when {
+                itemWidth < 200 -> 4.sp
+                itemWidth < 400 -> 6.sp
+                itemWidth < 800 -> 20.sp
+                itemWidth > 1200 -> 10.sp
+                else -> 18.sp
+            }
 
-        val textSizeProductEngNm = when {
-            itemWidth < 200 -> 4.sp
-            itemWidth < 400 -> 6.sp
-            itemWidth < 800 -> 20.sp
-            itemWidth > 1200 -> 10.sp
-            else -> 18.sp
-        }
-
-        if(isEven) {
-            ItemMainInfo(
-                modifier = Modifier.fillMaxWidth(0.6f).fillMaxHeight(),
-                item = item,
-                textSizeProductNm = textSizeProductNm,
-                textSizeProductEngNm = textSizeProductEngNm)
-            ItemSubInfo(
-                modifier = Modifier.fillMaxWidth(1f).fillMaxHeight(),
-                item= item,
-                textSizeExpln = textSizeExpln,
-                textSizePrice = textSizePrice,
-                textSizeKcal = textSizeKcal,
-                horizontalAlignment = Alignment.End
-            )
-        }
-        else {
-            ItemSubInfo(
-                modifier = Modifier.fillMaxWidth(0.4f).fillMaxHeight(),
-                item= item,
-                textSizeExpln = textSizeExpln,
-                textSizePrice = textSizePrice,
-                textSizeKcal = textSizeKcal)
-            ItemMainInfo(
-                modifier = Modifier.fillMaxWidth(1f).fillMaxHeight(),
-                item = item,
-                textSizeProductNm = textSizeProductNm,
-                textSizeProductEngNm = textSizeProductEngNm,
-                horizontalAlignment = Alignment.End
-            )
+            if (isEven) {
+                ItemMainInfo(
+                    modifier = Modifier.fillMaxWidth(0.6f).fillMaxHeight(),
+                    item = item,
+                    textSizeProductNm = textSizeProductNm,
+                    textSizeProductEngNm = textSizeProductEngNm
+                )
+                ItemSubInfo(
+                    modifier = Modifier.fillMaxWidth(1f).fillMaxHeight(),
+                    item = item,
+                    textSizeExpln = textSizeExpln,
+                    textSizePrice = textSizePrice,
+                    textSizeKcal = textSizeKcal,
+                    horizontalAlignment = Alignment.End
+                )
+            } else {
+                ItemSubInfo(
+                    modifier = Modifier.fillMaxWidth(0.4f).fillMaxHeight(),
+                    item = item,
+                    textSizeExpln = textSizeExpln,
+                    textSizePrice = textSizePrice,
+                    textSizeKcal = textSizeKcal
+                )
+                ItemMainInfo(
+                    modifier = Modifier.fillMaxWidth(1f).fillMaxHeight(),
+                    item = item,
+                    textSizeProductNm = textSizeProductNm,
+                    textSizeProductEngNm = textSizeProductEngNm,
+                    horizontalAlignment = Alignment.End
+                )
+            }
         }
     }
 }
@@ -147,24 +162,33 @@ fun ItemMainInfo(
             .fillMaxWidth()
             .fillMaxHeight()
     ) {
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.7f) // 비율 적용
+                .weight(0.7f)
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current)
-                        .data(item.imgPath)
-                        .crossfade(true) // 부드러운 전환
-//                                    .placeholder(R.drawable.placeholder) // 로딩 중 이미지
-//                                    .error(R.drawable.error) // 에러 시 이미지
-                        .build()
-                ),
-                contentDescription = "content",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.FillBounds
-            )
+            val imageWidth = maxWidth
+            val imageHeight = imageWidth * 2 / 3
+
+            Log.d(TAG,"item:${item.itemNm} imageWidth:$imageWidth imageHeight:$imageHeight")
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(imageHeight)
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(LocalContext.current)
+                            .data(item.imgPath)
+                            .crossfade(true)
+                            .build()
+                    ),
+                    contentDescription = "content",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.FillBounds
+                )
+            }
         }
         Divider(
             modifier = Modifier

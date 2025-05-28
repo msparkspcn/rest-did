@@ -6,12 +6,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
@@ -57,22 +59,41 @@ fun Item(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.7f)
+                .weight(0.6f)
                 .background((Color.White))
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current)
-                        .data(item.imgPath)
-                        .crossfade(true) // 부드러운 전환
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                val maxBoxWidth = maxWidth
+                val maxBoxHeight = maxHeight
+
+                val imageWidth = maxBoxWidth
+                val imageHeight = imageWidth * 2 / 3
+
+                val finalImageHeight = if (imageHeight <= maxBoxHeight) imageHeight else maxBoxHeight
+                val finalImageWidth = if (imageHeight <= maxBoxHeight) imageWidth else maxBoxHeight * 3f / 2f
+
+                Box(
+                    modifier = Modifier
+                        .size(finalImageWidth, finalImageHeight)
+                        .align(Alignment.Center) // 이미지 박스를 중앙에 배치
+                ) {
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            ImageRequest.Builder(LocalContext.current)
+                                .data(item.imgPath)
+                                .crossfade(true) // 부드러운 전환
 //                                    .placeholder(R.drawable.placeholder) // 로딩 중 이미지
 //                                    .error(R.drawable.error) // 에러 시 이미지
-                        .build()
-                ),
-                contentDescription = "content",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.FillBounds
-            )
+                                .build()
+                        ),
+                        contentDescription = "content",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.FillBounds
+                    )
+                }
+            }
         }
         val textSizePrice = when {
             itemWidth < 200 -> 12.sp
@@ -109,7 +130,7 @@ fun Item(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(1f)
+                .weight(0.4f)
                 .clip(RoundedCornerShape(8.dp))
                 .background(Color.White)
                 .border(2.dp, Color.White, RoundedCornerShape(16.dp)),

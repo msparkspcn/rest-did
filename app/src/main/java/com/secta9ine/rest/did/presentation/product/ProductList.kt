@@ -64,6 +64,8 @@ fun ProductList(
             }
         }
     }
+    val fullProductList = displayedProducts + List(8 - displayedProducts.size) { null }
+
     Column {
         Header(version=version)
         Box(
@@ -80,7 +82,7 @@ fun ProductList(
                 verticalArrangement = Arrangement.Center, // 세로 가운데 정렬
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                displayedProducts.take(8).chunked(2).forEach { rowItems ->
+                fullProductList.chunked(2).forEach { rowItems ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -89,13 +91,22 @@ fun ProductList(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         rowItems.forEach { item ->
-                            Item(
-                                item = item,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxHeight()
-                                    .padding(horizontal = screenWidth * 0.02f)
-                            )
+                            if (item != null) {
+                                Item(
+                                    item = item,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight()
+                                        .padding(horizontal = screenWidth * 0.02f)
+                                )
+                            } else {
+                                Spacer(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight()
+                                        .padding(horizontal = screenWidth * 0.02f)
+                                )
+                            }
                         }
                         if (rowItems.size == 1) {
                             Spacer(

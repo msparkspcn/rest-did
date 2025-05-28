@@ -115,11 +115,6 @@ class SplashViewModel @Inject constructor(
                             Log.d(TAG, "설정완료 필요 it:$masterResult")
                         }
                     }
-
-
-//                    registerUseCases.register(device)
-                    _uiState.emit(UiState.UpdateDevice)
-
                 } else {
                     registerNewDevice()
                 }

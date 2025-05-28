@@ -36,6 +36,7 @@ interface ProductDao {
                 AND CORNER_CD = :cornerCd
                 AND USE_YN = '1'
                 AND SOLDOUT_YN = '0'
+            ORDER BY SORT_ORDER
         """
     )
     fun get(cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<Product>>

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -78,16 +80,16 @@ fun SpecialProductContents(
 ) {
     var displayedSpecialProducts by remember { mutableStateOf(productList.take(3)) }
     var productIndex by remember { mutableStateOf(0) }
-    LaunchedEffect(productList) {
-        Log.d(TAG,"productList 변경")
-        // 새로운 productList가 들어올 때마다 초기화
-        productIndex = 0
-        displayedSpecialProducts = productList.take(3)
-    }
+
 
     LaunchedEffect(productList, rollingYn) {
         Log.d(TAG,"productList, rollingYn 변경")
-        if(productList.size>3 &&rollingYn=="Y") {
+
+        if(productList.size<=3) {
+            displayedSpecialProducts = productList.take(3)
+        }
+        else if(rollingYn=="Y"){
+            productIndex = 0
             while (true) {
                 delay(5000)
 
@@ -102,6 +104,9 @@ fun SpecialProductContents(
             }
         }
     }
+    val fullProductList = displayedSpecialProducts + List(3 - displayedSpecialProducts.size) { null }
+
+
     Box(
         modifier = Modifier
             .fillMaxSize() // 전체 화면을 100% 차지
@@ -116,18 +121,32 @@ fun SpecialProductContents(
             verticalArrangement = Arrangement.Center, // 세로 가운데 정렬
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            displayedSpecialProducts.take(3).forEachIndexed { index, item ->
-                SpecialItem(
-                    item = item,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .padding(
-                            horizontal = screenWidth * 0.01f,
-                            vertical = screenHeight * 0.005f
-                        ),
-                    isEven = (index % 2 == 0)
-                )
+            fullProductList.forEachIndexed { index, item ->
+                key(item?.itemCd ?: index) {
+                    if (item != null) {
+                        SpecialItem(
+                            item = item,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .padding(
+                                    horizontal = screenWidth * 0.01f,
+                                    vertical = screenHeight * 0.005f
+                                ),
+                            isEven = (index % 2 == 0)
+                        )
+                    } else {
+                        Spacer(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .padding(
+                                    horizontal = screenWidth * 0.01f,
+                                    vertical = screenHeight * 0.005f
+                                )
+                        )
+                    }
+                }
             }
         }
     }

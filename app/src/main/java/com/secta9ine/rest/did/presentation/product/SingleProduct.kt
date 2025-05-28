@@ -138,15 +138,11 @@ fun SingleProduct(
                         .weight(6f)
                         .fillMaxHeight()
                         .background((Color.White))
-//                        .border(
-//                            width = 2.dp,
-//                            color = Color(0xFF1BAAFE)
-//                        )
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-//                            .aspectRatio(5f / 4f)
+                            .aspectRatio(3f / 2f)
                             .align(Alignment.Center)
                     ) {
                         Image(
@@ -163,11 +159,9 @@ fun SingleProduct(
                             contentScale = ContentScale.FillBounds
                         )
                     }
-
                 }
             }
         }
-
     }
 }
 

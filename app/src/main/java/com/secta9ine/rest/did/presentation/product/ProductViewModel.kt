@@ -80,7 +80,7 @@ class ProductViewModel @Inject constructor(
             val storCd = dataStoreRepository.getStorCd().first()
             val cornerCd = dataStoreRepository.getCornerCd().first()
 
-            Log.d(TAG,"### 상품 화면 deviceId:$deviceId $cmpCd $salesOrgCd $storCd $cornerCd")
+//            Log.d(TAG,"### 상품 화면 deviceId:$deviceId $cmpCd $salesOrgCd $storCd $cornerCd")
             device = deviceRepository.getDevice(deviceId).first()
             Log.d(TAG,"### 상품 화면 device:$device")
             displayCd = device.displayMenuCd!!
@@ -106,6 +106,7 @@ class ProductViewModel @Inject constructor(
 
     private fun startTimer() {
         viewModelScope.launch {
+            delay(60 * 1000L)
             while (isActive) {
                 _currentTime.value = getCurrentTime()
 
@@ -117,6 +118,7 @@ class ProductViewModel @Inject constructor(
     }
 
     private fun checkProductSale() {
+        Log.d(TAG,"상품 표시 체크")
         val now = getCurrentTime()
         Log.d(TAG, "현재 시간: $now")
 
@@ -127,7 +129,7 @@ class ProductViewModel @Inject constructor(
             val inTimeRange = isInSaleTime(now, product.saleCloseStartTime, product.saleCloseEndTime)
             isToday && inTimeRange
         }
-        Log.d(TAG,"_filteredProducts:${_filteredProducts.value }")
+//        Log.d(TAG,"_filteredProducts:${_filteredProducts.value }")
     }
 
     private fun getTodayIndex(): Int {

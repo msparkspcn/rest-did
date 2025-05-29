@@ -38,7 +38,6 @@ import com.secta9ine.rest.did.util.UiString
 private const val TAG = "ProductScreen"
 @Composable
 fun ProductScreen(
-    modifier: Modifier = Modifier,
     navController: NavHostController? = null,
     viewModel: ProductViewModel = hiltViewModel(),
     wsViewModel: WebSocketViewModel = hiltViewModel(),
@@ -64,7 +63,7 @@ fun ProductScreen(
 //                        navController?.navigateAsSecondScreen(Screen.OrderStatusScreen.route)
 //                    }
 //                    else {
-                        //같은 화면으로 이동할 필요 없고 업데이트된 로컬 db에서 조회에서 데이터 렌더링 다시 실행
+                        //같은 화면 으로 이동할 필요 없고 업데이트 된 로컬 db에서 조회에서 데이터 렌더링 다시 실행
 //                    }
                 }
 
@@ -81,7 +80,7 @@ fun ProductScreen(
         when (uiState2) {
             is WebSocketViewModel.UiState.UpdateDevice -> {
                 Log.d(TAG,"ws updateDevice")
-                //usecase 에서 장비 설정 완료 후 display할 화면으로 이동
+                //usecase 에서 장비 설정 완료 후 display 할 화면으로 이동
 //                viewModel.getDevice()
 //                viewModel.updateVersion(context)
             }
@@ -131,9 +130,7 @@ fun ProductScreen(
                     productList = productList,
                     rollingYn = viewModel.rollingYn,
                     version= CommonUtils.getAppVersion(context)
-
                 )
-
             }
             "05" -> {
                 SpecialProductList(

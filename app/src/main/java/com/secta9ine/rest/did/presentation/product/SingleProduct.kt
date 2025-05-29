@@ -1,16 +1,13 @@
 package com.secta9ine.rest.did.presentation.product
 
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -31,10 +28,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.domain.model.Product
 import com.secta9ine.rest.did.util.formatCurrency
 import kotlinx.coroutines.delay
@@ -145,18 +140,16 @@ fun SingleProduct(
                             .aspectRatio(3f / 2f)
                             .align(Alignment.Center)
                     ) {
-                        Image(
-                            painter = rememberAsyncImagePainter(
-                                ImageRequest.Builder(LocalContext.current)
-                                    .data(item.imgPath)
-                                    .crossfade(true) // 부드러운 전환
-//                                    .placeholder(R.drawable.placeholder) // 로딩 중 이미지
-//                                    .error(R.drawable.error) // 에러 시 이미지
-                                    .build()
-                            ),
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(item.imgPath)
+                                .crossfade(true)
+                                .build(),
                             contentDescription = "content",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.FillBounds
+                            contentScale = ContentScale.FillBounds,
+                            modifier = Modifier
+                                .fillMaxWidth()
+//                                .height(imageHeight)
                         )
                     }
                 }

@@ -39,28 +39,21 @@ fun ProductList(
     var displayedProducts by remember { mutableStateOf(productList.take(8)) }
     var productIndex by remember { mutableStateOf(0) }
 
-    LaunchedEffect(productList) {
-        Log.d(TAG,"productList 변경")
-        // 새로운 productList가 들어올 때마다 초기화
-        productIndex = 0
-        displayedProducts = productList.take(8)
-    }
 
     LaunchedEffect(productList, rollingYn) {
         Log.d(TAG,"productList, rollingYn 변경")
-        if(productList.size>8 &&rollingYn=="Y") {
+        if(productList.size<=8) {
+            displayedProducts = productList.take(8)
+        }
+        else if(rollingYn=="Y"){
+            productIndex = 0
             while(true) {
-                delay(5000)
-//                Log.d(TAG,"productIndex:$productIndex, displayedProducts:$displayedProducts")
+                val endIndex = minOf(productIndex + 8, productList.size)
+                displayedProducts = productList.subList(productIndex, endIndex)
 
-                if(productIndex + 8 <= productList.size) {
-                    displayedProducts = productList.subList(productIndex, productIndex+8)
-                    productIndex += 8
-                }
-                else {
-                    displayedProducts = productList.subList(productIndex, productList.size)
-                    productIndex = 0
-                }
+                delay(5000)
+
+                productIndex = if (endIndex == productList.size) 0 else endIndex
             }
         }
     }

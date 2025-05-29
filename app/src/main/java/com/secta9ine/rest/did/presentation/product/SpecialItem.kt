@@ -18,25 +18,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.domain.model.Product
@@ -57,11 +52,9 @@ fun SpecialItem(
             .border(2.dp, Color.White, RoundedCornerShape(16.dp))
             .padding(15.dp, 5.dp)
     ) {
-        val density = LocalDensity.current
-        val initialWidth = with(density) { maxWidth.toPx().toInt() }
 
-        var itemWidth by remember { mutableStateOf(initialWidth) }
-//        Log.d(TAG,"itemWidth:$itemWidth, itemNmEn:${item.itemNmEn}, calorie:${item.calorie}" + "isEven:$isEven")
+        val width = maxWidth
+        Log.d(TAG,"itemWidth:$width, itemNmEn:${item.itemNmEn}, calorie:${item.calorie}" + "isEven:$isEven")
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -69,48 +62,47 @@ fun SpecialItem(
                 .clip(RoundedCornerShape(8.dp))
                 .border(2.dp, Color.White, RoundedCornerShape(16.dp))
                 .padding(15.dp, 5.dp)
-                .onGloballyPositioned { layoutCoordinates ->
-                    itemWidth = layoutCoordinates.size.width
-                }
+
 
         ) {
+
             val textSizePrice = when {
-                itemWidth < 200 -> 12.sp
-                itemWidth < 400 -> 14.sp
-                itemWidth < 800 -> 30.sp
-                itemWidth > 1200 -> 16.sp
+                width < 200.dp -> 12.sp
+                width < 400.dp -> 14.sp
+                width < 800.dp -> 30.sp
+                width > 1200.dp -> 16.sp
                 else -> 50.sp
             }
 
             val textSizeProductNm = when {
-                itemWidth < 200 -> 10.sp
-                itemWidth < 400 -> 12.sp
-                itemWidth < 800 -> 28.sp
-                itemWidth > 1200 -> 14.sp
+                width < 200.dp -> 10.sp
+                width < 400.dp -> 12.sp
+                width < 800.dp -> 28.sp
+                width > 1200.dp -> 14.sp
                 else -> 33.sp
             }
 
             val textSizeExpln = when {
-                itemWidth < 200 -> 7.sp
-                itemWidth < 400 -> 9.sp
-                itemWidth < 800 -> 22.sp
-                itemWidth > 1200 -> 12.sp
+                width < 200.dp -> 7.sp
+                width < 400.dp -> 9.sp
+                width < 800.dp -> 22.sp
+                width > 1200.dp -> 12.sp
                 else -> 20.sp
             }
 
             val textSizeKcal = when {
-                itemWidth < 200 -> 6.sp
-                itemWidth < 400 -> 8.sp
-                itemWidth < 800 -> 22.sp
-                itemWidth > 1200 -> 10.sp
+                width < 200.dp -> 6.sp
+                width < 400.dp -> 8.sp
+                width < 800.dp -> 22.sp
+                width > 1200.dp -> 10.sp
                 else -> 18.sp
             }
 
             val textSizeProductEngNm = when {
-                itemWidth < 200 -> 4.sp
-                itemWidth < 400 -> 6.sp
-                itemWidth < 800 -> 20.sp
-                itemWidth > 1200 -> 10.sp
+                width < 200.dp -> 4.sp
+                width < 400.dp -> 6.sp
+                width < 800.dp -> 20.sp
+                width > 1200.dp -> 10.sp
                 else -> 18.sp
             }
 
@@ -167,26 +159,26 @@ fun ItemMainInfo(
                 .fillMaxWidth()
                 .weight(0.7f)
         ) {
-            val imageWidth = maxWidth
-            val imageHeight = imageWidth * 2 / 3
 
-            Log.d(TAG,"item:${item.itemNm} imageWidth:$imageWidth imageHeight:$imageHeight")
+            val imageHeight = remember(maxWidth) {
+                maxWidth * 2 / 3
+            }
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(imageHeight)
             ) {
-                Image(
-                    painter = rememberAsyncImagePainter(
-                        ImageRequest.Builder(LocalContext.current)
-                            .data(item.imgPath)
-                            .crossfade(true)
-                            .build()
-                    ),
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(item.imgPath)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = "content",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(imageHeight)
                 )
             }
         }

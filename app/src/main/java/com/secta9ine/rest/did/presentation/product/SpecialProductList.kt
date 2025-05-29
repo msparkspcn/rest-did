@@ -34,6 +34,8 @@ fun SpecialProductList(
     productList: List<Product>,
     rollingYn: String,
 ) {
+    Log.d(TAG, "Composable 호출")
+
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val screenHeight = configuration.screenHeightDp.dp
@@ -91,16 +93,12 @@ fun SpecialProductContents(
         else if(rollingYn=="Y"){
             productIndex = 0
             while (true) {
+                val endIndex = minOf(productIndex + 3, productList.size)
+                displayedSpecialProducts = productList.subList(productIndex, endIndex)
+
                 delay(5000)
 
-                if(productIndex + 3 <= productList.size) {
-                    displayedSpecialProducts = productList.subList(productIndex, productIndex+3)
-                    productIndex += 3
-                }
-                else {
-                    displayedSpecialProducts = productList.subList(productIndex, productList.size)
-                    productIndex = 0
-                }
+                productIndex = if (endIndex == productList.size) 0 else endIndex
             }
         }
     }

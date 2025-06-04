@@ -28,6 +28,9 @@ import com.secta9ine.rest.did.receiver.UpdateReceiver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +43,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedInputStream
 import java.io.File
@@ -147,16 +151,32 @@ class ProductViewModel @Inject constructor(
     fun updateSoldoutYn(data: String) {
         Log.d(TAG,"updateSoldoutYn data:$data")
         viewModelScope.launch(Dispatchers.IO) {
-            val jsonObject = JSONObject(data)
-            val cmpCd = jsonObject.getString("cmpCd")
-            val salesOrgCd = jsonObject.getString("salesOrgCd")
-            val storCd = jsonObject.getString("storCd")
-            val itemCd = jsonObject.getString("itemCd")
-            val soldoutYn = jsonObject.getString("soldoutYn")
-            Log.d("TAG", "cmpCd: $cmpCd, itemCd: $itemCd, soldoutYn: $soldoutYn")
-            productRepository.updateSoldoutYn(
-                cmpCd, salesOrgCd, storCd, itemCd, soldoutYn
-            )
+            try {
+                val jsonArray = JSONArray(data)
+
+                coroutineScope {
+                    val updateJobs = (0 until jsonArray.length()).map { index ->
+                        async {
+                            val jsonObject = jsonArray.getJSONObject(index)
+                            val cmpCd = jsonObject.getString("cmpCd")
+                            val salesOrgCd = jsonObject.getString("salesOrgCd")
+                            val storCd = jsonObject.getString("storCd")
+                            val itemCd = jsonObject.getString("itemCd")
+                            val soldoutYn = jsonObject.getString("soldoutYn")
+
+                            Log.d(TAG, "처리중 - itemCd: $itemCd, soldoutYn: $soldoutYn")
+
+                            productRepository.updateSoldoutYn(
+                                cmpCd, salesOrgCd, storCd, itemCd, soldoutYn
+                            )
+                        }
+                    }
+
+                    updateJobs.awaitAll() // 모든 업데이트가 끝날 때까지 기다림
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "품절 처리 중 오류 발생", e)
+            }
         }
     }
 

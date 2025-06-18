@@ -87,7 +87,7 @@ fun SingleProduct(
                         Text(
                             text = it,
                             fontSize = itemNmEnSize,
-                            color = Color(0xFF1BAAFE)
+                            color = Color(0xFF1EB5EC)
                         )
                     }
                     Divider(
@@ -95,7 +95,7 @@ fun SingleProduct(
                             .fillMaxWidth(1f)
                             .align(Alignment.CenterHorizontally)
                             .padding(top = 8.dp),
-                        color = Color(0xFF1BAAFE),
+                        color = Color(0xFF1EB5EC),
                         thickness = 2.dp // 밑줄 두께
                     )
                     Row(
@@ -109,7 +109,7 @@ fun SingleProduct(
                             text = "${item.price}".formatCurrency() ?: "0",
                             fontSize = priceSize,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1BAAFE)
+                            color = Color(0xFF1EB5EC)
                         )
                         Text(
                             text = "원",
@@ -123,7 +123,7 @@ fun SingleProduct(
                             .fillMaxWidth(1f)
                             .align(Alignment.CenterHorizontally)
                             .padding(top = 8.dp),
-                        color = Color(0xFF1BAAFE),
+                        color = Color(0xFF1EB5EC),
                         thickness = 2.dp // 밑줄 두께
                     )
 

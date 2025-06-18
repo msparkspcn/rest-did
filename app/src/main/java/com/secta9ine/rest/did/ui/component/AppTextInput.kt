@@ -58,7 +58,7 @@ fun AppTextInput(
             .onFocusChanged { isFocused = it.isFocused }
             .border(
                 width = 1.dp, // 테두리 두께 조정
-                color = if (isFocused) Color(0xFF1BAAFE) else Color(0xFFDEE0E6),
+                color = if (isFocused) Color(0xFF1EB5EC) else Color(0xFFDEE0E6),
                 shape = shape
             )
 

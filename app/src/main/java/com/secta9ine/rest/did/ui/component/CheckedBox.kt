@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun CheckedBox() {
     Canvas(modifier = Modifier.size(28.dp)) {
-        drawCircle(color = Color(0xFF1BAAFE), radius = 14f, center = center) // Circle
+        drawCircle(color = Color(0xFF1EB5EC), radius = 14f, center = center) // Circle
         drawLine(
             start = center.copy(x = center.x - 5.704f, y = center.y), // (8.296, 13.786)
             end = center.copy(x = center.x + 1.074f, y = center.y + 3.844f), // (12.37, 17.63)

@@ -169,7 +169,7 @@ fun Item(
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            color = Color(0xFF1BAAFE)
+                            color = Color(0xFF1EB5EC)
                         )
                         Text(
                             text = stringResource(R.string.currency_unit),

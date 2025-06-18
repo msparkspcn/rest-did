@@ -185,7 +185,7 @@ fun ItemMainInfo(
         Divider(
             modifier = Modifier
                 .fillMaxWidth(),
-            color = Color(0xFF1BAAFE),
+            color = Color(0xFF1EB5EC),
             thickness = 4.dp
         )
         Column(
@@ -262,7 +262,7 @@ fun ItemSubInfo(
         Divider(
             modifier = Modifier
                 .fillMaxWidth(),
-            color = Color(0xFF1BAAFE),
+            color = Color(0xFF1EB5EC),
             thickness = 4.dp // 밑줄 두께
         )
         Column(
@@ -278,7 +278,7 @@ fun ItemSubInfo(
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                color = Color(0xFF1BAAFE)
+                color = Color(0xFF1EB5EC)
             )
             item.calorie?.let { calorie ->
                 Text(

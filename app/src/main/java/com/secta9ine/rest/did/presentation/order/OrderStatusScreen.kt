@@ -15,10 +15,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.Divider
+import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CheckCircleOutline
+import androidx.compose.material.icons.outlined.HourglassEmpty
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -72,7 +79,7 @@ fun OrderStatusScreen(
     val screenWidth = configuration.screenWidthDp.dp
     Log.d(TAG,"screenWidth:$screenWidth")
     val density = LocalDensity.current
-    val titleNmSize = with(density) { (screenWidth * 0.02f).toSp() }
+    val titleNmSize = with(density) { (screenWidth * 0.03f).toSp() }
     val titleMsgSize = with(density) { (screenWidth * 0.02f).toSp() }
     val msgTextSize = with(density) { (screenWidth * 0.05f).toSp() }
     LaunchedEffect(Unit) {
@@ -148,18 +155,19 @@ fun OrderHeader(
 ) {
     Row(
         modifier = Modifier
-            .background(Color(0xFF283237))
+            .background(Color(0xFF1EB5EC))
             .fillMaxWidth()
-            .padding(10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+            .padding(20.dp, 0.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = "SR DID",
             fontSize = titleNmSize,
-            color = Color(0xFF1BAAFE),
+            color = Color.White,
         )
         Text(
-            text = "번호가 표시되면 음식을 찾아가세요.",
+            text = stringResource(id = R.string.order_info_msg),
             fontSize = titleMsgSize,
             color = Color.White,
         )
@@ -226,27 +234,24 @@ fun OrderContents(
         }
     }
 
-
-
     Row(modifier = Modifier
         .fillMaxWidth()
-        .padding(20.dp)) {
-        Box(
+        .padding(20.dp)
+    ) {
+        Card(
+            backgroundColor = Color.White,
+            elevation = 2.dp,
+            shape = RoundedCornerShape(8.dp),
             modifier = Modifier
                 .weight(4.5f)
                 .fillMaxHeight(0.9f)
-                .clip(RoundedCornerShape(8.dp))
-                .background((Color.White))
-                .border(
-                    width = 2.dp,
-                    color = Color(0xFF1BAAFE),
-                    RoundedCornerShape(8.dp)
-                )
         ) {
             Column(
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(20.dp, 0.dp)
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 val configuration = LocalConfiguration.current
                 val screenWidth = configuration.screenWidthDp.dp
@@ -262,7 +267,7 @@ fun OrderContents(
                         .align(Alignment.CenterHorizontally)
                         .alpha(if (isVisible) 1f else 0f),
                     fontSize = textSize,
-                    color = Color(0xFF1BAAFE),
+                    color = Color(0xFF1EB5EC),
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
@@ -271,7 +276,7 @@ fun OrderContents(
                         .fillMaxWidth(0.9f)
                         .align(Alignment.CenterHorizontally)
                         .padding(top = 8.dp),
-                    color = Color(0xFF1BAAFE),
+                    color = Color(0xFF1EB5EC),
                     thickness = 4.dp // 밑줄 두께
                 )
                 Spacer(modifier = Modifier.height(15.dp))
@@ -284,96 +289,176 @@ fun OrderContents(
                 )
             }
         }
-        Column(Modifier.weight(5.5f)) {
+        Column(
+            modifier = Modifier
+                .weight(5.5f)
+                .fillMaxHeight(0.9f)
+        ) {
             val configuration2 = LocalConfiguration.current
             val screenWidth2 = configuration2.screenWidthDp.dp
             Log.d(TAG,"screenWidth2:$screenWidth2")
             val density2 = LocalDensity.current
-            val statusSize = with(density2) { (screenWidth2 * 0.025f).toSp() }
+            val statusSize = with(density2) { (screenWidth2 * 0.015f).toSp() }
             val msgTextSize = with(density2) { (screenWidth2 * 0.05f).toSp() }
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(20.dp, 0.dp)) {
+            val iconSizeDp = with(LocalDensity.current) { statusSize.toDp() }
+            Card(
+                backgroundColor = Color.White,
+                elevation = 2.dp,
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(start = 10.dp)
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.TopStart)
+                        .padding(20.dp)
                 ) {
-
-                    Text(
-                        text = "준비완료 | Complete",
-                        fontSize = statusSize,
-                    )
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        displayedCompletedOrders.take(3).forEach { order ->
-                            Text(
-                                text = order,
-                                fontSize = msgTextSize,
-                                modifier = Modifier.padding(4.dp)
-                            )
-                        }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.CheckCircleOutline,
+                            contentDescription = "Complete",
+                            modifier = Modifier.size(iconSizeDp *1.15f)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(id = R.string.completed_order),
+                            fontSize = statusSize,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
+                    Divider(
+                        modifier = Modifier
+                            .fillMaxWidth(1f)
+                            .align(Alignment.CenterHorizontally)
+                            .padding(top = 10.dp),
+                        color = Color(0xFFDEE2E6),
+                        thickness = 2.dp // 밑줄 두께
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .padding(top = 8.dp)
+                    ) {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                displayedCompletedOrders.take(3).forEach { order ->
+                                    Text(
+                                        text = order,
+                                        fontSize = msgTextSize,
+                                        modifier = Modifier.padding(4.dp, 0.dp)
+                                    )
+                                }
+                            }
 
-                    // 두 번째 행
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        displayedCompletedOrders.drop(3).take(3).forEach { order ->
-                            Text(
-                                text = order,
-                                fontSize = msgTextSize,
-                                modifier = Modifier.padding(4.dp)
-                            )
+                            // 두 번째 행
+                            Row(
+                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                displayedCompletedOrders.drop(3).take(3).forEach { order ->
+                                    Text(
+                                        text = order,
+                                        fontSize = msgTextSize,
+                                        modifier = Modifier.padding(4.dp, 0.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(30.dp))
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .weight(2f)
-                .padding(20.dp, 0.dp)) {
+            Spacer(modifier = Modifier.height(20.dp))
+            Card(
+                backgroundColor = Color.White,
+                elevation = 2.dp,
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1.5f)
+                    .padding(start = 10.dp)
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.TopStart)
+                        .padding(20.dp)
                 ) {
-                    Text(
-                        text = "준비중 | Preparing",
-                        fontSize = statusSize,
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.HourglassEmpty,
+                            contentDescription = "Preparing",
+                            modifier = Modifier.size(iconSizeDp *1.25f)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(id = R.string.preparing_order),
+                            fontSize = statusSize,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Divider(
+                        modifier = Modifier
+                            .fillMaxWidth(1f)
+                            .align(Alignment.CenterHorizontally)
+                            .padding(top = 10.dp),
+                        color = Color(0xFFDEE2E6),
+                        thickness = 2.dp // 밑줄 두께
                     )
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        displayedWaitingOrders.take(3).forEach { order ->
-                            Text(
-                                text = order,
-                                fontSize = msgTextSize,
-                                modifier = Modifier.padding(4.dp)
-                            )
-                        }
-                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .padding(top = 8.dp)
+                    ) {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                displayedWaitingOrders.take(3).forEach { order ->
+                                    Text(
+                                        text = order,
+                                        fontSize = msgTextSize,
+                                        modifier = Modifier.padding(4.dp, 0.dp)
+                                    )
+                                }
+                            }
 
-                    // 두 번째 행
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        displayedWaitingOrders.drop(3).take(3).forEach { order ->
-                            Text(
-                                text = order,
-                                fontSize = msgTextSize,
-                                modifier = Modifier.padding(4.dp)
-                            )
-                        }
-                    }
+                            // 두 번째 행
+                            Row(
+                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                displayedWaitingOrders.drop(3).take(3).forEach { order ->
+                                    Text(
+                                        text = order,
+                                        fontSize = msgTextSize,
+                                        modifier = Modifier.padding(4.dp, 0.dp)
+                                    )
+                                }
+                            }
 
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween) {
-                        displayedWaitingOrders.drop(6).take(3).forEach { order ->
-                            Text(
-                                text = order,
-                                fontSize = msgTextSize,
-                                modifier = Modifier.padding(4.dp)
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                displayedWaitingOrders.drop(6).take(3).forEach { order ->
+                                    Text(
+                                        text = order,
+                                        fontSize = msgTextSize,
+                                        modifier = Modifier.padding(4.dp, 0.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }

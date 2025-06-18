@@ -87,13 +87,13 @@ kotlin {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.6.0") // Core KTX 라이브러리
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1") // Lifecycle KTX
-    implementation("androidx.compose.ui:ui:1.1.0") // Jetpack Compose UI
-    implementation("androidx.compose.material:material:1.1.0") // Jetpack Compose Material
+    implementation("androidx.core:core-ktx:1.6.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
+    implementation("androidx.compose.ui:ui:1.1.0")
+    implementation("androidx.compose.material:material:1.1.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.10")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.0.5") // Jetpack Compose UI Tooling
-    implementation("androidx.activity:activity-compose:1.3.1") // Jetpack Compose Activity
+    implementation("androidx.compose.ui:ui-tooling-preview:1.0.5")
+    implementation("androidx.activity:activity-compose:1.3.1")
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07")
     implementation("androidx.test:monitor:1.7.2")
@@ -132,4 +132,5 @@ dependencies {
 //    implementation(files("libs/gson-2.9.0.jar"))
     implementation(files("libs/QuberSecurity.jar"))
     implementation("androidx.appcompat:appcompat:1.4.2")
+    implementation("androidx.compose.material:material-icons-extended:1.1.0")
 }

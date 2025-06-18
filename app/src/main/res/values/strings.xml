@@ -28,4 +28,5 @@
     <string name="no_device_config_error">디바이스 정보가 없습니다.</string>
     <string name="completed_order">준비완료 | Complete</string>
     <string name="preparing_order">준비중 | Preparing</string>
+    <string name="order_info_msg">주문 번호를 확인하고 음식을 수령하세요.</string>
 </resources>

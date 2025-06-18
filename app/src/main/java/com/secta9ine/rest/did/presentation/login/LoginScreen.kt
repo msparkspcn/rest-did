@@ -113,7 +113,7 @@ fun LoginScreen(
                     .clip(RoundedCornerShape(10.dp))
                     .background(Color.White)
                     .clickable { viewModel.onChangeFocus("userId") },
-                color = if (viewModel.currentFocus == "userId") Color(0xFF1BAAFE) else Color(0xFFAFB7BF),
+                color = if (viewModel.currentFocus == "userId") Color(0xFF1EB5EC) else Color(0xFFAFB7BF),
                 focussed = viewModel.currentFocus == "userId",
                 onChangeText = {viewModel.onChangeText("userId", it)},
                 keyboardOptions = KeyboardOptions(
@@ -133,7 +133,7 @@ fun LoginScreen(
                         focusRequester.requestFocus()
                     }
                     .background(Color.White),
-                color = if (viewModel.currentFocus == "password") Color(0xFF1BAAFE) else Color(0xFFAFB7BF),
+                color = if (viewModel.currentFocus == "password") Color(0xFF1EB5EC) else Color(0xFFAFB7BF),
                 focussed = viewModel.currentFocus == "password",
                 onChangeText = {viewModel.onChangeText("password", it)},
                 keyboardOptions = KeyboardOptions(
@@ -168,7 +168,7 @@ fun LoginScreen(
                 onClick = viewModel::onLogin,
                 colors = if(viewModel.userId!="" && viewModel.password!="") {
                     ButtonDefaults.buttonColors(
-                        backgroundColor = Color(0xFF1BAAFE),
+                        backgroundColor = Color(0xFF1EB5EC),
                         contentColor = Color.White
                     )
                 } else {

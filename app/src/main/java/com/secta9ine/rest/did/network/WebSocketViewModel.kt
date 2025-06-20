@@ -76,6 +76,9 @@ class WebSocketViewModel
                 //DID 상품 부가정보 이벤트 구독
                 //주문 이벤트 구독
                 subscribeToEvents()
+                viewModelScope.launch {
+                    _uiState.emit(UiState.CheckDevice)
+                }
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {

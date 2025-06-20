@@ -90,6 +90,7 @@ class SplashViewModel @Inject constructor(
     }
 
     suspend fun checkDevice() {
+        _uiState.emit(UiState.Loading)
         Log.d(TAG,"checkDevice androidId:$androidId")
         when (val result = restApiRepository.checkDevice(androidId)) {
             is Resource.Success -> {
@@ -113,13 +114,16 @@ class SplashViewModel @Inject constructor(
                         }
                         is Resource.Failure -> {
                             Log.d(TAG, "설정완료 필요 it:$masterResult")
+                            _uiState.emit(UiState.Idle)
                         }
                     }
                 } else {
+                    _uiState.emit(UiState.Idle)
                     registerNewDevice()
                 }
             }
             is Resource.Failure -> {
+                _uiState.emit(UiState.Idle)
                 Log.d(TAG, "Device check 실패: $result")
             }
         }

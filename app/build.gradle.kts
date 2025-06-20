@@ -27,6 +27,18 @@ android {
         }
     }
 
+
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("config") // 서명 적용
+        }
+
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("config") // 디버그에도 적용
+        }
+    }
+
     buildFeatures {
         aidl = true // Enable AIDL support
         compose = true

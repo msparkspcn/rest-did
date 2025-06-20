@@ -43,6 +43,7 @@ import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.presentation.navigation.Screen
 import com.secta9ine.rest.did.ui.component.AppAlertDialog
 import com.secta9ine.rest.did.ui.component.AppButton
+import com.secta9ine.rest.did.ui.component.AppLoadingIndicator
 import com.secta9ine.rest.did.util.UiString
 
 private const val TAG = "SplashScreen"
@@ -189,6 +190,9 @@ fun SplashScreen(
                     }
                 }
             }
+        }
+        if (uiState is SplashViewModel.UiState.Loading) {
+            AppLoadingIndicator()
         }
     }
 }

@@ -48,8 +48,23 @@ fun ProductScreen(
     var dialogMessage by remember { mutableStateOf<UiString?>(null)
     }
     val uiState by viewModel.uiState.collectAsState(initial = null)
-    val uiState2 by wsViewModel.uiState.collectAsState(initial = WebSocketViewModel.UiState.Idle)
+
     val productList by viewModel.productList.collectAsState()
+
+    val socketHandler = remember(viewModel) {
+        { state: WebSocketViewModel.UiState ->
+            viewModel.handleSocketEvent(state)
+        }
+    }
+
+
+    DisposableEffect(Unit) {
+        wsViewModel.registerHandler(socketHandler)
+        onDispose {
+            wsViewModel.unregisterHandler(socketHandler)
+        }
+    }
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
         requestPermissions(context)
@@ -66,31 +81,14 @@ fun ProductScreen(
                         //같은 화면 으로 이동할 필요 없고 업데이트 된 로컬 db에서 조회에서 데이터 렌더링 다시 실행
 //                    }
                 }
+                is ProductViewModel.UiState.UpdateVersion -> {
+                    viewModel.updateVersion(context)
+                }
 
                 is ProductViewModel.UiState.Error -> {
                     dialogMessage = UiString.TextString(it.message)
                 }
                 else -> {}
-            }
-        }
-    }
-    LaunchedEffect(uiState2) {
-        Log.d(TAG, "222 uiState:$uiState2")
-
-        when (uiState2) {
-            is WebSocketViewModel.UiState.UpdateDevice -> {
-                Log.d(TAG,"ws updateDevice")
-                //usecase 에서 장비 설정 완료 후 display 할 화면으로 이동
-//                viewModel.getDevice()
-//                viewModel.updateVersion(context)
-            }
-            is WebSocketViewModel.UiState.SoldOut -> {
-                val data = (uiState2 as WebSocketViewModel.UiState.SoldOut).data
-                Log.d(TAG, "상품 품절 처리: $data")
-                viewModel.updateSoldoutYn(data)
-            }
-            else -> {
-
             }
         }
     }

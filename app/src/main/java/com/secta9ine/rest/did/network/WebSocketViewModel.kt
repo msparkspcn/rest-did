@@ -11,11 +11,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.usecase.RegisterUseCases
-import com.secta9ine.rest.did.presentation.splash.SplashViewModel
-import com.secta9ine.rest.did.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -46,12 +43,26 @@ class WebSocketViewModel
     private var reconnectJob: Job? = null
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
+    private val handlers = mutableSetOf<(UiState) -> Unit>()
     var androidId by mutableStateOf("")
         private set
     init {
         uiState.onEach { Log.d(tag, "uiState=$it") }.launchIn(viewModelScope)
         observeNetworkChanges()
         connectWebSocket()
+    }
+
+    fun registerHandler(handler: (UiState) -> Unit) {
+        handlers += handler
+    }
+
+    fun unregisterHandler(handler: (UiState) -> Unit) {
+        handlers -= handler
+    }
+
+    suspend fun emitUiState(state: UiState) {
+        _uiState.emit(state)
+        handlers.forEach { it(state) }
     }
 
     private fun connectWebSocket() {
@@ -77,7 +88,7 @@ class WebSocketViewModel
                 //주문 이벤트 구독
                 subscribeToEvents()
                 viewModelScope.launch {
-                    _uiState.emit(UiState.CheckDevice)
+                    emitUiState(UiState.CheckDevice)
                 }
             }
 
@@ -88,20 +99,22 @@ class WebSocketViewModel
                     /**/
                     val jsonObject =JSONObject(text)
                     val event = jsonObject.getString("type")
-                    val data = jsonObject.getString("body")
+//                    val data = jsonObject.getString("body")
+                    val data = jsonObject.optString("body", "")
                     val message = jsonObject.getString("message")
                     when (event) {
                         "ECHO" -> {
-                            Log.d(tag, "앱 재실행")
+                            Log.d(tag, "앱 업데이트")
                             viewModelScope.launch {
-                                _uiState.emit(UiState.UpdateDevice)
+//                                emitUiState(UiState.UpdateDevice)
+                                emitUiState(UiState.UpdateVersion)
                             }
 //                            exitProcess(0)
                         }
                         "SOLDOUT" -> {
                             Log.d(tag, "상품 품절 이벤트 data:$data")
                             viewModelScope.launch {
-                                _uiState.emit(UiState.SoldOut(data))
+                                emitUiState(UiState.SoldOut(data))
                             }
                         }
                         "MASTER" -> {
@@ -114,7 +127,7 @@ class WebSocketViewModel
                                 setDeviceInfo(JSONObject(message))
                                 androidId = dataStoreRepository.getDeviceId().first()
                                 Log.d(tag,"ws androidId:$androidId")
-                                _uiState.emit(UiState.CheckDevice)
+                                emitUiState(UiState.CheckDevice)
 
 //                                restApiRepository.checkDevice(androidId).let {
 //                                    when (it) {
@@ -305,6 +318,7 @@ class WebSocketViewModel
     sealed interface UiState {
         object UpdateDevice : UiState
         object CheckDevice : UiState
+        object UpdateVersion : UiState
         object Idle : UiState
         data class SoldOut(val data: String) : UiState
     }

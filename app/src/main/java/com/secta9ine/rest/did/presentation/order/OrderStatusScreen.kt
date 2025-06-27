@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.material.icons.outlined.HourglassEmpty
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -80,6 +81,20 @@ fun OrderStatusScreen(
     val titleNmSize = with(density) { (screenWidth * 0.03f).toSp() }
     val titleMsgSize = with(density) { (screenWidth * 0.02f).toSp() }
     val msgTextSize = with(density) { (screenWidth * 0.05f).toSp() }
+
+    val socketHandler = remember(viewModel) {
+        { state: WebSocketViewModel.UiState ->
+            viewModel.handleSocketEvent(state)
+        }
+    }
+
+    DisposableEffect(Unit) {
+        wsViewModel.registerHandler(socketHandler)
+        onDispose {
+            wsViewModel.unregisterHandler(socketHandler)
+        }
+    }
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
         viewModel.uiState.collect {

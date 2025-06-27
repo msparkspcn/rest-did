@@ -75,9 +75,9 @@ class SplashViewModel @Inject constructor(
 //            isAutoLoginChecked = dataStoreRepository.getIsAutoLoginChecked().first()
 
 
-        //장비 매핑이 완료된 지 확인하고(cmp,sales,stor,coner,deviceNo,displayMenuCd,rollingYn,apiKey)
+        //장비 매핑이 완료된 지 확인하고(cmp,sales,stor,corner,deviceNo,displayMenuCd,rollingYn,apiKey)
         //restApiRepository.getDevice()
-        // or null check -> pass 시 장비 매핑 정보 db 업데이트 -> displayMenu로 이동
+        // or null check -> pass 시 장비 매핑 정보 db 업데이트 -> displayMenu 로 이동
     }
     fun onPermissionResult(isGranted: Boolean) {
         _permissionGranted.value = isGranted
@@ -113,7 +113,7 @@ class SplashViewModel @Inject constructor(
                             }
                         }
                         is Resource.Failure -> {
-                            Log.d(TAG, "설정완료 필요 it:$masterResult")
+                            Log.d(TAG, "설정 완료 필요 it:$masterResult")
                             _uiState.emit(UiState.Idle)
                         }
                     }

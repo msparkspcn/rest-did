@@ -20,7 +20,7 @@ import com.secta9ine.rest.did.domain.model.Stor
         Device::class,
         OrderStatus::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -34,6 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun create(app: Application): AppDatabase {
             return Room.databaseBuilder(app, AppDatabase::class.java, DATABASE_NAME)
+                .fallbackToDestructiveMigration()
                 .build()
         }
     }

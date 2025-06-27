@@ -1,12 +1,16 @@
 package com.secta9ine.rest.did.presentation.order
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.repository.DeviceRepository
-import com.secta9ine.rest.did.presentation.splash.SplashViewModel
+import com.secta9ine.rest.did.network.WebSocketViewModel
+import com.secta9ine.rest.did.util.SoldOutUpdater
+import com.secta9ine.rest.did.util.VersionUpdater
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
@@ -19,11 +23,13 @@ import javax.inject.Inject
 class OrderStatusViewModel @Inject constructor(
     private val dataStoreRepository: DataStoreRepository,
     private val deviceRepository: DeviceRepository,
+    private val soldOutUpdater: SoldOutUpdater,
+    private val versionUpdater: VersionUpdater,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
-
     var completedOrderList: List<String> =
         listOf(
             "1149", "1148", "1147",
@@ -44,10 +50,35 @@ class OrderStatusViewModel @Inject constructor(
         )
 
     var callOrderNo: String?
-    private set
+        private set
 
     init {
-        callOrderNo =""
+        callOrderNo = ""
+    }
+
+    fun handleSocketEvent(state: WebSocketViewModel.UiState) {
+        when (state) {
+            is WebSocketViewModel.UiState.UpdateDevice -> {
+//                updateUiState(UiState.UpdateDevice)
+
+            }
+            is WebSocketViewModel.UiState.SoldOut -> {
+                Log.d(TAG,"품절발생!!")
+                viewModelScope.launch {
+                    soldOutUpdater.update(state.data)
+                }
+            }
+            is WebSocketViewModel.UiState.UpdateVersion -> {
+                Log.d(TAG,"버전 업데이트")
+                val apkUrl = "http://o2pos.spcnetworks.kr/files/app/o2pos/download/backup/1123.apk"
+
+                viewModelScope.launch {
+                    versionUpdater.download(apkUrl) { downloadedFile ->
+                        versionUpdater.installApk(context, downloadedFile)}
+                }
+            }
+            else -> Unit // 다른 이벤트는 내가 처리하지 않음
+        }
     }
 
     fun onCallOrder(orderNo : String) {

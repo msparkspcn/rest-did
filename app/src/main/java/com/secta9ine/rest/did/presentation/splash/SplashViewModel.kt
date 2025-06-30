@@ -23,7 +23,10 @@ import com.secta9ine.rest.did.domain.usecase.RegisterUseCases
 import com.secta9ine.rest.did.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -44,15 +47,16 @@ class SplashViewModel @Inject constructor(
     var deviceInfo by mutableStateOf<DeviceInfo?>(null)
         private set
 
-    var androidId by mutableStateOf("")
-        private set
+    private val _androidId = MutableStateFlow("")
+    val androidId: StateFlow<String> = _androidId.asStateFlow()
+
 
     private val _permissionGranted = MutableLiveData<Boolean>()
     val permissionGranted: LiveData<Boolean> get() = _permissionGranted
 
     init {
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
-        androidId = Settings.Secure.getString(application.contentResolver,
+        _androidId.value = Settings.Secure.getString(application.contentResolver,
             Settings.Secure.ANDROID_ID)
 
             /*setDevice
@@ -83,7 +87,7 @@ class SplashViewModel @Inject constructor(
         _permissionGranted.value = isGranted
         if(isGranted) {
             viewModelScope.launch {
-                dataStoreRepository.setDeviceId(androidId)
+                dataStoreRepository.setDeviceId(_androidId.value)
                 checkDevice()
             }
         }
@@ -91,8 +95,8 @@ class SplashViewModel @Inject constructor(
 
     suspend fun checkDevice() {
         _uiState.emit(UiState.Loading)
-        Log.d(TAG,"checkDevice androidId:$androidId")
-        when (val result = restApiRepository.checkDevice(androidId)) {
+        Log.d(TAG,"checkDevice androidId:${_androidId.value}")
+        when (val result = restApiRepository.checkDevice(_androidId.value)) {
             is Resource.Success -> {
                 val device = result.data
                 if (device != null) {
@@ -130,7 +134,7 @@ class SplashViewModel @Inject constructor(
     }
 
     private suspend fun registerNewDevice() {
-        val registerResult = restApiRepository.registerDeviceId(androidId)
+        val registerResult = restApiRepository.registerDeviceId(_androidId.value)
         Log.d(TAG, "device info: $registerResult")
     }
     suspend fun updateUiState(state: UiState) {
@@ -139,7 +143,7 @@ class SplashViewModel @Inject constructor(
 
     suspend fun getDisplayMenuCd(): String {
         val device = deviceRepository.getDevice(
-            androidId
+            _androidId.value
         ).firstOrNull() ?: throw RuntimeException("")
         Log.d(TAG,"device:$device")
         return device.displayMenuCd!!

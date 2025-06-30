@@ -60,6 +60,7 @@ fun SplashScreen(
         permissionState.value = permissions.all { it.value }
         viewModel.onPermissionResult(permissionState.value)
     }
+    val androidId by wsViewModel.androidId.collectAsState()
     LaunchedEffect(Unit) {
         launcher.launch(
             arrayOf(
@@ -130,7 +131,7 @@ fun SplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = wsViewModel.androidId,
+                text = androidId,
                 style = TextStyle(fontSize = 40.sp),
                 fontWeight = FontWeight.Bold
             )

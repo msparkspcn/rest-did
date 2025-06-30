@@ -17,7 +17,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -44,8 +47,8 @@ class WebSocketViewModel
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
     private val handlers = mutableSetOf<(UiState) -> Unit>()
-    var androidId by mutableStateOf("")
-        private set
+    private val _androidId = MutableStateFlow("")
+    val androidId: StateFlow<String> = _androidId.asStateFlow()
     init {
         uiState.onEach { Log.d(tag, "uiState=$it") }.launchIn(viewModelScope)
         observeNetworkChanges()
@@ -67,9 +70,9 @@ class WebSocketViewModel
 
     private fun connectWebSocket() {
         Log.d(tag,"connectWebSocket")
-        androidId = Settings.Secure.getString(getApplication<Application>().contentResolver, Settings.Secure.ANDROID_ID)
+        _androidId.value = Settings.Secure.getString(getApplication<Application>().contentResolver, Settings.Secure.ANDROID_ID)
 
-        Log.d(tag, "ANDROID_ID: $androidId")
+        Log.d(tag, "ANDROID_ID: ${_androidId.value}")
         if (isConnected) {
             Log.d(tag,"already connected")
             return
@@ -125,8 +128,8 @@ class WebSocketViewModel
                             Log.d(tag,"message:$message")
                             viewModelScope.launch {
                                 setDeviceInfo(JSONObject(message))
-                                androidId = dataStoreRepository.getDeviceId().first()
-                                Log.d(tag,"ws androidId:$androidId")
+                                _androidId.value = dataStoreRepository.getDeviceId().first()
+                                Log.d(tag,"ws androidId:${_androidId.value}")
                                 emitUiState(UiState.CheckDevice)
 
 //                                restApiRepository.checkDevice(androidId).let {

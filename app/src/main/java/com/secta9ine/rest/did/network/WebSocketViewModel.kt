@@ -1,16 +1,17 @@
 package com.secta9ine.rest.did.network
 
+import android.app.AlarmManager
 import android.app.Application
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Network
 import android.provider.Settings
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.secta9ine.rest.did.MainActivity
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.usecase.RegisterUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,6 +32,7 @@ import okhttp3.WebSocketListener
 import org.json.JSONException
 import org.json.JSONObject
 import javax.inject.Inject
+import kotlin.system.exitProcess
 
 @HiltViewModel
 class WebSocketViewModel
@@ -106,13 +108,17 @@ class WebSocketViewModel
                     val data = jsonObject.optString("body", "")
                     val message = jsonObject.getString("message")
                     when (event) {
+//                        "ECHO" -> {
+//                            Log.d(tag, "앱 업데이트")
+//                            viewModelScope.launch {
+////                                emitUiState(UiState.UpdateDevice)
+//                                emitUiState(UiState.UpdateVersion)
+//                            }
+////                            exitProcess(0)
+//                        }
                         "ECHO" -> {
-                            Log.d(tag, "앱 업데이트")
-                            viewModelScope.launch {
-//                                emitUiState(UiState.UpdateDevice)
-                                emitUiState(UiState.UpdateVersion)
-                            }
-//                            exitProcess(0)
+                            Log.d(tag, "앱 재실행11")
+                            restartApp(getApplication())
                         }
                         "SOLDOUT" -> {
                             Log.d(tag, "상품 품절 이벤트 data:$data")
@@ -214,6 +220,32 @@ class WebSocketViewModel
                 }
             }
         })
+    }
+
+    fun restartApp(context: Context) {
+        Log.d(tag,"재시작~")
+        val intent = Intent(context, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+        )
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        // 1초 뒤 앱 재실행 예약
+        alarmManager.setExact(
+            AlarmManager.RTC_WAKEUP,
+            System.currentTimeMillis() + 1000,
+            pendingIntent
+        )
+
+        // 실제 종료
+        exitProcess(0)
     }
 
 

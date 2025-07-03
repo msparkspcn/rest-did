@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.secta9ine.rest.did.domain.model.OrderStatus
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface OrderStatusDao {
@@ -20,4 +21,38 @@ interface OrderStatusDao {
         deleteAll()
         insertAll(list)
     }
+
+    @Query(
+        """
+            SELECT *
+            FROM ORDER_STATUS
+            WHERE 1 = 1
+                AND SALE_DT = :saleDt
+                AND CMP_CD = :cmpCd
+                AND SALES_ORG_CD = :salesOrgCd
+                AND STOR_CD = :storCd
+                AND CORNER_CD = :cornerCd
+                
+        """
+    )
+    fun get(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<OrderStatus?>>
+
+
+    @Query(
+        """
+            UPDATE ORDER_STATUS
+            SET ORDER_STATUS = :orderStatus
+            WHERE 1 = 1
+            AND SALE_DT = :saleDt
+                AND CMP_CD = :cmpCd
+                AND SALES_ORG_CD = :salesOrgCd
+                AND STOR_CD = :storCd
+                AND CORNER_CD = :cornerCd
+                AND ORDER_NO = :orderNo
+            
+        """
+    )
+    fun updateOrderStatus(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String,
+                          cornerCd: String, orderNo: String, orderStatus: String)
+
 }

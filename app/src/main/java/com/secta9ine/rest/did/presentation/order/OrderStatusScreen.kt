@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.secta9ine.rest.did.R
+import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.presentation.navigation.NavUtils.navigateAsSecondScreen
 import com.secta9ine.rest.did.presentation.navigation.Screen
@@ -154,7 +155,8 @@ fun OrderStatusScreen(
                 )
                 OrderContents(
                     completedOrderList = viewModel.completedOrderList,
-                    waitingOrderList = viewModel.waitingOrderList
+                    waitingOrderList = viewModel.waitingOrderList,
+                    currentCalledOrder = viewModel.currentCalledOrder
                 )
             }
         }
@@ -191,6 +193,7 @@ fun OrderHeader(
 fun OrderContents(
     completedOrderList: List<String> = emptyList(),
     waitingOrderList: List<String> = emptyList(),
+    currentCalledOrder: OrderStatus? = null,
 ) {
     var displayedCompletedOrders by remember { mutableStateOf(completedOrderList.take(6)) }
     var displayedWaitingOrders by remember { mutableStateOf(waitingOrderList.take(9)) }
@@ -270,11 +273,11 @@ fun OrderContents(
                 val screenWidth = configuration.screenWidthDp.dp
                 Log.d(TAG,"screenWidth:$screenWidth")
                 val density = LocalDensity.current
-                val textSize = with(density) { (screenWidth * 0.15f).toSp() }
+                val textSize = with(density) { (screenWidth * 0.125f).toSp() }
                 val msgTextSize = with(density) { (screenWidth * 0.05f).toSp() }
 
                 Text(
-                    text = "1132",
+                    text = currentCalledOrder?.orderNo ?: "",
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.CenterHorizontally)

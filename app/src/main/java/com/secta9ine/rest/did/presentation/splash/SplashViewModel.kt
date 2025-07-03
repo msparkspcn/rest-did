@@ -127,8 +127,8 @@ class SplashViewModel @Inject constructor(
                 }
             }
             is Resource.Failure -> {
-                _uiState.emit(UiState.Idle)
-                Log.d(TAG, "Device check 실패: $result")
+                _uiState.emit(UiState.Error(result.message!!))
+                Log.d(TAG, "Device check 실패: ${result.data}, ${result.message}")
             }
         }
     }

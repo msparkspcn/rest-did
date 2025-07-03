@@ -15,4 +15,27 @@ class OrderStatusRepositoryImpl @Inject constructor(
     override suspend fun sync(orderStatusList: List<OrderStatus>) {
         orderStatusDao.sync(orderStatusList)
     }
+
+    override suspend fun get(
+        saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String
+    ): Flow<List<OrderStatus?>> =
+        orderStatusDao.get(
+            saleDt = saleDt,
+            cmpCd = cmpCd,
+            salesOrgCd = salesOrgCd,
+            storCd = storCd,
+            cornerCd = cornerCd
+        )
+
+    override suspend fun updateOrderStatus(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String, orderNo: String, orderStatus: String) {
+        orderStatusDao.updateOrderStatus(
+            saleDt = saleDt,
+            cmpCd = cmpCd,
+            salesOrgCd = salesOrgCd,
+            storCd = storCd,
+            cornerCd = cornerCd,
+            orderNo = orderNo,
+            orderStatus = orderStatus
+        )
+    }
 }

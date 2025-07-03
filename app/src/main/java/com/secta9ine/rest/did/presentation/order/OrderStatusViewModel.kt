@@ -2,15 +2,21 @@ package com.secta9ine.rest.did.presentation.order
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.repository.DeviceRepository
+import com.secta9ine.rest.did.domain.repository.OrderStatusRepository
 import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.util.SoldOutUpdater
 import com.secta9ine.rest.did.util.VersionUpdater
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
@@ -23,6 +29,7 @@ import javax.inject.Inject
 class OrderStatusViewModel @Inject constructor(
     private val dataStoreRepository: DataStoreRepository,
     private val deviceRepository: DeviceRepository,
+    private val orderStatusRepository: OrderStatusRepository,
     private val soldOutUpdater: SoldOutUpdater,
     private val versionUpdater: VersionUpdater,
     @ApplicationContext private val context: Context
@@ -30,6 +37,12 @@ class OrderStatusViewModel @Inject constructor(
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
+    var cmpCd by mutableStateOf("")
+    var salesOrgCd by mutableStateOf("")
+    var storCd by mutableStateOf("")
+    var cornerCd by mutableStateOf("")
+    private var jobInit: Job
+    var oriOrderList by mutableStateOf(emptyList<OrderStatus?>())
     var completedOrderList: List<String> =
         listOf(
             "1149", "1148", "1147",
@@ -49,11 +62,46 @@ class OrderStatusViewModel @Inject constructor(
             "2148", "2149", "2150"
         )
 
+    var currentCalledOrder: OrderStatus? =
+    OrderStatus(
+        seq = 1,
+        saleDt = "20250703",
+        cmpCd = "001",
+        salesOrgCd = "100",
+        storCd = "A01",
+        cornerCd = "C1",
+        orderNo = "21455",
+        orderStatus = "준비중")
+    private set
+
     var callOrderNo: String?
         private set
 
     init {
         callOrderNo = ""
+        jobInit = viewModelScope.launch {
+
+            cmpCd = dataStoreRepository.getCmpCd().first()
+//            cmpCd = "SLKR"
+            salesOrgCd = dataStoreRepository.getSalesOrgCd().first()
+//            salesOrgCd = "8000"
+            storCd = dataStoreRepository.getStorCd().first()
+//            storCd = "5000511"
+            cornerCd = dataStoreRepository.getCornerCd().first()
+            Log.d(TAG,"11cmpCd:$cmpCd, salesOrgCd:$salesOrgCd, storCd:$storCd" +
+                    ", cornerCd:$cornerCd")
+
+            orderStatusRepository.get(
+                saleDt = "20250703",
+                cmpCd = cmpCd,
+                salesOrgCd = salesOrgCd,
+                storCd = storCd,
+                cornerCd = cornerCd
+            ).first().let {
+                oriOrderList = it
+            }
+        }
+
     }
 
     fun handleSocketEvent(state: WebSocketViewModel.UiState) {
@@ -114,6 +162,5 @@ class OrderStatusViewModel @Inject constructor(
         object NavigateToProduct : UiState
         object Idle : UiState
         data class Error(val message: String) : UiState
-
     }
 }

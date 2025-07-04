@@ -16,7 +16,10 @@ import com.secta9ine.rest.did.util.SoldOutUpdater
 import com.secta9ine.rest.did.util.VersionUpdater
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
@@ -45,11 +48,11 @@ class OrderStatusViewModel @Inject constructor(
     var oriOrderList by mutableStateOf(emptyList<OrderStatus?>())
     var completedOrderList: List<String> =
         listOf(
-            "1149", "1148", "1147",
-            "1146", "1145", "1142",
-            "1141", "1140", "1139",
-            "1138", "1137", "1136",
-            "1135", "1134", "1133"
+            "P1149", "P1148", "P1147",
+            "P1146", "P1145", "P1142",
+            "P1141", "P1140", "P1139",
+            "P1138", "P1137", "P1136",
+            "P1135", "P1134", "P1133"
         )
         private set
 
@@ -71,7 +74,7 @@ class OrderStatusViewModel @Inject constructor(
         storCd = "A01",
         cornerCd = "C1",
         orderNo = "21455",
-        orderStatus = "준비중")
+        orderStatus = "C")
     private set
 
     var callOrderNo: String?
@@ -125,16 +128,54 @@ class OrderStatusViewModel @Inject constructor(
                         versionUpdater.installApk(context, downloadedFile)}
                 }
             }
+            is WebSocketViewModel.UiState.InsertOrder -> {
+                //insert 처리(state:C DID호출)
+
+
+            }
+
             else -> Unit // 다른 이벤트는 내가 처리하지 않음
         }
     }
 
-    fun onCallOrder(orderNo : String) {
+    private fun scheduleStateUpdateToReady(order: OrderStatus) {
+        CoroutineScope(Dispatchers.IO).launch {
+            delay(60_000) // 1분
+
+            // 상태가 여전히 C이면 2로 변경
+            orderStatusRepository.getByOrderNoC(
+                order.saleDt, order.cmpCd, order.salesOrgCd, order.storCd, order.cornerCd, order.orderNoC
+            ).first().let {
+                currentCalledOrder = it
+            }
+
+            if (currentCalledOrder?.orderStatus == "C") {
+                orderStatusRepository.updateOrderStatus(
+                    order.saleDt, order.cmpCd, order.salesOrgCd, order.storCd, order.cornerCd, order.orderNo,
+                    "2")
+//                scheduleStateUpdateToFinal(current.copy(orderStatus = "2"))
+            }
+        }
+    }
+
+//    private fun scheduleStateUpdateToFinal(order: OrderStatus) {
+//        CoroutineScope(Dispatchers.IO).launch {
+//            delay(5 * 60_000) // 5분
+//
+//            // 상태가 여전히 2이면 3으로 변경
+//            val current = orderDao.getByOrderNo(order.orderNo)
+//            if (current?.orderStatus == "2") {
+//                orderDao.updateStatus(order.orderNo, "3")
+//            }
+//        }
+//    }
+
+    fun onCallOrder(orderNo: String) {
         callOrderNo = orderNo
     }
 
     fun onEnterKeyPressed() {
-        Log.d(TAG,"환경 설정 화면 이동")
+        Log.d(TAG, "환경 설정 화면 이동")
         viewModelScope.launch {
             _uiState.emit(UiState.NavigateToDevice)
         }
@@ -145,11 +186,18 @@ class OrderStatusViewModel @Inject constructor(
             dataStoreRepository.getDeviceId().first()
         ).firstOrNull() ?: throw RuntimeException("")
         val displayCd = device.displayMenuCd
-        if(displayCd == "1234") {
+        if (displayCd == "1234") {
             return "1234"
         }
         return ""
     }
+
+//    suspend fun getSaleOpen(): SaleOpen {
+//        viewModelScope.launch {
+//
+//        }
+//    }
+
 
     suspend fun updateUiState(state: UiState) {
         _uiState.emit(state)

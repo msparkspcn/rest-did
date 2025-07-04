@@ -27,6 +27,18 @@ class OrderStatusRepositoryImpl @Inject constructor(
             cornerCd = cornerCd
         )
 
+    override suspend fun getByOrderNoC(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String, orderNoC: String)
+    : Flow<OrderStatus?> =
+        orderStatusDao.getByOrderNoC(
+            saleDt = saleDt,
+            cmpCd = cmpCd,
+            salesOrgCd = salesOrgCd,
+            storCd = storCd,
+            cornerCd = cornerCd,
+            orderNoC = orderNoC
+        )
+
+
     override suspend fun updateOrderStatus(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String, orderNo: String, orderStatus: String) {
         orderStatusDao.updateOrderStatus(
             saleDt = saleDt,

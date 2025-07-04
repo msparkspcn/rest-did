@@ -37,6 +37,21 @@ interface OrderStatusDao {
     )
     fun get(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<OrderStatus?>>
 
+    @Query(
+        """
+            SELECT *
+            FROM ORDER_STATUS
+            WHERE 1 = 1
+                AND SALE_DT = :saleDt
+                AND CMP_CD = :cmpCd
+                AND SALES_ORG_CD = :salesOrgCd
+                AND STOR_CD = :storCd
+                AND CORNER_CD = :cornerCd
+                AND ORDER_NO_C = :orderNoC
+                
+        """
+    )
+    fun getByOrderNoC(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String, orderNoC: String): Flow<OrderStatus?>
 
     @Query(
         """

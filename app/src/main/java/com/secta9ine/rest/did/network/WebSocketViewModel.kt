@@ -186,7 +186,13 @@ class WebSocketViewModel
                         "DEVICE" -> {   //
                 //                        navC
                         }
+
+                        "order" -> {
+                        //신규 주문 처리(insert)
+                        }
+
                         "order_updated" -> {
+                            //주문상태 업데이트 처리(update)
                             val data = jsonObject.getJSONObject("data")
                         }
                         "product_updated" -> {
@@ -354,6 +360,7 @@ class WebSocketViewModel
         object UpdateDevice : UiState
         object CheckDevice : UiState
         object UpdateVersion : UiState
+        object InsertOrder: UiState
         object Idle : UiState
         data class SoldOut(val data: String) : UiState
     }

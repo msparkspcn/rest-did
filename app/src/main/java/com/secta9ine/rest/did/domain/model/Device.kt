@@ -19,7 +19,7 @@ data class Device (
     @ColumnInfo(name = "ROLLING_YN") var rollingYn: String? = null,
     @Ignore var apiKey: String? = null,
     @ColumnInfo(name = "USE_YN") var useYn: String? = null,
-    @Ignore @ColumnInfo(name = "MESSAGE1") var message1: String? = null,
-    @Ignore @ColumnInfo(name = "MESSAGE2") var message2: String? = null,
-    @Ignore @ColumnInfo(name = "MESSAGE3") var message3: String? = null,
+    @ColumnInfo(name = "MESSAGE1") var message1: String? = null,
+    @ColumnInfo(name = "MESSAGE2") var message2: String? = null,
+    @ColumnInfo(name = "MESSAGE3") var message3: String? = null,
 )

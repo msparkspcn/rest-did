@@ -191,7 +191,7 @@ fun OrderHeader(
 
 @Composable
 fun OrderContents(
-    completedOrderList: List<String> = emptyList(),
+    completedOrderList: List<OrderStatus?> = emptyList(),
     waitingOrderList: List<String> = emptyList(),
     currentCalledOrder: OrderStatus? = null,
 ) {
@@ -366,11 +366,13 @@ fun OrderContents(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 displayedCompletedOrders.take(3).forEach { order ->
-                                    Text(
-                                        text = order,
-                                        fontSize = msgTextSize,
-                                        modifier = Modifier.padding(4.dp, 0.dp)
-                                    )
+                                    if (order != null) {
+                                        Text(
+                                            text = order.orderNoC,
+                                            fontSize = msgTextSize,
+                                            modifier = Modifier.padding(4.dp, 0.dp)
+                                        )
+                                    }
                                 }
                             }
 
@@ -380,11 +382,13 @@ fun OrderContents(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 displayedCompletedOrders.drop(3).take(3).forEach { order ->
-                                    Text(
-                                        text = order,
-                                        fontSize = msgTextSize,
-                                        modifier = Modifier.padding(4.dp, 0.dp)
-                                    )
+                                    if (order != null) {
+                                        Text(
+                                            text = order.orderNoC,
+                                            fontSize = msgTextSize,
+                                            modifier = Modifier.padding(4.dp, 0.dp)
+                                        )
+                                    }
                                 }
                             }
                         }

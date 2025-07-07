@@ -16,8 +16,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.domain.model.DeviceInfo
+import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.repository.DeviceRepository
+import com.secta9ine.rest.did.domain.repository.OrderStatusRepository
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
 import com.secta9ine.rest.did.domain.usecase.RegisterUseCases
 import com.secta9ine.rest.did.util.Resource
@@ -40,6 +42,7 @@ class SplashViewModel @Inject constructor(
     private val deviceRepository: DeviceRepository,
     private val registerUseCases: RegisterUseCases,
     private val dataStoreRepository: DataStoreRepository,
+    private val orderStatusRepository: OrderStatusRepository
 ) : ViewModel() {
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
@@ -53,11 +56,35 @@ class SplashViewModel @Inject constructor(
 
     private val _permissionGranted = MutableLiveData<Boolean>()
     val permissionGranted: LiveData<Boolean> get() = _permissionGranted
-
+    private val initOrderList: List<OrderStatus> =
+        listOf(
+            OrderStatus(
+                seq = 1,
+                saleDt = "20250707",
+                cmpCd = "SLKR",
+                salesOrgCd = "8000",
+                storCd = "5000511",
+                cornerCd = "CIHA",
+                orderNo = "21455",
+                orderStatus = "C",
+                orderNoC = "21455"),
+            OrderStatus(
+                seq = 2,
+                saleDt = "20250707",
+                cmpCd = "SLKR",
+                salesOrgCd = "8000",
+                storCd = "5000511",
+                cornerCd = "CIHA",
+                orderNo = "21456",
+                orderStatus = "2",
+                orderNoC = "21456")
+        )
     init {
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
         _androidId.value = Settings.Secure.getString(application.contentResolver,
             Settings.Secure.ANDROID_ID)
+
+
 
             /*setDevice
             restApiRepository.setDevice(
@@ -87,6 +114,7 @@ class SplashViewModel @Inject constructor(
         _permissionGranted.value = isGranted
         if(isGranted) {
             viewModelScope.launch {
+                Log.d(TAG,"here")
                 dataStoreRepository.setDeviceId(_androidId.value)
                 checkDevice()
             }
@@ -96,6 +124,8 @@ class SplashViewModel @Inject constructor(
     suspend fun checkDevice() {
         _uiState.emit(UiState.Loading)
         Log.d(TAG,"checkDevice androidId:${_androidId.value}")
+        Log.d(TAG,"initOrderList:$initOrderList")
+        orderStatusRepository.sync(initOrderList)
         when (val result = restApiRepository.checkDevice(_androidId.value)) {
             is Resource.Success -> {
                 val device = result.data

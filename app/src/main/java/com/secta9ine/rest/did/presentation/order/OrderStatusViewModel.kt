@@ -46,15 +46,7 @@ class OrderStatusViewModel @Inject constructor(
     var cornerCd by mutableStateOf("")
     private var jobInit: Job
     var oriOrderList by mutableStateOf(emptyList<OrderStatus?>())
-    var completedOrderList: List<String> =
-        listOf(
-            "P1149", "P1148", "P1147",
-            "P1146", "P1145", "P1142",
-            "P1141", "P1140", "P1139",
-            "P1138", "P1137", "P1136",
-            "P1135", "P1134", "P1133"
-        )
-        private set
+    var completedOrderList by mutableStateOf(emptyList<OrderStatus?>())
 
     var waitingOrderList: List<String> =
         listOf(
@@ -95,13 +87,14 @@ class OrderStatusViewModel @Inject constructor(
                     ", cornerCd:$cornerCd")
 
             orderStatusRepository.get(
-                saleDt = "20250703",
+                saleDt = "20250707",
                 cmpCd = cmpCd,
                 salesOrgCd = salesOrgCd,
                 storCd = storCd,
                 cornerCd = cornerCd
             ).first().let {
                 oriOrderList = it
+                completedOrderList = it.filter { order -> order!!.orderStatus == "2" }
             }
         }
 

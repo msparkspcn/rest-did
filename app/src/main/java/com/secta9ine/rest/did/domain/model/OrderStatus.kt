@@ -16,6 +16,8 @@ data class OrderStatus (
     @ColumnInfo(name = "CORNER_CD") val cornerCd: String = "",
     @ColumnInfo(name = "ORDER_NO") val orderNo: String = "",
     @ColumnInfo(name = "ORDER_STATUS") val orderStatus: String = "",    //주문상태(준비완료, 준비중)
+    @ColumnInfo(name = "ORD_TIME") val ordTime: String? = null,
+    @ColumnInfo(name = "COM_TIME") val comTime: String? = null,
     @ColumnInfo(name = "ORDER_NO_C") val orderNoC: String = ""
 
 )

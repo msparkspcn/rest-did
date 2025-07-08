@@ -57,6 +57,7 @@ import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.presentation.navigation.NavUtils.navigateAsSecondScreen
 import com.secta9ine.rest.did.presentation.navigation.Screen
+import com.secta9ine.rest.did.ui.component.AppLoadingIndicator
 import com.secta9ine.rest.did.util.UiString
 import kotlinx.coroutines.delay
 
@@ -73,7 +74,7 @@ fun OrderStatusScreen(
 
     var dialogMessage by remember { mutableStateOf<UiString?>(null) }
 
-    val uiState by viewModel.uiState.collectAsState(initial = null)
+    val uiState by viewModel.uiState.collectAsState(OrderStatusViewModel.UiState.Loading)
     val uiState2 by wsViewModel.uiState.collectAsState(initial = null)
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -148,16 +149,21 @@ fun OrderStatusScreen(
                     }
                 }
         ) {
-            Column {
-                OrderHeader(
-                    titleNmSize = titleNmSize,
-                    titleMsgSize = titleMsgSize
-                )
-                OrderContents(
-                    completedOrderList = viewModel.completedOrderList,
-                    waitingOrderList = viewModel.waitingOrderList,
-                    currentCalledOrder = viewModel.currentCalledOrder
-                )
+            if(uiState is OrderStatusViewModel.UiState.Loading) {
+                AppLoadingIndicator()
+            }
+            else {
+                Column {
+                    OrderHeader(
+                        titleNmSize = titleNmSize,
+                        titleMsgSize = titleMsgSize
+                    )
+                    OrderContents(
+                        displayedCompletedOrders = viewModel.displayedCompletedOrders,
+                        waitingOrderList = viewModel.waitingOrderList,
+                        currentCalledOrder = viewModel.currentCalledOrder
+                    )
+                }
             }
         }
     }
@@ -191,36 +197,36 @@ fun OrderHeader(
 
 @Composable
 fun OrderContents(
-    completedOrderList: List<OrderStatus?> = emptyList(),
-    waitingOrderList: List<String> = emptyList(),
+    displayedCompletedOrders: List<OrderStatus?> = emptyList(),
+    waitingOrderList: List<OrderStatus?> = emptyList(),
     currentCalledOrder: OrderStatus? = null,
 ) {
-    var displayedCompletedOrders by remember { mutableStateOf(completedOrderList.take(6)) }
     var displayedWaitingOrders by remember { mutableStateOf(waitingOrderList.take(9)) }
     var complitedOrderIndex by remember { mutableStateOf(0) }
     var waitingOrderIndex by remember { mutableStateOf(0) }
     var isVisible by remember { mutableStateOf(true) }
 
-    LaunchedEffect(Unit) {
-        if(completedOrderList.size<9) {
-            displayedCompletedOrders = completedOrderList
-        } else {
-            while (true) {
-                delay(5000) // 5초 대기
-
-                if(complitedOrderIndex + 6 <= completedOrderList.size) {
-
-                    displayedCompletedOrders = completedOrderList.subList(complitedOrderIndex, complitedOrderIndex + 6)
-                    complitedOrderIndex += 6
-                }
-                else {
-                    displayedCompletedOrders =completedOrderList.subList(complitedOrderIndex, completedOrderList.size)
-                    complitedOrderIndex = 0
-                }
-
-            }
-        }
-    }
+//    LaunchedEffect(Unit) {
+//        if(completedOrderList.size<6) {
+//            displayedCompletedOrders = completedOrderList
+//            Log.d(TAG,"12 completedOrderList:$completedOrderList")
+//        } else {
+//            while (true) {
+//                delay(5000) // 5초 대기
+//
+//                if(complitedOrderIndex + 6 <= completedOrderList.size) {
+//
+//                    displayedCompletedOrders = completedOrderList.subList(complitedOrderIndex, complitedOrderIndex + 6)
+//                    complitedOrderIndex += 6
+//                }
+//                else {
+//                    displayedCompletedOrders =completedOrderList.subList(complitedOrderIndex, completedOrderList.size)
+//                    complitedOrderIndex = 0
+//                }
+//
+//            }
+//        }
+//    }
 
     LaunchedEffect(Unit) {
         if (waitingOrderList.size < 9) {
@@ -361,16 +367,30 @@ fun OrderContents(
                             .padding(top = 8.dp)
                     ) {
                         Column(modifier = Modifier.fillMaxSize()) {
+                            val displayed = displayedCompletedOrders
+                                .take(3)
+                                .let { list ->
+                                    if (list.size == 2) list + listOf(null) else list
+                                }
                             Row(
-                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                displayedCompletedOrders.take(3).forEach { order ->
+                                displayed.forEach { order ->
                                     if (order != null) {
                                         Text(
                                             text = order.orderNoC,
                                             fontSize = msgTextSize,
                                             modifier = Modifier.padding(4.dp, 0.dp)
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "55555",
+                                            fontSize = msgTextSize,
+                                            modifier = Modifier.padding(4.dp, 0.dp),
+                                            color = Color.White
                                         )
                                     }
                                 }
@@ -378,7 +398,9 @@ fun OrderContents(
 
                             // 두 번째 행
                             Row(
-                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 displayedCompletedOrders.drop(3).take(3).forEach { order ->
@@ -388,6 +410,9 @@ fun OrderContents(
                                             fontSize = msgTextSize,
                                             modifier = Modifier.padding(4.dp, 0.dp)
                                         )
+                                    }
+                                    else {
+                                        Spacer(modifier = Modifier)
                                     }
                                 }
                             }
@@ -441,42 +466,54 @@ fun OrderContents(
                     ) {
                         Column(modifier = Modifier.fillMaxSize()) {
                             Row(
-                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 displayedWaitingOrders.take(3).forEach { order ->
-                                    Text(
-                                        text = order,
-                                        fontSize = msgTextSize,
-                                        modifier = Modifier.padding(4.dp, 0.dp)
-                                    )
+                                    if (order != null) {
+                                        Text(
+                                            text = order.orderNoC,
+                                            fontSize = msgTextSize,
+                                            modifier = Modifier.padding(4.dp, 0.dp)
+                                        )
+                                    }
                                 }
                             }
 
                             // 두 번째 행
                             Row(
-                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 displayedWaitingOrders.drop(3).take(3).forEach { order ->
-                                    Text(
-                                        text = order,
-                                        fontSize = msgTextSize,
-                                        modifier = Modifier.padding(4.dp, 0.dp)
-                                    )
+                                    if (order != null) {
+                                        Text(
+                                            text = order.orderNoC,
+                                            fontSize = msgTextSize,
+                                            modifier = Modifier.padding(4.dp, 0.dp)
+                                        )
+                                    }
                                 }
                             }
 
                             Row(
-                                modifier = Modifier.fillMaxWidth().weight(1f),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 displayedWaitingOrders.drop(6).take(3).forEach { order ->
-                                    Text(
-                                        text = order,
-                                        fontSize = msgTextSize,
-                                        modifier = Modifier.padding(4.dp, 0.dp)
-                                    )
+                                    if (order != null) {
+                                        Text(
+                                            text = order.orderNoC,
+                                            fontSize = msgTextSize,
+                                            modifier = Modifier.padding(4.dp, 0.dp)
+                                        )
+                                    }
                                 }
                             }
                         }

@@ -24,7 +24,7 @@ interface OrderStatusDao {
 
     @Query(
         """
-            SELECT *
+            SELECT CMP_CD, SALES_ORG_CD, STOR_CD, CORNER_CD, SALE_DT, ORDER_NO, ORDER_STATUS, ORDER_NO_C
             FROM ORDER_STATUS
             WHERE 1 = 1
                 AND SALE_DT = :saleDt
@@ -32,7 +32,7 @@ interface OrderStatusDao {
                 AND SALES_ORG_CD = :salesOrgCd
                 AND STOR_CD = :storCd
                 AND CORNER_CD = :cornerCd
-                
+                ORDER BY COM_TIME
         """
     )
     fun get(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<OrderStatus?>>
@@ -48,7 +48,6 @@ interface OrderStatusDao {
                 AND STOR_CD = :storCd
                 AND CORNER_CD = :cornerCd
                 AND ORDER_NO_C = :orderNoC
-                
         """
     )
     fun getByOrderNoC(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String, orderNoC: String): Flow<OrderStatus?>

@@ -2,6 +2,7 @@ package com.secta9ine.rest.did.presentation.order
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -46,28 +47,23 @@ class OrderStatusViewModel @Inject constructor(
     var cornerCd by mutableStateOf("")
     private var jobInit: Job
     var oriOrderList by mutableStateOf(emptyList<OrderStatus?>())
-    var completedOrderList by mutableStateOf(emptyList<OrderStatus?>())
 
-    var waitingOrderList: List<String> =
-        listOf(
-            "2134", "2135", "2136",
-            "2137", "2138", "2139",
-            "2140", "2141", "2142",
-            "2145", "2146", "2147",
-            "2148", "2149", "2150"
-        )
+    val completedOrderList by derivedStateOf {
+        oriOrderList.filterNotNull().filter { it?.orderStatus == "4" }
+    }
 
-    var currentCalledOrder: OrderStatus? =
-    OrderStatus(
-        seq = 1,
-        saleDt = "20250703",
-        cmpCd = "001",
-        salesOrgCd = "100",
-        storCd = "A01",
-        cornerCd = "C1",
-        orderNo = "21455",
-        orderStatus = "C")
-    private set
+    val waitingOrderList by derivedStateOf {
+        oriOrderList.filterNotNull().filter { it?.orderStatus == "1" }
+    }
+
+    val currentCalledOrder by derivedStateOf {
+        oriOrderList.find { it?.orderStatus == "C" }
+    }
+
+    var displayedCompletedOrders by mutableStateOf<List<OrderStatus>>(emptyList())
+        private set
+    private var completedIndex = 0
+    private var completedJob: Job? = null
 
     var callOrderNo: String?
         private set
@@ -75,7 +71,7 @@ class OrderStatusViewModel @Inject constructor(
     init {
         callOrderNo = ""
         jobInit = viewModelScope.launch {
-
+            _uiState.emit(UiState.Loading)
             cmpCd = dataStoreRepository.getCmpCd().first()
 //            cmpCd = "SLKR"
             salesOrgCd = dataStoreRepository.getSalesOrgCd().first()
@@ -94,10 +90,55 @@ class OrderStatusViewModel @Inject constructor(
                 cornerCd = cornerCd
             ).first().let {
                 oriOrderList = it
-                completedOrderList = it.filter { order -> order!!.orderStatus == "2" }
+                currentCalledOrder?.let { it1 -> scheduleStateUpdateToReady(it1) }
+                Log.d(TAG,"oriOrderList:$oriOrderList")
+                Log.d(TAG,"completedOrderList:$completedOrderList")
+                updateDisplayedLists()
+                startRolling()
+                _uiState.emit(UiState.Idle)
+            }
+        }
+    }
+
+    private fun updateDisplayedLists() {
+        completedIndex = 0
+//        waitingIndex = 0
+        updateCompletedSlice()
+//        updateWaitingSlice()
+    }
+
+    private fun updateCompletedSlice() {
+        val chunked = completedOrderList.chunked(6)
+        displayedCompletedOrders = chunked.getOrNull(completedIndex).orEmpty()
+    }
+
+    private fun startRolling() {
+        completedJob?.cancel()
+//        waitingJob?.cancel()
+
+        completedJob = viewModelScope.launch {
+            if(completedOrderList.size < 6) {
+                Log.d(TAG,"size:${completedOrderList.size}")
+            }
+            else {
+                while (true) {
+                    delay(5000)
+                    Log.d(TAG,"롤링")
+                    val total = completedOrderList.chunked(6).size
+                    completedIndex = (completedIndex + 1) % total.coerceAtLeast(1)
+                    updateCompletedSlice()
+                }
             }
         }
 
+//        waitingJob = viewModelScope.launch {
+//            while (isActive) {
+//                delay(5000)
+//                val total = waitingOrderList.chunked(9).size
+//                waitingIndex = (waitingIndex + 1) % total.coerceAtLeast(1)
+//                updateWaitingSlice()
+//            }
+//        }
     }
 
     fun handleSocketEvent(state: WebSocketViewModel.UiState) {
@@ -133,19 +174,26 @@ class OrderStatusViewModel @Inject constructor(
 
     private fun scheduleStateUpdateToReady(order: OrderStatus) {
         CoroutineScope(Dispatchers.IO).launch {
-            delay(60_000) // 1분
-
+            delay(20_000)
+            Log.d(TAG,"20초 경과")
             // 상태가 여전히 C이면 2로 변경
-            orderStatusRepository.getByOrderNoC(
+            val refreshedOrder = orderStatusRepository.getByOrderNoC(
                 order.saleDt, order.cmpCd, order.salesOrgCd, order.storCd, order.cornerCd, order.orderNoC
-            ).first().let {
-                currentCalledOrder = it
-            }
+            ).first()
 
-            if (currentCalledOrder?.orderStatus == "C") {
+            if (refreshedOrder?.orderStatus == "C") {
+                Log.d(TAG,"호출 있음")
                 orderStatusRepository.updateOrderStatus(
                     order.saleDt, order.cmpCd, order.salesOrgCd, order.storCd, order.cornerCd, order.orderNo,
-                    "2")
+                    "4")
+
+                oriOrderList = orderStatusRepository.get(
+                    saleDt = order.saleDt,
+                    cmpCd = order.cmpCd,
+                    salesOrgCd = order.salesOrgCd,
+                    storCd = order.storCd,
+                    cornerCd = order.cornerCd
+                ).first()
 //                scheduleStateUpdateToFinal(current.copy(orderStatus = "2"))
             }
         }
@@ -162,7 +210,11 @@ class OrderStatusViewModel @Inject constructor(
 //            }
 //        }
 //    }
-
+    override fun onCleared() {
+        super.onCleared()
+        completedJob?.cancel()
+//        waitingJob?.cancel()
+    }
     fun onCallOrder(orderNo: String) {
         callOrderNo = orderNo
     }

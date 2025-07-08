@@ -90,6 +90,26 @@ class RegisterUseCases @Inject constructor(
         database.clearAllTables()
         productRepository.sync(deviceInfo.productList)
         deviceRepository.sync(deviceInfo.device)
+        val initOrderList: List<OrderStatus> =
+            listOf(
+                OrderStatus(seq = 0, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21454", orderStatus = "1", orderNoC = "21454", ordTime = "", comTime = ""),
+                OrderStatus(seq = 10, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21460", orderStatus = "1", orderNoC = "21460", ordTime = "", comTime = ""),
+                OrderStatus(seq = 11, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21461", orderStatus = "1", orderNoC = "21461", ordTime = "", comTime = ""),
+                OrderStatus(seq = 12, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21462", orderStatus = "1", orderNoC = "21462", ordTime = "", comTime = ""),
+                OrderStatus(seq = 13, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21463", orderStatus = "1", orderNoC = "21463", ordTime = "", comTime = ""),
+                OrderStatus(seq = 14, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21464", orderStatus = "1", orderNoC = "21464", ordTime = "", comTime = ""),
+                OrderStatus(seq = 1, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21455", orderStatus = "C", orderNoC = "21455", ordTime = "", comTime = ""),
+                OrderStatus(seq = 2, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21456", orderStatus = "4", orderNoC = "21456", ordTime = "162000", comTime = "163000"),
+                OrderStatus(seq = 20, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21476", orderStatus = "4", orderNoC = "21476", ordTime = "162005", comTime = "163005"),
+                OrderStatus(seq = 21, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21477", orderStatus = "4", orderNoC = "21477", ordTime = "162010", comTime = "162510"),
+                OrderStatus(seq = 22, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21478", orderStatus = "4", orderNoC = "21478", ordTime = "162015", comTime = "163015"),
+                OrderStatus(seq = 23, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21479", orderStatus = "4", orderNoC = "21479", ordTime = "162020", comTime = "163020"),
+                OrderStatus(seq = 24, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21480", orderStatus = "4", orderNoC = "21480", ordTime = "162025", comTime = "163025"),
+                OrderStatus(seq = 3, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21457", orderStatus = "3", orderNoC = "21457", ordTime = "", comTime = ""),
+                OrderStatus(seq = 4, saleDt = "20250707", cmpCd = "SLKR", salesOrgCd = "8000", storCd = "5000511", cornerCd = "CIHA", orderNo = "21458", orderStatus = "4", orderNoC = "21458", ordTime = "", comTime = "")
+            )
+
+        orderStatusRepository.sync(initOrderList)
 
     }
 }

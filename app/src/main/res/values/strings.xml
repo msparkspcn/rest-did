@@ -29,4 +29,6 @@
     <string name="completed_order">준비완료 | Complete</string>
     <string name="preparing_order">준비중 | Preparing</string>
     <string name="order_info_msg">주문 번호를 확인하고 음식을 수령하세요.</string>
+    <string name="req_register_device">DID 장비를 등록해 주세요.</string>
+    <string name="alert_title">알림</string>
 </resources>

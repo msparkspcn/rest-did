@@ -93,10 +93,19 @@ class RestApiRepositoryImpl @Inject constructor(
         deviceId: String
     ): Resource<Device> = withContext(Dispatchers.IO){
         try {
-
-            restApiService.checkDevice(deviceId).let {
-                Resource.Success(it.responseBody)
+            val response = restApiService.checkDevice(deviceId)
+            when(response.responseCode) {
+                "200" -> {
+                    Resource.Success(response.responseBody)
+                }
+                "404" -> {
+                    Resource.Failure(response.responseMessage!!)
+                }
+                else -> {
+                    Resource.Failure(resources.getString(R.string.network_error))
+                }
             }
+
         } catch (e: Exception) {
             Resource.Failure(resources.getString(R.string.network_error))
         }

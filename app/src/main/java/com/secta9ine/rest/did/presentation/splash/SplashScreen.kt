@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -52,7 +51,6 @@ fun SplashScreen(
     var dialogContents by remember { mutableStateOf<UiString?>(null) }
     val uiState by viewModel.uiState.collectAsState(initial = SplashViewModel.UiState.Idle)
     val uiState2 by wsViewModel.uiState.collectAsState(initial = WebSocketViewModel.UiState.Idle)
-    val context = LocalContext.current
     val permissionState = remember { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -72,7 +70,6 @@ fun SplashScreen(
 
     LaunchedEffect(uiState) {
         Log.d(TAG, "111 uiState:$uiState")
-//        viewModel.checkPermissions(context)
         when (uiState) {
             is SplashViewModel.UiState.Login -> {
                 navController?.navigate(Screen.DeviceScreen.route)
@@ -136,7 +133,7 @@ fun SplashScreen(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "DID 장비를 등록해 주세요.",
+                text = stringResource(id = R.string.req_register_device),
                 style = TextStyle(fontSize = 25.sp),
                 fontWeight = FontWeight.Bold
             )
@@ -162,7 +159,7 @@ fun SplashScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "알림",
+                                text = stringResource(id = R.string.alert_title),
                                 style = TextStyle(fontSize = 24.sp)
                             )
                             Spacer(modifier = Modifier.height(20.dp))

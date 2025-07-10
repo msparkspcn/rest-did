@@ -6,28 +6,21 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.Settings
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.data.remote.api.RestApiService
-import com.secta9ine.rest.did.domain.model.DeviceInfo
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.repository.DeviceRepository
-import com.secta9ine.rest.did.domain.repository.OrderStatusRepository
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
 import com.secta9ine.rest.did.domain.usecase.RegisterUseCases
 import com.secta9ine.rest.did.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -40,17 +33,13 @@ class SplashViewModel @Inject constructor(
     private val restApiRepository: RestApiRepository,
     private val deviceRepository: DeviceRepository,
     private val registerUseCases: RegisterUseCases,
-    private val dataStoreRepository: DataStoreRepository,
-    private val orderStatusRepository: OrderStatusRepository
+    private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
-    var deviceInfo by mutableStateOf<DeviceInfo?>(null)
-        private set
 
     private val _androidId = MutableStateFlow("")
-    val androidId: StateFlow<String> = _androidId.asStateFlow()
 
 
     private val _permissionGranted = MutableLiveData<Boolean>()
@@ -60,8 +49,6 @@ class SplashViewModel @Inject constructor(
         uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
         _androidId.value = Settings.Secure.getString(application.contentResolver,
             Settings.Secure.ANDROID_ID)
-
-
 
             /*setDevice
             restApiRepository.setDevice(
@@ -126,13 +113,24 @@ class SplashViewModel @Inject constructor(
                             _uiState.emit(UiState.Idle)
                         }
                     }
-                } else {
+                }
+                else {
+                    Log.d(TAG,"result:${result.message}")
                     _uiState.emit(UiState.Idle)
-                    registerNewDevice()
                 }
             }
             is Resource.Failure -> {
-                _uiState.emit(UiState.Error(result.message!!))
+                if(result.message!=null) {
+                    if(result.message.contains("등록되지 않은")) {
+                        Log.d(TAG,"등록되지 않은 장비")
+                        _uiState.emit(UiState.Idle)
+                        registerNewDevice()
+                    }
+                    else if(result.message.contains("인증되지 않은")) {
+                        Log.d(TAG,"인증되지 않은 장비")
+                        _uiState.emit(UiState.Error(result.message!!))
+                    }
+                }
                 Log.d(TAG, "Device check 실패: ${result.data}, ${result.message}")
             }
         }

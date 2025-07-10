@@ -53,7 +53,7 @@ class OrderStatusViewModel @Inject constructor(
     }
 
     val waitingOrderList by derivedStateOf {
-        oriOrderList.filterNotNull().filter { it?.orderStatus == "1" }
+        oriOrderList.filterNotNull().filter { it?.orderStatus == "2" }
     }
 
     val currentCalledOrder by derivedStateOf {
@@ -62,8 +62,12 @@ class OrderStatusViewModel @Inject constructor(
 
     var displayedCompletedOrders by mutableStateOf<List<OrderStatus>>(emptyList())
         private set
+    var displayedWaitingOrders by mutableStateOf<List<OrderStatus>>(emptyList())
+        private set
     private var completedIndex = 0
+    private var waitingIndex = 0
     private var completedJob: Job? = null
+    private var waitingJob: Job? = null
 
     var callOrderNo: String?
         private set
@@ -102,9 +106,9 @@ class OrderStatusViewModel @Inject constructor(
 
     private fun updateDisplayedLists() {
         completedIndex = 0
-//        waitingIndex = 0
+        waitingIndex = 0
         updateCompletedSlice()
-//        updateWaitingSlice()
+        updateWaitingSlice()
     }
 
     private fun updateCompletedSlice() {
@@ -112,9 +116,14 @@ class OrderStatusViewModel @Inject constructor(
         displayedCompletedOrders = chunked.getOrNull(completedIndex).orEmpty()
     }
 
+    private fun updateWaitingSlice() {
+        val chunked = waitingOrderList.chunked(9)
+        displayedWaitingOrders = chunked.getOrNull(waitingIndex).orEmpty()
+    }
+
     private fun startRolling() {
         completedJob?.cancel()
-//        waitingJob?.cancel()
+        waitingJob?.cancel()
 
         completedJob = viewModelScope.launch {
             if(completedOrderList.size < 6) {
@@ -131,14 +140,19 @@ class OrderStatusViewModel @Inject constructor(
             }
         }
 
-//        waitingJob = viewModelScope.launch {
-//            while (isActive) {
-//                delay(5000)
-//                val total = waitingOrderList.chunked(9).size
-//                waitingIndex = (waitingIndex + 1) % total.coerceAtLeast(1)
-//                updateWaitingSlice()
-//            }
-//        }
+        waitingJob = viewModelScope.launch {
+            if(waitingOrderList.size < 9) {
+                Log.d(TAG,"waitingOrderList size:${waitingOrderList.size}")
+            }
+            else {
+                while (true) {
+                    delay(5000)
+                    val total = waitingOrderList.chunked(9).size
+                    waitingIndex = (waitingIndex + 1) % total.coerceAtLeast(1)
+                    updateWaitingSlice()
+                }
+            }
+        }
     }
 
     fun handleSocketEvent(state: WebSocketViewModel.UiState) {

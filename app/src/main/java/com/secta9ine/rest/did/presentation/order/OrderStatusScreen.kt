@@ -160,7 +160,7 @@ fun OrderStatusScreen(
                     )
                     OrderContents(
                         displayedCompletedOrders = viewModel.displayedCompletedOrders,
-                        waitingOrderList = viewModel.waitingOrderList,
+                        displayedWaitingOrders = viewModel.displayedWaitingOrders,
                         currentCalledOrder = viewModel.currentCalledOrder
                     )
                 }
@@ -198,54 +198,10 @@ fun OrderHeader(
 @Composable
 fun OrderContents(
     displayedCompletedOrders: List<OrderStatus?> = emptyList(),
-    waitingOrderList: List<OrderStatus?> = emptyList(),
+    displayedWaitingOrders: List<OrderStatus?> = emptyList(),
     currentCalledOrder: OrderStatus? = null,
 ) {
-    var displayedWaitingOrders by remember { mutableStateOf(waitingOrderList.take(9)) }
-    var complitedOrderIndex by remember { mutableStateOf(0) }
-    var waitingOrderIndex by remember { mutableStateOf(0) }
     var isVisible by remember { mutableStateOf(true) }
-
-//    LaunchedEffect(Unit) {
-//        if(completedOrderList.size<6) {
-//            displayedCompletedOrders = completedOrderList
-//            Log.d(TAG,"12 completedOrderList:$completedOrderList")
-//        } else {
-//            while (true) {
-//                delay(5000) // 5초 대기
-//
-//                if(complitedOrderIndex + 6 <= completedOrderList.size) {
-//
-//                    displayedCompletedOrders = completedOrderList.subList(complitedOrderIndex, complitedOrderIndex + 6)
-//                    complitedOrderIndex += 6
-//                }
-//                else {
-//                    displayedCompletedOrders =completedOrderList.subList(complitedOrderIndex, completedOrderList.size)
-//                    complitedOrderIndex = 0
-//                }
-//
-//            }
-//        }
-//    }
-
-    LaunchedEffect(Unit) {
-        if (waitingOrderList.size < 9) {
-            displayedWaitingOrders = waitingOrderList
-        } else {
-            while (true) {
-                delay(5000) // 3초 대기 (시간 수정)
-                if(waitingOrderIndex + 9 <= waitingOrderList.size) {
-                    displayedWaitingOrders = waitingOrderList.subList(waitingOrderIndex,waitingOrderIndex + 9)
-                    waitingOrderIndex += 9
-                }
-                else {
-                    displayedWaitingOrders = waitingOrderList.subList(waitingOrderIndex, waitingOrderList.size)
-                    waitingOrderIndex = 0
-                }
-
-            }
-        }
-    }
 
     LaunchedEffect(Unit) {
         repeat(3) { // 3번 반복
@@ -367,18 +323,25 @@ fun OrderContents(
                             .padding(top = 8.dp)
                     ) {
                         Column(modifier = Modifier.fillMaxSize()) {
-                            val displayed = displayedCompletedOrders
+                            val displayed1st = displayedCompletedOrders
                                 .take(3)
                                 .let { list ->
                                     if (list.size == 2) list + listOf(null) else list
                                 }
+                            val displayed2nd = displayedCompletedOrders
+                                .drop(3).take(3)
+                                .let { list ->
+                                    if(list.size == 2) list + listOf(null) else list
+                                }
+                            Log.d(TAG,"displayed1st:$displayed1st")
+                            Log.d(TAG,"displayed2nd:$displayed2nd")
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .weight(1f),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                displayed.forEach { order ->
+                                displayed1st.forEach { order ->
                                     if (order != null) {
                                         Text(
                                             text = order.orderNoC,
@@ -403,7 +366,7 @@ fun OrderContents(
                                     .weight(1f),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                displayedCompletedOrders.drop(3).take(3).forEach { order ->
+                                displayed2nd.forEach { order ->
                                     if (order != null) {
                                         Text(
                                             text = order.orderNoC,
@@ -412,7 +375,12 @@ fun OrderContents(
                                         )
                                     }
                                     else {
-                                        Spacer(modifier = Modifier)
+                                        Text(
+                                            text = "55555",
+                                            fontSize = msgTextSize,
+                                            modifier = Modifier.padding(4.dp, 0.dp),
+                                            color = Color.White
+                                        )
                                     }
                                 }
                             }
@@ -465,18 +433,43 @@ fun OrderContents(
                             .padding(top = 8.dp)
                     ) {
                         Column(modifier = Modifier.fillMaxSize()) {
+                            val displayed1st = displayedWaitingOrders
+                                .take(3)
+                                .let { list ->
+                                    if (list.size == 2) list + listOf(null) else list
+                                }
+                            val displayed2nd = displayedWaitingOrders
+                                .drop(3).take(3)
+                                .let { list ->
+                                    if(list.size == 2) list + listOf(null) else list
+                                }
+                            val displayed3rd = displayedWaitingOrders
+                                .drop(6).take(3)
+                                .let { list ->
+                                    if(list.size == 2) list + listOf(null) else list
+                                }
+                            Log.d(TAG,"displayed1st:$displayed1st")
+                            Log.d(TAG,"displayed2nd:$displayed2nd")
+                            Log.d(TAG,"displayed3rd:$displayed3rd")
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .weight(1f),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                displayedWaitingOrders.take(3).forEach { order ->
+                                displayed1st.forEach { order ->
                                     if (order != null) {
                                         Text(
                                             text = order.orderNoC,
                                             fontSize = msgTextSize,
                                             modifier = Modifier.padding(4.dp, 0.dp)
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "55555",
+                                            fontSize = msgTextSize,
+                                            modifier = Modifier.padding(4.dp, 0.dp),
+                                            color = Color.White
                                         )
                                     }
                                 }
@@ -489,12 +482,20 @@ fun OrderContents(
                                     .weight(1f),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                displayedWaitingOrders.drop(3).take(3).forEach { order ->
+                                displayed2nd.forEach { order ->
                                     if (order != null) {
                                         Text(
                                             text = order.orderNoC,
                                             fontSize = msgTextSize,
                                             modifier = Modifier.padding(4.dp, 0.dp)
+                                        )
+                                    }
+                                    else {
+                                        Text(
+                                            text = "55555",
+                                            fontSize = msgTextSize,
+                                            modifier = Modifier.padding(4.dp, 0.dp),
+                                            color = Color.White
                                         )
                                     }
                                 }
@@ -506,12 +507,20 @@ fun OrderContents(
                                     .weight(1f),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                displayedWaitingOrders.drop(6).take(3).forEach { order ->
+                                displayed3rd.forEach { order ->
                                     if (order != null) {
                                         Text(
                                             text = order.orderNoC,
                                             fontSize = msgTextSize,
                                             modifier = Modifier.padding(4.dp, 0.dp)
+                                        )
+                                    }
+                                    else {
+                                        Text(
+                                            text = "55555",
+                                            fontSize = msgTextSize,
+                                            modifier = Modifier.padding(4.dp, 0.dp),
+                                            color = Color.White
                                         )
                                     }
                                 }

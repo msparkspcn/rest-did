@@ -109,7 +109,7 @@ class SplashViewModel @Inject constructor(
                             }
                         }
                         is Resource.Failure -> {
-                            Log.d(TAG, "설정 완료 필요 it:$masterResult")
+                            Log.d(TAG, "마스터 수신 실패 it:$masterResult")
                             _uiState.emit(UiState.Idle)
                         }
                     }

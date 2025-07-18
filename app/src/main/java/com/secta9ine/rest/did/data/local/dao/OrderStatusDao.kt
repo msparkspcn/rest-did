@@ -1,5 +1,6 @@
 package com.secta9ine.rest.did.data.local.dao
 
+import android.database.sqlite.SQLiteException
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -7,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.secta9ine.rest.did.domain.model.OrderStatus
 import kotlinx.coroutines.flow.Flow
+import kotlin.jvm.Throws
 
 @Dao
 interface OrderStatusDao {
@@ -22,9 +24,13 @@ interface OrderStatusDao {
         insertAll(list)
     }
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Throws(SQLiteException::class)
+    suspend fun insert(orderStatus: OrderStatus)
+
     @Query(
         """
-            SELECT CMP_CD, SALES_ORG_CD, STOR_CD, CORNER_CD, SALE_DT, ORDER_NO, ORDER_STATUS, ORDER_NO_C, COM_TIME, REG_DATE
+            SELECT CMP_CD, SALES_ORG_CD, STOR_CD, CORNER_CD, SALE_DT, TRADE_NO, POS_NO, STATUS, ORDER_NO_C, COM_TIME, REG_DATE
             FROM ORDER_STATUS
             WHERE 1 = 1
                 AND SALE_DT = :saleDt
@@ -55,18 +61,19 @@ interface OrderStatusDao {
     @Query(
         """
             UPDATE ORDER_STATUS
-            SET ORDER_STATUS = :orderStatus
+            SET STATUS = :status
             WHERE 1 = 1
             AND SALE_DT = :saleDt
                 AND CMP_CD = :cmpCd
                 AND SALES_ORG_CD = :salesOrgCd
                 AND STOR_CD = :storCd
                 AND CORNER_CD = :cornerCd
-                AND ORDER_NO = :orderNo
+                AND TRADE_NO = :tradeNo
+                AND POS_NO = :posNo
             
         """
     )
     fun updateOrderStatus(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String,
-                          cornerCd: String, orderNo: String, orderStatus: String)
+                          cornerCd: String, tradeNo: String, posNo: String, status: String)
 
 }

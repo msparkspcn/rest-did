@@ -16,6 +16,10 @@ class OrderStatusRepositoryImpl @Inject constructor(
         orderStatusDao.sync(orderStatusList)
     }
 
+    override suspend fun insert(orderStatus: OrderStatus) {
+        orderStatusDao.insert(orderStatus)
+    }
+
     override suspend fun get(
         saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String
     ): Flow<List<OrderStatus?>> =
@@ -39,15 +43,24 @@ class OrderStatusRepositoryImpl @Inject constructor(
         )
 
 
-    override suspend fun updateOrderStatus(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String, orderNo: String, orderStatus: String) {
+    override suspend fun updateOrderStatus(
+        saleDt: String,
+        cmpCd: String,
+        salesOrgCd: String,
+        storCd: String,
+        cornerCd: String,
+        tradeNo: String,
+        posNo: String,
+        status: String) {
         orderStatusDao.updateOrderStatus(
             saleDt = saleDt,
             cmpCd = cmpCd,
             salesOrgCd = salesOrgCd,
             storCd = storCd,
             cornerCd = cornerCd,
-            orderNo = orderNo,
-            orderStatus = orderStatus
+            tradeNo = tradeNo,
+            posNo = posNo,
+            status = status
         )
     }
 }

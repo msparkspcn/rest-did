@@ -87,9 +87,10 @@ class WebSocketViewModel
                 isConnected = true
                 subscribeDeviceEvent() //장비 이벤트 구독(cmp,sales,stor,corner,deviceNo,displayMenuCd,rollingYn,apiKey 변경 여부 감지)
                 subscribeSoldOutEvent()
+                subscribeOrderEvents() //주문 이벤트 구독
 //                subscribeRestartEvents() //재실행 이벤트 구독
                 //DID 상품 이벤트 구독
-                //DID 상품 부가정보 이벤트 구독
+                //DID 상품 부가 정보 이벤트 구독
                 //주문 이벤트 구독
                 subscribeToEvents()
                 viewModelScope.launch {
@@ -106,7 +107,8 @@ class WebSocketViewModel
                     val event = jsonObject.getString("type")
 //                    val data = jsonObject.getString("body")
                     val data = jsonObject.optString("body", "")
-                    val message = jsonObject.getString("message")
+                    val message = jsonObject.optString("message","")
+                    val data2 = jsonObject.optString("data", "")
                     when (event) {
 //                        "ECHO" -> {
 //                            Log.d(tag, "앱 업데이트")
@@ -124,6 +126,12 @@ class WebSocketViewModel
                             Log.d(tag, "상품 품절 이벤트 data:$data")
                             viewModelScope.launch {
                                 emitUiState(UiState.SoldOut(data))
+                            }
+                        }
+                        "order" -> {
+                            Log.d(tag, "주문 이벤트 data:$data2")
+                            viewModelScope.launch {
+                                emitUiState(UiState.InsertOrder(data2))
                             }
                         }
                         "MASTER" -> {
@@ -290,16 +298,16 @@ class WebSocketViewModel
     }
 
     private fun subscribeDeviceEvent() {    //장비 이벤트 구독
-        val subscribeMessage = """{"type": "subscribe", "topic":"DEVICE", "deviceId": "$androidId"}"""
+        val subscribeMessage = """{"type": "subscribe", "topic":"DEVICE", "deviceId": "${_androidId.value}"}"""
         sendMessage(subscribeMessage)
     }
-    private fun subscribeSoldOutEvent() {    //장비 이벤트 구독
-        val subscribeMessage = """{"type": "subscribe", "topic":"item", "deviceId": "$androidId"}"""
+    private fun subscribeSoldOutEvent() {    //품절 이벤트 구독
+        val subscribeMessage = """{"type": "subscribe", "topic":"item", "deviceId": "${_androidId.value}"}"""
         sendMessage(subscribeMessage)
     }
 
     private fun subscribeRestartEvents() {
-        val subscribeMessage = """{ "type": "subscribe", "topic": "RESTART", "deviceId": "$androidId"}"""
+        val subscribeMessage = """{ "type": "subscribe", "topic": "RESTART", "deviceId": "${_androidId.value}"}"""
         sendMessage(subscribeMessage)
     }
 
@@ -310,7 +318,7 @@ class WebSocketViewModel
     }
 
     private fun subscribeOrderEvents() {
-        val subscribeMessage = """{ "type": "subscribe", "topic": "ORDER", "cmpCd": "SLKR", "salesOrgCd": "8000", "storCd": "5000511", "cornerCd": "CIBA" }"""
+        val subscribeMessage = """{ "type": "subscribe", "topic": "order", "deviceId": "${_androidId.value}"}"""
         sendMessage(subscribeMessage)
     }
 
@@ -360,8 +368,8 @@ class WebSocketViewModel
         object UpdateDevice : UiState
         object CheckDevice : UiState
         object UpdateVersion : UiState
-        object InsertOrder: UiState
         object Idle : UiState
         data class SoldOut(val data: String) : UiState
+        data class InsertOrder(val data: String) : UiState
     }
 }

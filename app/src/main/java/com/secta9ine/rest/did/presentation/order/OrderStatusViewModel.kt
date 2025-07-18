@@ -23,9 +23,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import java.lang.RuntimeException
 import javax.inject.Inject
 
@@ -49,15 +51,15 @@ class OrderStatusViewModel @Inject constructor(
     var oriOrderList by mutableStateOf(emptyList<OrderStatus?>())
 
     val completedOrderList by derivedStateOf {
-        oriOrderList.filterNotNull().filter { it?.orderStatus == "4" }
+        oriOrderList.filterNotNull().filter { it?.status == "4" }
     }
 
     val waitingOrderList by derivedStateOf {
-        oriOrderList.filterNotNull().filter { it?.orderStatus == "2" }
+        oriOrderList.filterNotNull().filter { it?.status == "2" }
     }
 
     val currentCalledOrder by derivedStateOf {
-        oriOrderList.find { it?.orderStatus == "C" }
+        oriOrderList.find { it?.status == "C" }
     }
 
     var displayedCompletedOrders by mutableStateOf<List<OrderStatus>>(emptyList())
@@ -75,7 +77,8 @@ class OrderStatusViewModel @Inject constructor(
     init {
         callOrderNo = ""
         jobInit = viewModelScope.launch {
-            _uiState.emit(UiState.Loading)
+//            _uiState.emit(UiState.Loading)
+            _uiState.emit(UiState.Idle)
             cmpCd = dataStoreRepository.getCmpCd().first()
 //            cmpCd = "SLKR"
             salesOrgCd = dataStoreRepository.getSalesOrgCd().first()
@@ -87,19 +90,21 @@ class OrderStatusViewModel @Inject constructor(
                     ", cornerCd:$cornerCd")
 
             orderStatusRepository.get(
-                saleDt = "20250707",
+                saleDt = "20250708",
                 cmpCd = cmpCd,
                 salesOrgCd = salesOrgCd,
                 storCd = storCd,
-                cornerCd = cornerCd
-            ).first().let {
-                oriOrderList = it
+                cornerCd = "CIBA"
+            ).collectLatest {list ->
+                oriOrderList = list
                 currentCalledOrder?.let { it1 -> scheduleStateUpdateToReady(it1) }
                 Log.d(TAG,"oriOrderList:$oriOrderList")
+                Log.d(TAG,"currentCalledOrder:$currentCalledOrder")
+
                 Log.d(TAG,"completedOrderList:$completedOrderList")
                 updateDisplayedLists()
                 startRolling()
-                _uiState.emit(UiState.Idle)
+//                _uiState.emit(UiState.Idle)
             }
         }
     }
@@ -178,8 +183,10 @@ class OrderStatusViewModel @Inject constructor(
             }
             is WebSocketViewModel.UiState.InsertOrder -> {
                 //insert 처리(state:C DID호출)
-
-
+                viewModelScope.launch {
+                    Log.d(TAG,"주문발생!!")
+                    createOrder(state.data)
+                }
             }
 
             else -> Unit // 다른 이벤트는 내가 처리하지 않음
@@ -195,11 +202,11 @@ class OrderStatusViewModel @Inject constructor(
                 order.saleDt, order.cmpCd, order.salesOrgCd, order.storCd, order.cornerCd, order.orderNoC
             ).first()
 
-            if (refreshedOrder?.orderStatus == "C") {
+            if (refreshedOrder?.status == "C") {
                 Log.d(TAG,"호출 있음")
                 orderStatusRepository.updateOrderStatus(
-                    order.saleDt, order.cmpCd, order.salesOrgCd, order.storCd, order.cornerCd, order.orderNo,
-                    "4")
+                    order.saleDt, order.cmpCd, order.salesOrgCd, order.storCd, order.cornerCd, order.tradeNo,
+                    order.posNo, "4")
 
                 oriOrderList = orderStatusRepository.get(
                     saleDt = order.saleDt,
@@ -237,6 +244,51 @@ class OrderStatusViewModel @Inject constructor(
         Log.d(TAG, "환경 설정 화면 이동")
         viewModelScope.launch {
             _uiState.emit(UiState.NavigateToDevice)
+        }
+    }
+
+    suspend fun createOrder(data: String) {
+        try {
+            val ordersArray = JSONArray(data)
+            if (ordersArray.length() == 0) return
+
+            val order = ordersArray.getJSONObject(0)
+            val saleDt = order.optString("saleDt", "")
+            val cmpCd = order.optString("cmpCd", "")
+            val salesOrgCd = order.optString("salesOrgCd", "")
+            val storCd = order.optString("storCd", "")
+            val posNo = order.optString("posNo", "")
+            val tradeNo = order.optString("tradeNo", "")
+
+            val corner = order.optJSONArray("corners")?.optJSONObject(0) ?: return
+            val cornerCd = corner.optString("cornerCd", "")
+            val status = corner.optString("status", "")
+            val regDate = corner.optString("regDate").takeIf { it.isNotEmpty() }
+            val updDate = corner.optString("updDate").takeIf { it.isNotEmpty() }
+
+            val detail = corner.optJSONArray("details")?.optJSONObject(0) ?: return
+            val ordTime = detail.optString("ordTime").takeIf { it.isNotEmpty() }
+            val comTime = detail.optString("updDate").takeIf { it.isNotEmpty() } // 실제 완료시간이 detail에 있다면
+            val orderNoC = detail.optString("orderNoC", "")
+            orderStatusRepository.insert(OrderStatus(
+                saleDt = saleDt,
+                cmpCd = cmpCd,
+                salesOrgCd = salesOrgCd,
+                storCd = storCd,
+                cornerCd = cornerCd,
+                posNo = posNo,
+                tradeNo = tradeNo,
+                status = "C",
+                ordTime = ordTime,
+                comTime = comTime,
+                orderNoC = orderNoC,
+                regDate = regDate,
+                updDate = updDate
+            ))
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 

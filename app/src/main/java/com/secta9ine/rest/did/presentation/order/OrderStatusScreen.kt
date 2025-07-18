@@ -74,7 +74,7 @@ fun OrderStatusScreen(
 
     var dialogMessage by remember { mutableStateOf<UiString?>(null) }
 
-    val uiState by viewModel.uiState.collectAsState(OrderStatusViewModel.UiState.Loading)
+    val uiState by viewModel.uiState.collectAsState(OrderStatusViewModel.UiState.Idle)
     val uiState2 by wsViewModel.uiState.collectAsState(initial = null)
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -203,12 +203,15 @@ fun OrderContents(
 ) {
     var isVisible by remember { mutableStateOf(true) }
 
-    LaunchedEffect(Unit) {
-        repeat(3) { // 3번 반복
-            delay(500) // 0.5초 켜짐
-            isVisible = false
-            delay(500) // 0.5초 꺼짐
-            isVisible = true
+    LaunchedEffect(currentCalledOrder?.orderNoC) {
+        if (currentCalledOrder != null) {
+            repeat(3) {
+                isVisible = true
+                delay(500)
+                isVisible = false
+                delay(500)
+            }
+            isVisible = true // 마지막엔 항상 켜진 상태로 종료
         }
     }
 
@@ -239,7 +242,7 @@ fun OrderContents(
                 val msgTextSize = with(density) { (screenWidth * 0.05f).toSp() }
 
                 Text(
-                    text = currentCalledOrder?.orderNo ?: "",
+                    text = currentCalledOrder?.orderNoC ?: "",
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.CenterHorizontally)

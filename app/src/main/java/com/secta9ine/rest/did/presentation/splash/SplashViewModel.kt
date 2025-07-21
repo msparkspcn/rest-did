@@ -98,6 +98,7 @@ class SplashViewModel @Inject constructor(
                     dataStoreRepository.setSalesOrgCd(device.salesOrgCd!!)
                     dataStoreRepository.setStorCd(device.storCd!!)
                     dataStoreRepository.setCornerCd(device.cornerCd!!)
+                    dataStoreRepository.setDisplayMenuCd(device.displayMenuCd!!)
                     // 상품, 주문 마스터 수신 전까지 주석
                     /**/
                     when (val masterResult = registerUseCases.fetch(device)) {
@@ -145,11 +146,9 @@ class SplashViewModel @Inject constructor(
     }
 
     suspend fun getDisplayMenuCd(): String {
-        val device = deviceRepository.getDevice(
-            _androidId.value
-        ).firstOrNull() ?: throw RuntimeException("")
-        Log.d(TAG,"device:$device")
-        return device.displayMenuCd!!
+        val displayMenuCd = dataStoreRepository.getDisplayMenuCd().firstOrNull() ?: throw RuntimeException("")
+        Log.d(TAG,"displayMenuCd:$displayMenuCd")
+        return displayMenuCd!!
 
     }
     suspend fun checkPermissions(context: Context) {

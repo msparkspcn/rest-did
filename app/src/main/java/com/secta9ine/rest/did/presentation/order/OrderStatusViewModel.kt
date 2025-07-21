@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import java.lang.RuntimeException
+import java.util.Collections.emptyList
 import javax.inject.Inject
 
 @HiltViewModel
@@ -58,9 +59,7 @@ class OrderStatusViewModel @Inject constructor(
         oriOrderList.filterNotNull().filter { it?.status == "2" }
     }
 
-    val currentCalledOrder by derivedStateOf {
-        oriOrderList.find { it?.status == "C" }
-    }
+    var currentCalledOrder: OrderStatus? = null
 
     var displayedCompletedOrders by mutableStateOf<List<OrderStatus>>(emptyList())
         private set
@@ -97,6 +96,7 @@ class OrderStatusViewModel @Inject constructor(
                 cornerCd = "CIBA"
             ).collectLatest {list ->
                 oriOrderList = list
+                currentCalledOrder = oriOrderList.find { it?.status == "C" }
                 currentCalledOrder?.let { it1 -> scheduleStateUpdateToReady(it1) }
                 Log.d(TAG,"oriOrderList:$oriOrderList")
                 Log.d(TAG,"currentCalledOrder:$currentCalledOrder")
@@ -215,22 +215,35 @@ class OrderStatusViewModel @Inject constructor(
                     storCd = order.storCd,
                     cornerCd = order.cornerCd
                 ).first()
-//                scheduleStateUpdateToFinal(current.copy(orderStatus = "2"))
+                scheduleStateUpdateToFinal(order)
             }
         }
     }
 
-//    private fun scheduleStateUpdateToFinal(order: OrderStatus) {
-//        CoroutineScope(Dispatchers.IO).launch {
-//            delay(5 * 60_000) // 5분
-//
-//            // 상태가 여전히 2이면 3으로 변경
-//            val current = orderDao.getByOrderNo(order.orderNo)
-//            if (current?.orderStatus == "2") {
-//                orderDao.updateStatus(order.orderNo, "3")
-//            }
-//        }
-//    }
+    private fun scheduleStateUpdateToFinal(order: OrderStatus) {
+        CoroutineScope(Dispatchers.IO).launch {
+            delay(1 * 60_000) // 5분
+
+            // 상태가 여전히 4이면 5으로 변경
+            val current = orderStatusRepository.getByOrderNoC(
+                order.saleDt,
+                order.cmpCd,
+                order.salesOrgCd,
+                order.storCd,
+                order.cornerCd,
+                order.orderNoC).first()
+            if (current?.status == "4") {
+                orderStatusRepository.updateOrderStatus(
+                    order.saleDt,
+                    order.cmpCd,
+                    order.salesOrgCd,
+                    order.storCd,
+                    order.cornerCd,
+                    order.tradeNo,
+                    order.posNo, "5")
+            }
+        }
+    }
     override fun onCleared() {
         super.onCleared()
         completedJob?.cancel()
@@ -262,7 +275,6 @@ class OrderStatusViewModel @Inject constructor(
 
             val corner = order.optJSONArray("corners")?.optJSONObject(0) ?: return
             val cornerCd = corner.optString("cornerCd", "")
-            val status = corner.optString("status", "")
             val regDate = corner.optString("regDate").takeIf { it.isNotEmpty() }
             val updDate = corner.optString("updDate").takeIf { it.isNotEmpty() }
 
@@ -270,22 +282,58 @@ class OrderStatusViewModel @Inject constructor(
             val ordTime = detail.optString("ordTime").takeIf { it.isNotEmpty() }
             val comTime = detail.optString("updDate").takeIf { it.isNotEmpty() } // 실제 완료시간이 detail에 있다면
             val orderNoC = detail.optString("orderNoC", "")
-            orderStatusRepository.insert(OrderStatus(
+            //TODO 실제 status 전달받을 경우 status 설정부분 수정 필요
+            val orderStatusCnt = orderStatusRepository.getCnt(
                 saleDt = saleDt,
                 cmpCd = cmpCd,
                 salesOrgCd = salesOrgCd,
                 storCd = storCd,
                 cornerCd = cornerCd,
                 posNo = posNo,
-                tradeNo = tradeNo,
-                status = "C",
-                ordTime = ordTime,
-                comTime = comTime,
-                orderNoC = orderNoC,
-                regDate = regDate,
-                updDate = updDate
-            ))
-
+                tradeNo = tradeNo
+            )
+            Log.d(TAG,"orderStatusCnt:$orderStatusCnt")
+            if(orderStatusCnt > 0) {
+                orderStatusRepository.updateOrderStatus(
+                    saleDt = saleDt,
+                    cmpCd = cmpCd,
+                    salesOrgCd = salesOrgCd,
+                    storCd = storCd,
+                    cornerCd = cornerCd,
+                    posNo = posNo,
+                    tradeNo = tradeNo,
+                    status = when (corner.optString("status", "")) {
+                        "1" -> "C"
+                        "2" -> "2"
+                        "4" -> "C"
+                        "5" -> "5"
+                        else -> ""
+                    },
+                )
+            }
+            else {
+                orderStatusRepository.insert(OrderStatus(
+                    saleDt = saleDt,
+                    cmpCd = cmpCd,
+                    salesOrgCd = salesOrgCd,
+                    storCd = storCd,
+                    cornerCd = cornerCd,
+                    posNo = posNo,
+                    tradeNo = tradeNo,
+                    status = when (corner.optString("status", "")) {
+                        "1" -> "2"
+                        "2" -> "3"
+                        "4" -> "C"
+                        "5" -> "5"
+                        else -> ""
+                    },
+                    ordTime = ordTime,
+                    comTime = comTime,
+                    orderNoC = orderNoC,
+                    regDate = regDate,
+                    updDate = updDate
+                ))
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             null

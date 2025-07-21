@@ -1,10 +1,7 @@
 package com.secta9ine.rest.did.data.local.repository
 
-import com.secta9ine.rest.did.data.local.dao.DeviceDao
 import com.secta9ine.rest.did.data.local.dao.OrderStatusDao
-import com.secta9ine.rest.did.domain.model.Device
 import com.secta9ine.rest.did.domain.model.OrderStatus
-import com.secta9ine.rest.did.domain.repository.DeviceRepository
 import com.secta9ine.rest.did.domain.repository.OrderStatusRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -18,6 +15,18 @@ class OrderStatusRepositoryImpl @Inject constructor(
 
     override suspend fun insert(orderStatus: OrderStatus) {
         orderStatusDao.insert(orderStatus)
+    }
+
+    override suspend fun getCnt(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String, tradeNo: String, posNo: String):Int {
+        return orderStatusDao.getOrderStatusCnt(
+            saleDt = saleDt,
+            cmpCd = cmpCd,
+            salesOrgCd = salesOrgCd,
+            storCd = storCd,
+            cornerCd = cornerCd,
+            tradeNo = tradeNo,
+            posNo = posNo
+        )
     }
 
     override suspend fun get(

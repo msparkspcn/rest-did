@@ -50,11 +50,28 @@ class WebSocketViewModel
     val uiState = _uiState.asSharedFlow()
     private val handlers = mutableSetOf<(UiState) -> Unit>()
     private val _androidId = MutableStateFlow("")
+    private val _salesOrgCd = MutableStateFlow("")
+    private val _storCd = MutableStateFlow("")
+    private val _cornerCd = MutableStateFlow("")
     val androidId: StateFlow<String> = _androidId.asStateFlow()
     init {
         uiState.onEach { Log.d(tag, "uiState=$it") }.launchIn(viewModelScope)
-        observeNetworkChanges()
-        connectWebSocket()
+        viewModelScope.launch {
+            _salesOrgCd.value = dataStoreRepository.getSalesOrgCd().first()
+            _storCd.value = dataStoreRepository.getStorCd().first()
+            _cornerCd.value = dataStoreRepository.getCornerCd().first()
+            Log.d(tag, "salesOrgCd: ${_salesOrgCd.value}, storCd: ${_storCd.value}, cornerCd: ${_cornerCd.value}")
+            if(_salesOrgCd.value!=null && _storCd.value!=null && _cornerCd.value!=null) {
+                observeNetworkChanges()
+                connectWebSocket()
+            }
+            else {
+                Log.d(tag,"not ready")
+            }
+            // 이후 로직 실행
+        }
+
+
     }
 
     fun registerHandler(handler: (UiState) -> Unit) {
@@ -191,13 +208,6 @@ class WebSocketViewModel
                 //                            _uiState.emit(UiState.UpdateDevice)
                             }
                         }
-                        "DEVICE" -> {   //
-                //                        navC
-                        }
-
-                        "order" -> {
-                        //신규 주문 처리(insert)
-                        }
 
                         "order_updated" -> {
                             //주문상태 업데이트 처리(update)
@@ -205,9 +215,6 @@ class WebSocketViewModel
                         }
                         "product_updated" -> {
                             val data = jsonObject.getJSONObject("data")
-                        }
-                        "div_updated" -> {
-
                         }
                     }
                 } catch (e: JSONException) {
@@ -298,11 +305,16 @@ class WebSocketViewModel
     }
 
     private fun subscribeDeviceEvent() {    //장비 이벤트 구독
-        val subscribeMessage = """{"type": "subscribe", "topic":"DEVICE", "deviceId": "${_androidId.value}"}"""
+        val subscribeMessage = """{"type": "subscribe", "topic":"DEVICE", "deviceId": "${_androidId.value}", "salesOrgCd":"${_salesOrgCd.value}", "storCd":"${_storCd.value}", "cornerCd":"${_cornerCd.value}", "deviceType":"DID"}"""
         sendMessage(subscribeMessage)
     }
     private fun subscribeSoldOutEvent() {    //품절 이벤트 구독
-        val subscribeMessage = """{"type": "subscribe", "topic":"item", "deviceId": "${_androidId.value}"}"""
+        val subscribeMessage = """{"type": "subscribe", "topic":"item", "deviceId": "${_androidId.value}", "salesOrgCd":"${_salesOrgCd.value}", "storCd":"${_storCd.value}", "cornerCd":"${_cornerCd.value}", "deviceType":"DID"}"""
+        sendMessage(subscribeMessage)
+    }
+
+    private fun subscribeOrderEvents() {
+        val subscribeMessage = """{ "type": "subscribe", "topic": "order", "deviceId": "${_androidId.value}", "salesOrgCd":"${_salesOrgCd.value}", "storCd":"${_storCd.value}", "cornerCd":"${_cornerCd.value}", "deviceType":"DID"}"""
         sendMessage(subscribeMessage)
     }
 
@@ -315,11 +327,6 @@ class WebSocketViewModel
     private fun subscribeToEvents() {
         val subscribeMessage = """{ "type": "subscribe", "topic": "ECHO", "userId": "5000511001" }"""
         sendMessage(subscribeMessage) // 구독 요청 전송
-    }
-
-    private fun subscribeOrderEvents() {
-        val subscribeMessage = """{ "type": "subscribe", "topic": "order", "deviceId": "${_androidId.value}"}"""
-        sendMessage(subscribeMessage)
     }
 
     private fun subscribeProductEvents() {

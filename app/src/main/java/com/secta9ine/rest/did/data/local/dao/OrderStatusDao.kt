@@ -24,9 +24,26 @@ interface OrderStatusDao {
         insertAll(list)
     }
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     @Throws(SQLiteException::class)
     suspend fun insert(orderStatus: OrderStatus)
+
+    @Query(
+        """
+            SELECT COUNT(*)
+            FROM ORDER_STATUS
+            WHERE 1 = 1
+            AND SALE_DT = :saleDt
+                AND CMP_CD = :cmpCd
+                AND SALES_ORG_CD = :salesOrgCd
+                AND STOR_CD = :storCd
+                AND CORNER_CD = :cornerCd
+                AND TRADE_NO = :tradeNo
+                AND POS_NO = :posNo
+        """
+    )
+    suspend fun getOrderStatusCnt(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String,
+                          cornerCd: String, tradeNo: String, posNo: String): Int
 
     @Query(
         """
@@ -73,7 +90,7 @@ interface OrderStatusDao {
             
         """
     )
-    fun updateOrderStatus(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String,
+    suspend fun updateOrderStatus(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String,
                           cornerCd: String, tradeNo: String, posNo: String, status: String)
 
 }

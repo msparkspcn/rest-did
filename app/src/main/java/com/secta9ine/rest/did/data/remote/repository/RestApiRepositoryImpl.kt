@@ -8,6 +8,7 @@ import com.secta9ine.rest.did.data.remote.dto.CmpRequestDto
 import com.secta9ine.rest.did.data.remote.dto.CornerRequestDto
 import com.secta9ine.rest.did.data.remote.dto.DeviceRequestDto
 import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
+import com.secta9ine.rest.did.data.remote.dto.OrderStatusRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiRequestDto
 import com.secta9ine.rest.did.data.remote.dto.SaleOpenRequestDto
 import com.secta9ine.rest.did.data.remote.dto.SalesOrgRequestDto
@@ -143,14 +144,16 @@ class RestApiRepositoryImpl @Inject constructor(
         cmpCd: String,
         salesOrgCd: String,
         storCd: String,
-        cornerCd: String
+        cornerCd: String,
+        saleDt: String,
     ): Resource<List<OrderStatus?>> = withContext(Dispatchers.IO){
         try {
-            val requestBody = RestApiRequestDto(
+            val requestBody = OrderStatusRequestDto(
                 cmpCd =  cmpCd,
                 salesOrgCd = salesOrgCd,
                 storCd = storCd,
-                cornerCd = cornerCd
+                cornerCd = cornerCd,
+                searchDt = saleDt
             )
             restApiService.getOrderList(requestBody).let {
                 Resource.Success(it.responseBody)

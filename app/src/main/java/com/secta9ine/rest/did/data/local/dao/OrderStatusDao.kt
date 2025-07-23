@@ -47,7 +47,7 @@ interface OrderStatusDao {
 
     @Query(
         """
-            SELECT CMP_CD, SALES_ORG_CD, STOR_CD, CORNER_CD, SALE_DT, TRADE_NO, POS_NO, STATUS, ORDER_NO_C, COM_TIME, REG_DATE
+            SELECT CMP_CD, SALES_ORG_CD, STOR_CD, CORNER_CD, SALE_DT, TRADE_NO, POS_NO, STATUS, ORDER_NO_C, ORD_TIME, COM_TIME, UPD_USER_ID, UPD_DATE
             FROM ORDER_STATUS
             WHERE 1 = 1
                 AND SALE_DT = :saleDt
@@ -55,7 +55,7 @@ interface OrderStatusDao {
                 AND SALES_ORG_CD = :salesOrgCd
                 AND STOR_CD = :storCd
                 AND CORNER_CD = :cornerCd
-                ORDER BY COM_TIME, REG_DATE
+                ORDER BY ORD_TIME
         """
     )
     fun get(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<OrderStatus?>>
@@ -78,7 +78,7 @@ interface OrderStatusDao {
     @Query(
         """
             UPDATE ORDER_STATUS
-            SET STATUS = :status
+            SET STATUS = :status, UPD_DATE = strftime('%s','now')
             WHERE 1 = 1
             AND SALE_DT = :saleDt
                 AND CMP_CD = :cmpCd
@@ -92,5 +92,20 @@ interface OrderStatusDao {
     )
     suspend fun updateOrderStatus(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String,
                           cornerCd: String, tradeNo: String, posNo: String, status: String)
+
+    @Query(
+        """
+            UPDATE ORDER_STATUS
+            SET STATUS = '4', UPD_DATE = strftime('%s','now')
+            WHERE 1 = 1
+            AND SALE_DT = :saleDt
+                AND CMP_CD = :cmpCd
+                AND SALES_ORG_CD = :salesOrgCd
+                AND STOR_CD = :storCd
+                AND CORNER_CD = :cornerCd
+                AND status = 'C'
+        """
+    )
+    suspend fun updateOrderCallStatus(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String)
 
 }

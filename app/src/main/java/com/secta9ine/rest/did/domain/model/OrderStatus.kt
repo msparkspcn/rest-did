@@ -19,6 +19,6 @@ data class OrderStatus (
     @ColumnInfo(name = "ORD_TIME") val ordTime: String? = null,
     @ColumnInfo(name = "COM_TIME") val comTime: String? = null,
     @ColumnInfo(name = "ORDER_NO_C") val orderNoC: String = "",
-    @ColumnInfo(name = "REG_DATE") val regDate: String? = null,
-    @ColumnInfo(name = "UPD_DATE") val updDate: String? = null,
+    @ColumnInfo(name = "UPD_USER_ID") val updUserId: String? = null,
+    @ColumnInfo(name = "UPD_DATE") val updDate: Long = System.currentTimeMillis() / 1000
 )

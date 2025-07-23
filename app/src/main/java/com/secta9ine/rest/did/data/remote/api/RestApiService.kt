@@ -4,6 +4,7 @@ import com.secta9ine.rest.did.data.remote.dto.CmpRequestDto
 import com.secta9ine.rest.did.data.remote.dto.CornerRequestDto
 import com.secta9ine.rest.did.data.remote.dto.DeviceRequestDto
 import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
+import com.secta9ine.rest.did.data.remote.dto.OrderStatusRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiResponseDto
 import com.secta9ine.rest.did.data.remote.dto.SaleOpenRequestDto
@@ -58,9 +59,9 @@ interface RestApiService {
         @Body body: DeviceRequestDto
     ):RestApiResponseDto<Unit>
 
-    @POST("/api/v1/did/order")
+    @POST("/api/v1/order/corner/did/list")
     suspend fun getOrderList (
-        @Body body: RestApiRequestDto
+        @Body body: OrderStatusRequestDto
     ):RestApiResponseDto<List<OrderStatus>>
 
     @POST("/api/v1/company/list")

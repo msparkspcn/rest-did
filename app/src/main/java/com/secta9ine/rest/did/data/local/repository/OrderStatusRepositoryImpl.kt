@@ -13,6 +13,10 @@ class OrderStatusRepositoryImpl @Inject constructor(
         orderStatusDao.sync(orderStatusList)
     }
 
+    override suspend fun insertAll(orderStatusList: List<OrderStatus>) {
+        orderStatusDao.insertAll(orderStatusList)
+    }
+
     override suspend fun insert(orderStatus: OrderStatus) {
         orderStatusDao.insert(orderStatus)
     }
@@ -70,6 +74,21 @@ class OrderStatusRepositoryImpl @Inject constructor(
             tradeNo = tradeNo,
             posNo = posNo,
             status = status
+        )
+    }
+
+    override suspend fun updateOrderCallStatus(
+        saleDt: String,
+        cmpCd: String,
+        salesOrgCd: String,
+        storCd: String,
+        cornerCd: String) {
+        orderStatusDao.updateOrderCallStatus(
+            saleDt = saleDt,
+            cmpCd = cmpCd,
+            salesOrgCd = salesOrgCd,
+            storCd = storCd,
+            cornerCd = cornerCd
         )
     }
 }

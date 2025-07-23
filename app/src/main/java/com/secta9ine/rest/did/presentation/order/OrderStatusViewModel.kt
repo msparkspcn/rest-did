@@ -58,7 +58,10 @@ class OrderStatusViewModel @Inject constructor(
     var oriOrderList by mutableStateOf(emptyList<OrderStatus?>())
 
     val completedOrderList by derivedStateOf {
-        oriOrderList.filterNotNull().filter { it?.status == "4" }
+        oriOrderList
+            .filterNotNull()
+            .filter { it.status == "4" }
+            .sortedBy { it.updDate }
     }
 
     val waitingOrderList by derivedStateOf {
@@ -129,11 +132,11 @@ class OrderStatusViewModel @Inject constructor(
             }
 
             orderStatusRepository.get(
-                saleDt = "20250708",
+                saleDt = saleOpen!!.saleDt,
                 cmpCd = cmpCd,
                 salesOrgCd = salesOrgCd,
                 storCd = storCd,
-                cornerCd = "CIBA"
+                cornerCd = cornerCd
             ).collectLatest {list ->
                 oriOrderList = list
                 currentCalledOrder = oriOrderList.find { it?.status == "C" }
@@ -144,6 +147,7 @@ class OrderStatusViewModel @Inject constructor(
                 Log.d(TAG,"completedOrderList:$completedOrderList")
                 updateDisplayedLists()
                 startRolling()
+                scheduleStateUpdateToFinal()
 //                _uiState.emit(UiState.Idle)
             }
         }
@@ -255,32 +259,24 @@ class OrderStatusViewModel @Inject constructor(
                     storCd = order.storCd,
                     cornerCd = order.cornerCd
                 ).first()
-                scheduleStateUpdateToFinal(order)
             }
         }
     }
 
-    private fun scheduleStateUpdateToFinal(order: OrderStatus) {
+    private fun scheduleStateUpdateToFinal() {
         CoroutineScope(Dispatchers.IO).launch {
             delay(1 * 60_000) // 5분
-
-            // 상태가 여전히 4이면 5으로 변경
-            val current = orderStatusRepository.getByOrderNoC(
-                order.saleDt,
-                order.cmpCd,
-                order.salesOrgCd,
-                order.storCd,
-                order.cornerCd,
-                order.orderNoC).first()
-            if (current?.status == "4") {
+            if(completedOrderList.isNotEmpty()) {
+                Log.d(TAG, "완료목록에서 제거")
+                val firstCompletedOrder =completedOrderList[0]
                 orderStatusRepository.updateOrderStatus(
-                    order.saleDt,
-                    order.cmpCd,
-                    order.salesOrgCd,
-                    order.storCd,
-                    order.cornerCd,
-                    order.tradeNo,
-                    order.posNo, "5")
+                    firstCompletedOrder.saleDt,
+                    firstCompletedOrder.cmpCd,
+                    firstCompletedOrder.salesOrgCd,
+                    firstCompletedOrder.storCd,
+                    firstCompletedOrder.cornerCd,
+                    firstCompletedOrder.tradeNo,
+                    firstCompletedOrder.posNo, "5")
             }
         }
     }
@@ -302,27 +298,27 @@ class OrderStatusViewModel @Inject constructor(
 
     suspend fun createOrder(data: String) {
         try {
-            val ordersArray = JSONArray(data)
-            if (ordersArray.length() == 0) return
-
-            val order = ordersArray.getJSONObject(0)
+            val order = JSONObject(data)
             val saleDt = order.optString("saleDt", "")
             val cmpCd = order.optString("cmpCd", "")
             val salesOrgCd = order.optString("salesOrgCd", "")
             val storCd = order.optString("storCd", "")
             val posNo = order.optString("posNo", "")
             val tradeNo = order.optString("tradeNo", "")
+            val cornerCd = order.optString("cornerCd", "")
+            val updDate = System.currentTimeMillis() / 1000
 
-            val corner = order.optJSONArray("corners")?.optJSONObject(0) ?: return
-            val cornerCd = corner.optString("cornerCd", "")
-            val regDate = corner.optString("regDate").takeIf { it.isNotEmpty() }
-            val updDate = corner.optString("updDate").takeIf { it.isNotEmpty() }
-
-            val detail = corner.optJSONArray("details")?.optJSONObject(0) ?: return
-            val ordTime = detail.optString("ordTime").takeIf { it.isNotEmpty() }
-            val comTime = detail.optString("updDate").takeIf { it.isNotEmpty() } // 실제 완료시간이 detail에 있다면
-            val orderNoC = detail.optString("orderNoC", "")
-            //TODO 실제 status 전달받을 경우 status 설정부분 수정 필요
+            val ordTime = order.optString("ordTime").takeIf { it.isNotEmpty() }
+            val comTime = order.optString("updDate").takeIf { it.isNotEmpty() } // 실제 완료시간이 detail에 있다면
+            val orderNoC = order.optString("orderNoC", "")
+            val status = order.optString("status", "")
+            orderStatusRepository.updateOrderCallStatus(
+                saleDt = saleDt,
+                cmpCd = cmpCd,
+                salesOrgCd = salesOrgCd,
+                storCd = storCd,
+                cornerCd = cornerCd
+            )
             val orderStatusCnt = orderStatusRepository.getCnt(
                 saleDt = saleDt,
                 cmpCd = cmpCd,
@@ -342,12 +338,11 @@ class OrderStatusViewModel @Inject constructor(
                     cornerCd = cornerCd,
                     posNo = posNo,
                     tradeNo = tradeNo,
-                    status = when (corner.optString("status", "")) {
-                        "1" -> "C"
+                    status = when (status) {
                         "2" -> "2"
                         "4" -> "C"
                         "5" -> "5"
-                        else -> ""
+                        else -> "E"
                     },
                 )
             }
@@ -360,17 +355,16 @@ class OrderStatusViewModel @Inject constructor(
                     cornerCd = cornerCd,
                     posNo = posNo,
                     tradeNo = tradeNo,
-                    status = when (corner.optString("status", "")) {
-                        "1" -> "2"
-                        "2" -> "3"
+                    status = when (status) {
+                        "2" -> "2"
                         "4" -> "C"
                         "5" -> "5"
-                        else -> ""
+                        else -> "E"
                     },
                     ordTime = ordTime,
                     comTime = comTime,
                     orderNoC = orderNoC,
-                    regDate = regDate,
+                    updUserId = null,
                     updDate = updDate
                 ))
             }

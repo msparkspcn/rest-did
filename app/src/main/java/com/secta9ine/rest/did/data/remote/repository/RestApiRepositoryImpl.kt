@@ -9,6 +9,7 @@ import com.secta9ine.rest.did.data.remote.dto.CornerRequestDto
 import com.secta9ine.rest.did.data.remote.dto.DeviceRequestDto
 import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiRequestDto
+import com.secta9ine.rest.did.data.remote.dto.SaleOpenRequestDto
 import com.secta9ine.rest.did.data.remote.dto.SalesOrgRequestDto
 import com.secta9ine.rest.did.data.remote.dto.StorRequestDto
 import com.secta9ine.rest.did.domain.model.Cmp
@@ -16,6 +17,7 @@ import com.secta9ine.rest.did.domain.model.Corner
 import com.secta9ine.rest.did.domain.model.Device
 import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.model.SaleOpen
 import com.secta9ine.rest.did.domain.model.SalesOrg
 import com.secta9ine.rest.did.domain.model.Stor
 import com.secta9ine.rest.did.domain.model.User
@@ -245,6 +247,26 @@ class RestApiRepositoryImpl @Inject constructor(
                     cornerCd = cornerCd
                 )).let {
                     Resource.Success(it.responseBody)
+            }
+        } catch (e: Exception) {
+            Resource.Failure(resources.getString(R.string.network_error))
+        }
+    }
+
+    override suspend fun getSaleOpen(
+        cmpCd: String,
+        salesOrgCd: String,
+        storCd: String
+    ): Resource<SaleOpen> = withContext(Dispatchers.IO) {
+        try {
+            restApiService.getSaleOpen(
+                SaleOpenRequestDto(
+                    cmpCd = cmpCd,
+                    salesOrgCd = salesOrgCd,
+                    storCd = storCd
+                )
+            ).let {
+                Resource.Success(it.responseBody)
             }
         } catch (e: Exception) {
             Resource.Failure(resources.getString(R.string.network_error))

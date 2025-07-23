@@ -7,10 +7,12 @@ import androidx.room.RoomDatabase
 import com.secta9ine.rest.did.data.local.dao.DeviceDao
 import com.secta9ine.rest.did.data.local.dao.OrderStatusDao
 import com.secta9ine.rest.did.data.local.dao.ProductDao
+import com.secta9ine.rest.did.data.local.dao.SaleOpenDao
 import com.secta9ine.rest.did.data.local.dao.StoreDao
 import com.secta9ine.rest.did.domain.model.Device
 import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.model.SaleOpen
 import com.secta9ine.rest.did.domain.model.Stor
 
 @Database(
@@ -18,9 +20,10 @@ import com.secta9ine.rest.did.domain.model.Stor
         Product::class,
         Stor::class,
         Device::class,
-        OrderStatus::class
+        OrderStatus::class,
+        SaleOpen::class
     ],
-    version = 2,
+    version = 1,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -28,6 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract val productDao: ProductDao
     abstract val orderStatusDao: OrderStatusDao
     abstract val deviceDao: DeviceDao
+    abstract val saleOpenDao: SaleOpenDao
 
     companion object {
         private const val DATABASE_NAME = "restdid.sqlite"

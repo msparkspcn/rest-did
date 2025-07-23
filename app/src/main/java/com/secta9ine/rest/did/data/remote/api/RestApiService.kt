@@ -6,6 +6,7 @@ import com.secta9ine.rest.did.data.remote.dto.DeviceRequestDto
 import com.secta9ine.rest.did.data.remote.dto.LoginRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiRequestDto
 import com.secta9ine.rest.did.data.remote.dto.RestApiResponseDto
+import com.secta9ine.rest.did.data.remote.dto.SaleOpenRequestDto
 import com.secta9ine.rest.did.data.remote.dto.SalesOrgRequestDto
 import com.secta9ine.rest.did.data.remote.dto.StorRequestDto
 import com.secta9ine.rest.did.domain.model.Cmp
@@ -13,6 +14,7 @@ import com.secta9ine.rest.did.domain.model.Corner
 import com.secta9ine.rest.did.domain.model.Device
 import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.model.SaleOpen
 import com.secta9ine.rest.did.domain.model.SalesOrg
 import com.secta9ine.rest.did.domain.model.Stor
 import com.secta9ine.rest.did.domain.model.User
@@ -85,6 +87,11 @@ interface RestApiService {
     suspend fun getProductList (
         @Body body: RestApiRequestDto
     ):RestApiResponseDto<List<Product>>
+
+    @POST("/api/v1/store/open-date")
+    suspend fun getSaleOpen (
+        @Body body: SaleOpenRequestDto
+    ):RestApiResponseDto<SaleOpen>
 
     companion object {
         private const val BASE_URL = "https://s9rest.ngrok.io/"

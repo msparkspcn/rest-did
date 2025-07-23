@@ -46,10 +46,12 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.secta9ine.rest.did.R
@@ -57,6 +59,8 @@ import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.presentation.navigation.NavUtils.navigateAsSecondScreen
 import com.secta9ine.rest.did.presentation.navigation.Screen
+import com.secta9ine.rest.did.ui.component.AppAlertDialog
+import com.secta9ine.rest.did.ui.component.AppButton
 import com.secta9ine.rest.did.ui.component.AppLoadingIndicator
 import com.secta9ine.rest.did.util.UiString
 import kotlinx.coroutines.delay
@@ -163,6 +167,51 @@ fun OrderStatusScreen(
                         displayedWaitingOrders = viewModel.displayedWaitingOrders,
                         currentCalledOrder = viewModel.currentCalledOrder
                     )
+                }
+                if (dialogMessage != null) {
+                    AppAlertDialog {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(0.6f)
+                                .fillMaxHeight(0.6f)
+                                .background(Color.White),
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = stringResource(id = R.string.alert_title),
+                                        style = TextStyle(fontSize = 30.sp)
+                                    )
+                                    Spacer(modifier = Modifier.height(30.dp))
+                                    Text(
+                                        text = dialogMessage?.asString() ?: "",
+                                        style = TextStyle(fontSize = 25.sp)
+                                    )
+                                }
+
+                                // 버튼을 하단에 배치
+                                AppButton(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onClick = { dialogMessage = null },
+                                    shape = RoundedCornerShape(0.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.confirm),
+                                        style = TextStyle(fontSize = 28.sp)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -336,8 +385,7 @@ fun OrderContents(
                                 .let { list ->
                                     if(list.size == 2) list + listOf(null) else list
                                 }
-                            Log.d(TAG,"displayed1st:$displayed1st")
-                            Log.d(TAG,"displayed2nd:$displayed2nd")
+
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -451,9 +499,7 @@ fun OrderContents(
                                 .let { list ->
                                     if(list.size == 2) list + listOf(null) else list
                                 }
-                            Log.d(TAG,"displayed1st:$displayed1st")
-                            Log.d(TAG,"displayed2nd:$displayed2nd")
-                            Log.d(TAG,"displayed3rd:$displayed3rd")
+
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()

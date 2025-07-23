@@ -9,9 +9,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.model.OrderStatus
+import com.secta9ine.rest.did.domain.model.SaleOpen
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.repository.DeviceRepository
 import com.secta9ine.rest.did.domain.repository.OrderStatusRepository
+import com.secta9ine.rest.did.domain.repository.RestApiRepository
+import com.secta9ine.rest.did.domain.repository.SaleOpenRepository
 import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.util.SoldOutUpdater
 import com.secta9ine.rest.did.util.VersionUpdater
@@ -28,6 +31,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.json.JSONArray
+import org.json.JSONObject
 import java.lang.RuntimeException
 import java.util.Collections.emptyList
 import javax.inject.Inject
@@ -39,6 +43,8 @@ class OrderStatusViewModel @Inject constructor(
     private val orderStatusRepository: OrderStatusRepository,
     private val soldOutUpdater: SoldOutUpdater,
     private val versionUpdater: VersionUpdater,
+    private val restApiRepository: RestApiRepository,
+    private val saleOpenRepository: SaleOpenRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val TAG = this.javaClass.simpleName
@@ -59,7 +65,9 @@ class OrderStatusViewModel @Inject constructor(
         oriOrderList.filterNotNull().filter { it?.status == "2" }
     }
 
-    var currentCalledOrder: OrderStatus? = null
+    var currentCalledOrder by mutableStateOf<OrderStatus?>(null)
+
+    var saleOpen by mutableStateOf<SaleOpen?>(null)
 
     var displayedCompletedOrders by mutableStateOf<List<OrderStatus>>(emptyList())
         private set
@@ -87,6 +95,38 @@ class OrderStatusViewModel @Inject constructor(
             cornerCd = dataStoreRepository.getCornerCd().first()
             Log.d(TAG,"11cmpCd:$cmpCd, salesOrgCd:$salesOrgCd, storCd:$storCd" +
                     ", cornerCd:$cornerCd")
+
+            val result = restApiRepository.getSaleOpen(
+                cmpCd = cmpCd,
+                salesOrgCd = salesOrgCd,
+                storCd = storCd
+            )
+
+            //개점정보 있으면 insert 후 주문 목록 조회
+            if (result.data != null) {
+                saleOpen = result.data
+                Log.d(TAG, "saleOpen:$saleOpen")
+                saleOpenRepository.insert(saleOpen!!)
+                restApiRepository.getOrderList(
+                    cmpCd = cmpCd,
+                    salesOrgCd = salesOrgCd,
+                    storCd = storCd,
+                    cornerCd = cornerCd,
+                    saleDt = saleOpen!!.saleDt
+                ).let { result ->
+                    result.data?.filterNotNull()?.let {orderList ->
+                        orderStatusRepository.insertAll(orderList)
+                    }
+                }
+            } else { //없으면 로컬에서 개점정보 조회
+                Log.e(TAG, "saleOpen 데이터가 null입니다.")
+                saleOpen = saleOpenRepository.get(cmpCd, salesOrgCd, storCd).first()
+                Log.d(TAG,"saleOpen:$saleOpen")
+                if(saleOpen==null) {    //로컬에 개점정보가 없으면 주문정보도 가져오지 못함
+                    _uiState.emit(UiState.Error("개점정보가 없습니다."))
+                    return@launch
+                }
+            }
 
             orderStatusRepository.get(
                 saleDt = "20250708",
@@ -350,13 +390,6 @@ class OrderStatusViewModel @Inject constructor(
         }
         return ""
     }
-
-//    suspend fun getSaleOpen(): SaleOpen {
-//        viewModelScope.launch {
-//
-//        }
-//    }
-
 
     suspend fun updateUiState(state: UiState) {
         _uiState.emit(state)

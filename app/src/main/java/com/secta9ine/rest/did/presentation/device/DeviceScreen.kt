@@ -424,12 +424,12 @@ fun DeviceScreen(
                             ) {
                                 Text(
                                     text = "알림",
-                                    style = TextStyle(fontSize = 24.sp)
+                                    style = TextStyle(fontSize = 30.sp)
                                 )
-                                Spacer(modifier = Modifier.height(20.dp))
+                                Spacer(modifier = Modifier.height(30.dp))
                                 Text(
                                     text = dialogMessage?.asString() ?: "",
-                                    style = TextStyle(fontSize = 18.sp)
+                                    style = TextStyle(fontSize = 25.sp)
                                 )
                             }
 

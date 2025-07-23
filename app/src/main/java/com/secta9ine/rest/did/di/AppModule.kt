@@ -7,6 +7,7 @@ import com.secta9ine.rest.did.data.local.repository.DataStoreRepositoryImpl
 import com.secta9ine.rest.did.data.local.repository.DeviceRepositoryImpl
 import com.secta9ine.rest.did.data.local.repository.OrderStatusRepositoryImpl
 import com.secta9ine.rest.did.data.local.repository.ProductRepositoryImpl
+import com.secta9ine.rest.did.data.local.repository.SaleOpenRepositoryImpl
 import com.secta9ine.rest.did.data.local.repository.dataStore
 import com.secta9ine.rest.did.data.remote.api.AuthInterceptor
 import com.secta9ine.rest.did.data.remote.api.RestApiService
@@ -16,6 +17,7 @@ import com.secta9ine.rest.did.domain.repository.DeviceRepository
 import com.secta9ine.rest.did.domain.repository.OrderStatusRepository
 import com.secta9ine.rest.did.domain.repository.ProductRepository
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
+import com.secta9ine.rest.did.domain.repository.SaleOpenRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -63,4 +65,9 @@ class AppModule {
     @Provides
     fun provideProductRepository(db: AppDatabase): ProductRepository =
         ProductRepositoryImpl(db.productDao)
+
+    @Singleton
+    @Provides
+    fun provideSaleOpenRepository(db: AppDatabase): SaleOpenRepository =
+        SaleOpenRepositoryImpl(db.saleOpenDao)
 }

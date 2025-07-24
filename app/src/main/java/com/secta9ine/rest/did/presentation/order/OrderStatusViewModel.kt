@@ -6,6 +6,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.model.OrderStatus
@@ -30,11 +31,11 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import org.json.JSONArray
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.lang.RuntimeException
 import java.util.Collections.emptyList
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class OrderStatusViewModel @Inject constructor(
@@ -227,8 +228,8 @@ class OrderStatusViewModel @Inject constructor(
             }
             is WebSocketViewModel.UiState.InsertOrder -> {
                 //insert 처리(state:C DID호출)
+                Log.d(TAG,"주문발생!!")
                 viewModelScope.launch {
-                    Log.d(TAG,"주문발생!!")
                     createOrder(state.data)
                 }
             }
@@ -264,20 +265,50 @@ class OrderStatusViewModel @Inject constructor(
     }
 
     private fun scheduleStateUpdateToFinal() {
-        CoroutineScope(Dispatchers.IO).launch {
-            delay(1 * 60_000) // 5분
-            if(completedOrderList.isNotEmpty()) {
-                Log.d(TAG, "완료목록에서 제거")
-                val firstCompletedOrder =completedOrderList[0]
-                orderStatusRepository.updateOrderStatus(
-                    firstCompletedOrder.saleDt,
-                    firstCompletedOrder.cmpCd,
-                    firstCompletedOrder.salesOrgCd,
-                    firstCompletedOrder.storCd,
-                    firstCompletedOrder.cornerCd,
-                    firstCompletedOrder.tradeNo,
-                    firstCompletedOrder.posNo, "5")
-            }
+        viewModelScope.launch {
+            snapshotFlow { completedOrderList }
+                .collectLatest { list ->
+                    val trackedTradeNos = list.map { it.tradeNo }.toSet()
+
+                    // 새로 들어온 주문에만 타이머 설정
+                    list.forEach { order ->
+                        val tradeNo = order.tradeNo
+                        if (!completedTimers.containsKey(tradeNo)) {
+                            val job = launch {
+                                try {
+                                    Log.d(TAG, "타이머 시작: ${order.tradeNo}")
+                                    delay(60_000) // 60초 후 상태 변경
+
+                                    Log.d(TAG, "60초 경과 후 상태 '5'로 변경: ${order.tradeNo}")
+                                    withContext(Dispatchers.IO) {
+                                        orderStatusRepository.updateOrderStatus(
+                                            saleDt = order.saleDt,
+                                            cmpCd = order.cmpCd,
+                                            salesOrgCd = order.salesOrgCd,
+                                            storCd = order.storCd,
+                                            cornerCd = order.cornerCd,
+                                            tradeNo = order.tradeNo,
+                                            posNo = order.posNo,
+                                            status = "5"
+                                        )
+                                    }
+                                } catch (e: CancellationException) {
+                                    Log.d(TAG, "타이머 취소됨: $tradeNo")
+                                } finally {
+                                    completedTimers.remove(tradeNo)
+                                }
+                            }
+                            completedTimers[tradeNo] = job
+                        }
+                    }
+
+                    // 이미 목록에서 사라진 주문은 타이머 취소
+                    val toRemove = completedTimers.keys - trackedTradeNos
+                    toRemove.forEach { tradeNo ->
+                        completedTimers[tradeNo]?.cancel()
+                        completedTimers.remove(tradeNo)
+                    }
+                }
         }
     }
     override fun onCleared() {
@@ -309,7 +340,7 @@ class OrderStatusViewModel @Inject constructor(
             val updDate = System.currentTimeMillis() / 1000
 
             val ordTime = order.optString("ordTime").takeIf { it.isNotEmpty() }
-            val comTime = order.optString("updDate").takeIf { it.isNotEmpty() } // 실제 완료시간이 detail에 있다면
+            val comTime = order.optString("updDate").takeIf { it.isNotEmpty() }
             val orderNoC = order.optString("orderNoC", "")
             val status = order.optString("status", "")
             orderStatusRepository.updateOrderCallStatus(

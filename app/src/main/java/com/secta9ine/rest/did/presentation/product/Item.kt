@@ -1,7 +1,6 @@
 package com.secta9ine.rest.did.presentation.product
 
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -32,12 +31,12 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.secta9ine.rest.did.R
-import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.model.ProductVo
 import com.secta9ine.rest.did.util.formatCurrency
 private const val TAG = "Item"
 @Composable
 fun Item(
-    item: Product,
+    item: ProductVo,
     modifier: Modifier
 ) {
     Log.d(TAG,"itemNm:${item.itemNm}")

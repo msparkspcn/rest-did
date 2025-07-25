@@ -81,6 +81,7 @@ class OrderStatusViewModel @Inject constructor(
     private var waitingIndex = 0
     private var completedJob: Job? = null
     private var waitingJob: Job? = null
+    private val completedTimers = mutableMapOf<String, Job>()
 
     var callOrderNo: String?
         private set

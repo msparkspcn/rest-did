@@ -4,9 +4,11 @@ import android.app.Application
 import android.util.Log
 import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.data.local.database.AppDatabase
+import com.secta9ine.rest.did.domain.model.Corner
 import com.secta9ine.rest.did.domain.model.Device
 import com.secta9ine.rest.did.domain.model.DeviceInfo
-import com.secta9ine.rest.did.domain.model.OrderStatus
+import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.repository.CornerRepository
 import com.secta9ine.rest.did.domain.repository.DeviceRepository
 import com.secta9ine.rest.did.domain.repository.OrderStatusRepository
 import com.secta9ine.rest.did.domain.repository.ProductRepository
@@ -24,7 +26,8 @@ class RegisterUseCases @Inject constructor(
     private val restApiRepository: RestApiRepository,
     private val productRepository: ProductRepository,
     private val orderStatusRepository: OrderStatusRepository,
-    private val deviceRepository: DeviceRepository
+    private val deviceRepository: DeviceRepository,
+    private val cornerRepository: CornerRepository
 
 ) {
     private val tag = this.javaClass.simpleName
@@ -46,6 +49,14 @@ class RegisterUseCases @Inject constructor(
                         device.cornerCd!!
                     )
                 },
+                async {
+                    restApiRepository.getCornerInfo(
+                        device.cmpCd!!,
+                        device.salesOrgCd!!,
+                        device.storCd!!,
+                        device.cornerCd!!
+                    )
+                },
             )
                 .awaitAll()
                 .also {
@@ -59,8 +70,8 @@ class RegisterUseCases @Inject constructor(
             Resource.Success(
                 DeviceInfo(
                     device = device,
-                    productList = results[0].data!!,
-//                    orderStatusList = results[1].data!! as List<OrderStatus>,
+                    productList = results[0].data!! as List<Product>,
+                    corner = results[1].data!! as Corner,
                 )
             )
         }
@@ -80,5 +91,6 @@ class RegisterUseCases @Inject constructor(
     suspend fun register(deviceInfo: DeviceInfo) = withContext(Dispatchers.IO) {
         productRepository.sync(deviceInfo.productList)
         deviceRepository.sync(deviceInfo.device)
+        cornerRepository.insert(deviceInfo.corner)
     }
 }

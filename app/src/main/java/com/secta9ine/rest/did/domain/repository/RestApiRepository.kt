@@ -23,6 +23,7 @@ interface RestApiRepository {
     suspend fun geSalesOrgList(cmpCd: String): Resource<List<SalesOrg>>
     suspend fun geStorList(cmpCd: String, salesOrgCd: String): Resource<List<Stor>>
     suspend fun getCornerList(cmpCd: String, salesOrgCd: String, storCd: String): Resource<List<Corner>>
+    suspend fun getCornerInfo(cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Resource<Corner>
     suspend fun getProductList(cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Resource<List<Product>>
     suspend fun getSaleOpen(cmpCd: String, salesOrgCd: String, storCd: String): Resource<SaleOpen>
 }

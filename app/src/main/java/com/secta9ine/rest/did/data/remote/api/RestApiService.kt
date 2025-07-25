@@ -94,6 +94,11 @@ interface RestApiService {
         @Body body: SaleOpenRequestDto
     ):RestApiResponseDto<SaleOpen>
 
+    @POST("/api/v1/corner/info")
+    suspend fun getCornerInfo (
+        @Body body: RestApiRequestDto
+    ):RestApiResponseDto<Corner>
+
     companion object {
         private const val BASE_URL = "https://s9rest.ngrok.io/"
 

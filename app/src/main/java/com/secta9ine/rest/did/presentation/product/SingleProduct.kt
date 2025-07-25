@@ -30,14 +30,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.model.ProductVo
 import com.secta9ine.rest.did.util.formatCurrency
 import kotlinx.coroutines.delay
 
 private const val TAG = "SingleProduct"
 @Composable
 fun SingleProduct(
-    productList: List<Product>,
+    productList: List<ProductVo>,
     rollingYn: String,
 ) {
     var displayedProducts by remember { mutableStateOf(productList.take(1)) }

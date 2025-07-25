@@ -34,13 +34,13 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.secta9ine.rest.did.R
-import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.model.ProductVo
 import com.secta9ine.rest.did.util.formatCurrency
 
 private const val TAG = "SpecialItem"
 @Composable
 fun SpecialItem(
-    item: Product,
+    item: ProductVo,
     modifier: Modifier,
     isEven: Boolean
 ) {
@@ -144,7 +144,7 @@ fun SpecialItem(
 @Composable
 fun ItemMainInfo(
     modifier: Modifier,
-    item: Product,
+    item: ProductVo,
     textSizeProductNm: TextUnit,
     textSizeProductEngNm: TextUnit,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start
@@ -219,7 +219,7 @@ fun ItemMainInfo(
 @Composable
 fun ItemSubInfo(
     modifier: Modifier,
-    item: Product,
+    item: ProductVo,
     textSizeExpln: TextUnit,
     textSizePrice: TextUnit,
     textSizeKcal: TextUnit,

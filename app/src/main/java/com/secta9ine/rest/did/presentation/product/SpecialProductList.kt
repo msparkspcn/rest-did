@@ -28,12 +28,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.model.ProductVo
 import kotlinx.coroutines.delay
 private const val TAG = "SpecialProductList"
 @Composable
 fun SpecialProductList(
-    productList: List<Product>,
+    productList: List<ProductVo>,
     rollingYn: String,
 ) {
     Log.d(TAG, "Composable 호출")
@@ -101,7 +101,7 @@ fun SpecialProductHeader() {
 
 @Composable
 fun SpecialProductContents(
-    productList: List<Product>,
+    productList: List<ProductVo>,
     rollingYn: String,
     screenWidth: Dp,
     screenHeight:Dp,

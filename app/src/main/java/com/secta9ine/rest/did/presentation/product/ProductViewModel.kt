@@ -10,7 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.model.Device
-import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.model.ProductVo
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.repository.DeviceRepository
 import com.secta9ine.rest.did.domain.repository.ProductRepository
@@ -45,9 +45,9 @@ class ProductViewModel @Inject constructor(
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
 
-    private val _productList = MutableStateFlow<List<Product>>(emptyList())
-    private val _filteredProducts = MutableStateFlow<List<Product>>(emptyList())
-    val productList: StateFlow<List<Product>> = _filteredProducts
+    private val _productList = MutableStateFlow<List<ProductVo>>(emptyList())
+    private val _filteredProducts = MutableStateFlow<List<ProductVo>>(emptyList())
+    val productList: StateFlow<List<ProductVo>> = _filteredProducts
 
     var device by mutableStateOf(Device())
     var displayCd: String? = null

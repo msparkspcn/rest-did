@@ -24,13 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.model.ProductVo
 import kotlinx.coroutines.delay
 
 private const val TAG = "ProductList"
 @Composable
 fun ProductList(
-    productList: List<Product>,
+    productList: List<ProductVo>,
     rollingYn: String,
     version:String
 ) {
@@ -60,7 +60,7 @@ fun ProductList(
     val fullProductList = displayedProducts + List(8 - displayedProducts.size) { null }
 
     Column {
-        Header(version=version)
+        Header()
         Box(
             modifier = Modifier
                 .fillMaxSize() // 전체 화면을 100% 차지
@@ -117,7 +117,7 @@ fun ProductList(
 }
 
 @Composable
-fun Header(version: String) {
+fun Header() {
     Row(
         modifier = Modifier
             .background(Color(0xFF283237))

@@ -235,6 +235,28 @@ class RestApiRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getCornerInfo(
+        cmpCd: String,
+        salesOrgCd: String,
+        storCd: String,
+        cornerCd: String
+    ): Resource<Corner> = withContext(Dispatchers.IO) {
+        try {
+            restApiService.getCornerInfo(
+                RestApiRequestDto(
+                    cmpCd = cmpCd,
+                    salesOrgCd = salesOrgCd,
+                    storCd = storCd,
+                    cornerCd = cornerCd,
+                )).let {
+                Resource.Success(it.responseBody)
+            }
+        } catch (e: Exception) {
+            Resource.Failure(resources.getString(R.string.network_error))
+        }
+    }
+
+
     override suspend fun getProductList(
         cmpCd: String,
         salesOrgCd: String,

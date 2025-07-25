@@ -20,13 +20,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.model.ProductVo
 import kotlinx.coroutines.delay
 
 private const val TAG = "TwoProducts"
 @Composable
 fun TwoProducts(
-    productList: List<Product>,
+    productList: List<ProductVo>,
     rollingYn: String,
 ) {
     var displayedProducts by remember { mutableStateOf(productList.take(2)) }

@@ -3,6 +3,7 @@ package com.secta9ine.rest.did.di
 import android.app.Application
 import android.content.res.Resources
 import com.secta9ine.rest.did.data.local.database.AppDatabase
+import com.secta9ine.rest.did.data.local.repository.CornerRepositoryImpl
 import com.secta9ine.rest.did.data.local.repository.DataStoreRepositoryImpl
 import com.secta9ine.rest.did.data.local.repository.DeviceRepositoryImpl
 import com.secta9ine.rest.did.data.local.repository.OrderStatusRepositoryImpl
@@ -12,6 +13,7 @@ import com.secta9ine.rest.did.data.local.repository.dataStore
 import com.secta9ine.rest.did.data.remote.api.AuthInterceptor
 import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.data.remote.repository.RestApiRepositoryImpl
+import com.secta9ine.rest.did.domain.repository.CornerRepository
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
 import com.secta9ine.rest.did.domain.repository.DeviceRepository
 import com.secta9ine.rest.did.domain.repository.OrderStatusRepository
@@ -70,4 +72,9 @@ class AppModule {
     @Provides
     fun provideSaleOpenRepository(db: AppDatabase): SaleOpenRepository =
         SaleOpenRepositoryImpl(db.saleOpenDao)
+
+    @Singleton
+    @Provides
+    fun provideCornerRepository(db: AppDatabase): CornerRepository =
+        CornerRepositoryImpl(db.cornerDao)
 }

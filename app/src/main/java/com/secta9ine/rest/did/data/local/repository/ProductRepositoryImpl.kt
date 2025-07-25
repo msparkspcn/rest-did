@@ -2,6 +2,7 @@ package com.secta9ine.rest.did.data.local.repository
 
 import com.secta9ine.rest.did.data.local.dao.ProductDao
 import com.secta9ine.rest.did.domain.model.Product
+import com.secta9ine.rest.did.domain.model.ProductVo
 import com.secta9ine.rest.did.domain.repository.ProductRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -13,7 +14,7 @@ class ProductRepositoryImpl @Inject constructor(
         productDao.sync(productList)
     }
 
-    override suspend fun getProductList(cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<Product>> =
+    override suspend fun getProductList(cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<ProductVo>> =
         productDao.get(
             cmpCd = cmpCd,
             salesOrgCd = salesOrgCd,

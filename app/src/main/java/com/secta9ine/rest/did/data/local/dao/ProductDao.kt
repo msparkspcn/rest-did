@@ -38,13 +38,13 @@ interface ProductDao {
                 AND P.CMP_CD = :cmpCd
                 AND P.SALES_ORG_CD = :salesOrgCd
                 AND P.STOR_CD = :storCd
-                AND P.CORNER_CD = :cornerCd
+                AND P.CORNER_CD IN (:cornerCds)
                 AND P.USE_YN = '1'
                 AND P.SOLDOUT_YN = '0'
             ORDER BY SORT_ORDER
-        """
+        """,
     )
-    fun get(cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<ProductVo>>
+    fun get(cmpCd: String, salesOrgCd: String, storCd: String, cornerCds: Set<String>): Flow<List<ProductVo>>
 
     @Query(
         """

@@ -53,6 +53,8 @@ class DataStoreRepositoryImpl @Inject constructor(
     override suspend fun setIsAutoLoginChecked(value: String) = setValue(IS_AUTO_LOGIN_CHECKED, value)
     override fun getDisplayMenuCd(): Flow<String> = getValue(DISPLAY_MENU_CD, "")
     override suspend fun setDisplayMenuCd(value: String) = setValue(DISPLAY_MENU_CD, value)
+    override fun getDisplayCorners(): Flow<Set<String>> = getValue(DISPLAY_CORNERS, emptySet()) // emptySet()을 기본값으로 사용
+    override suspend fun setDisplayCorners(value: Set<String>) = setValue(DISPLAY_CORNERS, value)
 
     private fun <T> getValue(key: Preferences.Key<T>, defValue: T): Flow<T> {
         return dataStore.data
@@ -84,5 +86,6 @@ class DataStoreRepositoryImpl @Inject constructor(
         val USER_ID = stringPreferencesKey("USER_ID")
         val IS_AUTO_LOGIN_CHECKED = stringPreferencesKey("IS_AUTO_LOGIN_CHECKED")
         val DISPLAY_MENU_CD = stringPreferencesKey("DISPLAY_MENU_CD")
+        val DISPLAY_CORNERS = stringSetPreferencesKey("DISPLAY_CORNERS")
     }
 }

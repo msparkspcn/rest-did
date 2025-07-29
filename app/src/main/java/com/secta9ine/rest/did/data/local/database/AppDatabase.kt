@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.secta9ine.rest.did.data.local.dao.CornerDao
 import com.secta9ine.rest.did.data.local.dao.DeviceDao
 import com.secta9ine.rest.did.data.local.dao.OrderStatusDao
@@ -16,6 +17,7 @@ import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.domain.model.Product
 import com.secta9ine.rest.did.domain.model.SaleOpen
 import com.secta9ine.rest.did.domain.model.Stor
+import com.secta9ine.rest.did.util.Converters
 
 @Database(
     entities = [
@@ -29,6 +31,7 @@ import com.secta9ine.rest.did.domain.model.Stor
     version = 1,
     exportSchema = true,
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract val storeDao: StoreDao
     abstract val productDao: ProductDao

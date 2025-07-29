@@ -8,5 +8,5 @@ import com.secta9ine.rest.did.domain.model.Corner
 @Dao
 interface CornerDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(corner: Corner)
+    suspend fun insert(cornerList: List<Corner>)
 }

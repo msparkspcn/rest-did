@@ -28,4 +28,6 @@ interface DataStoreRepository {
     suspend fun setIsAutoLoginChecked(value: String)
     fun getDisplayMenuCd(): Flow<String>
     suspend fun setDisplayMenuCd(value: String)
+    fun getDisplayCorners(): Flow<Set<String>>
+    suspend fun setDisplayCorners(value: Set<String>)
 }

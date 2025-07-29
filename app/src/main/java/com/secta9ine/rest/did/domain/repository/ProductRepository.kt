@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface ProductRepository {
     suspend fun sync(productList: List<Product>)
-    suspend fun getProductList(cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<ProductVo>>
+    suspend fun getProductList(cmpCd: String, salesOrgCd: String, storCd: String, corners: Set<String>): Flow<List<ProductVo>>
     suspend fun updateSoldoutYn(cmpCd: String, salesOrgCd: String, storCd: String, itemCd: String, soldoutYn: String)
 }

@@ -60,10 +60,19 @@ class ProductViewModel @Inject constructor(
 
         viewModelScope.launch {
             val deviceId =dataStoreRepository.getDeviceId().first()
+            val displayMenuCd = dataStoreRepository.getDisplayMenuCd().first()
             val cmpCd = dataStoreRepository.getCmpCd().first()
             val salesOrgCd = dataStoreRepository.getSalesOrgCd().first()
             val storCd = dataStoreRepository.getStorCd().first()
             val cornerCd = dataStoreRepository.getCornerCd().first()
+            val displayCornerCds = dataStoreRepository.getDisplayCorners().first()
+            val cornerCds = setOf("CIHA","COAB")
+
+            val corners: Set<String> = if(displayMenuCd =="06") {
+                displayCornerCds
+            } else {
+                setOf(cornerCd)
+            }
 
 //            Log.d(TAG,"### 상품 화면 deviceId:$deviceId $cmpCd $salesOrgCd $storCd $cornerCd")
             device = deviceRepository.getDevice(deviceId).first()
@@ -72,7 +81,7 @@ class ProductViewModel @Inject constructor(
             rollingYn = device.rollingYn!!
 
             productRepository.getProductList(
-                cmpCd, salesOrgCd, storCd, cornerCd
+                cmpCd, salesOrgCd, storCd, cornerCds
             ).collect { list ->
                 _productList.value = list
                 Log.d(TAG,"상품 목록:${list}")

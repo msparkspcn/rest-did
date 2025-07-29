@@ -8,8 +8,8 @@ import javax.inject.Inject
 class CornerRepositoryImpl @Inject constructor(
     private val cornerDao: CornerDao
 ) : CornerRepository {
-    override suspend fun insert(corner: Corner) {
-        cornerDao.insert(corner)
+    override suspend fun insert(cornerList: List<Corner>) {
+        cornerDao.insert(cornerList)
     }
 
 }

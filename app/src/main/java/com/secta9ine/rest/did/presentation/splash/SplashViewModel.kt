@@ -99,6 +99,7 @@ class SplashViewModel @Inject constructor(
                     dataStoreRepository.setStorCd(device.storCd!!)
                     dataStoreRepository.setCornerCd(device.cornerCd!!)
                     dataStoreRepository.setDisplayMenuCd(device.displayMenuCd!!)
+                    dataStoreRepository.setDisplayCorners(setOf(device.cornerCd!!))
                     // 상품, 주문 마스터 수신 전까지 주석
                     /**/
                     when (val masterResult = registerUseCases.fetch(device)) {

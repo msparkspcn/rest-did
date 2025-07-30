@@ -35,7 +35,7 @@ class OrderStatusRepositoryImpl @Inject constructor(
 
     override suspend fun get(
         saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String
-    ): Flow<List<OrderStatus?>> =
+    ): Flow<List<OrderStatus>> =
         orderStatusDao.get(
             saleDt = saleDt,
             cmpCd = cmpCd,

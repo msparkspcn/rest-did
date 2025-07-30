@@ -58,7 +58,7 @@ interface OrderStatusDao {
                 ORDER BY ORD_TIME
         """
     )
-    fun get(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<OrderStatus?>>
+    fun get(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<OrderStatus>>
 
     @Query(
         """

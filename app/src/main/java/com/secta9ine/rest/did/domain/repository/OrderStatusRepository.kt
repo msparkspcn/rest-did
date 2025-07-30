@@ -9,7 +9,7 @@ interface OrderStatusRepository {
     suspend fun insert(orderStatus: OrderStatus)
     suspend fun getCnt(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String,
                        cornerCd: String, tradeNo: String, posNo: String): Int
-    suspend fun get(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<OrderStatus?>>
+    suspend fun get(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String): Flow<List<OrderStatus>>
     suspend fun getByOrderNoC(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String, orderNoC: String): Flow<OrderStatus?>
     suspend fun updateOrderStatus(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String,
                                   cornerCd: String, tradeNo: String, posNo: String, status: String)

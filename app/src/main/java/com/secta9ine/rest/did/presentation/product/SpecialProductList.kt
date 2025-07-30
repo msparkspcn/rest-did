@@ -24,12 +24,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.secta9ine.rest.did.domain.model.ProductVo
 import kotlinx.coroutines.delay
+
 private const val TAG = "SpecialProductList"
 @Composable
 fun SpecialProductList(
@@ -79,22 +78,20 @@ fun SpecialProductList(
 fun SpecialProductHeader() {
     Row(
         modifier = Modifier
-            .background(Color.White)
+            .background(Color(0xFF283237))
             .fillMaxWidth()
             .padding(10.dp),
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
             text = "SR DID",
-            fontSize = 27.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
+            style = MaterialTheme.typography.h4,
+            color = Color.White
         )
         Text(
             text = "  Special Menu",
-            fontSize = 29.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
+            style = MaterialTheme.typography.h4,
+            color = Color.White
         )
     }
 }

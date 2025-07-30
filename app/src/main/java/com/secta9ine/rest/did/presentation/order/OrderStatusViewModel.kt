@@ -2,11 +2,6 @@ package com.secta9ine.rest.did.presentation.order
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.domain.model.OrderStatus
@@ -26,10 +21,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -48,35 +50,49 @@ class OrderStatusViewModel @Inject constructor(
     private val saleOpenRepository: SaleOpenRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
-    private val TAG = this.javaClass.simpleName
+    private val tag = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
-    var cmpCd by mutableStateOf("")
-    var salesOrgCd by mutableStateOf("")
-    var storCd by mutableStateOf("")
-    var cornerCd by mutableStateOf("")
+
+    val cmpCd = MutableStateFlow("")
+    val salesOrgCd = MutableStateFlow("")
+    val storCd = MutableStateFlow("")
+    val cornerCd = MutableStateFlow("")
+
     private var jobInit: Job
-    private var oriOrderList by mutableStateOf(emptyList<OrderStatus?>())
 
-    private val completedOrderList by derivedStateOf {
-        oriOrderList
-            .filterNotNull()
-            .filter { it.status == "4" }
-            .sortedBy { it.updDate }
-    }
+    private val _oriOrderList = MutableStateFlow<List<OrderStatus>>(emptyList())
+    private val oriOrderList: StateFlow<List<OrderStatus>> = _oriOrderList.asStateFlow()
 
-    private val waitingOrderList by derivedStateOf {
-        oriOrderList.filterNotNull().filter { it?.status == "2" }
-    }
+    private val completedOrderList: StateFlow<List<OrderStatus>> = _oriOrderList.map { list ->
+        list.filter { it.status == "4" }
+            .sortedBy { it.updDate } //
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000), // UI가 활성화되어 있을 때만 수집
+        emptyList()
+    )
 
-    var currentCalledOrder by mutableStateOf<OrderStatus?>(null)
+    private val waitingOrderList: StateFlow<List<OrderStatus>> = _oriOrderList.map { list ->
+        list.filter { it.status == "2" }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptyList()
+    )
 
-    private var saleOpen by mutableStateOf<SaleOpen?>(null)
+    private val _currentCalledOrder = MutableStateFlow<OrderStatus?>(null)
+    val currentCalledOrder: StateFlow<OrderStatus?> = _currentCalledOrder.asStateFlow()
 
-    var displayedCompletedOrders by mutableStateOf<List<OrderStatus>>(emptyList())
-        private set
-    var displayedWaitingOrders by mutableStateOf<List<OrderStatus>>(emptyList())
-        private set
+    private val _saleOpen = MutableStateFlow<SaleOpen?>(null)
+    val saleOpen: StateFlow<SaleOpen?> = _saleOpen.asStateFlow()
+
+    private val _displayedCompletedOrders = MutableStateFlow<List<OrderStatus>>(emptyList())
+    val displayedCompletedOrders: StateFlow<List<OrderStatus>> = _displayedCompletedOrders.asStateFlow()
+
+    private val _displayedWaitingOrders = MutableStateFlow<List<OrderStatus>>(emptyList())
+    val displayedWaitingOrders: StateFlow<List<OrderStatus>> = _displayedWaitingOrders.asStateFlow()
+
     private var completedIndex = 0
     private var waitingIndex = 0
     private var completedJob: Job? = null
@@ -86,64 +102,71 @@ class OrderStatusViewModel @Inject constructor(
     init {
         jobInit = viewModelScope.launch {
             _uiState.emit(UiState.Idle)
-            cmpCd = dataStoreRepository.getCmpCd().first()
-            salesOrgCd = dataStoreRepository.getSalesOrgCd().first()
-            storCd = dataStoreRepository.getStorCd().first()
-            cornerCd = dataStoreRepository.getCornerCd().first()
-            Log.d(TAG,"11cmpCd:$cmpCd, salesOrgCd:$salesOrgCd, storCd:$storCd" +
+            cmpCd.value = dataStoreRepository.getCmpCd().first()
+            salesOrgCd.value = dataStoreRepository.getSalesOrgCd().first()
+            storCd.value = dataStoreRepository.getStorCd().first()
+            cornerCd.value = dataStoreRepository.getCornerCd().first()
+            Log.d(tag,"11cmpCd:$cmpCd, salesOrgCd:$salesOrgCd, storCd:$storCd" +
                     ", cornerCd:$cornerCd")
 
             val result = restApiRepository.getSaleOpen(
-                cmpCd = cmpCd,
-                salesOrgCd = salesOrgCd,
-                storCd = storCd
+                cmpCd = cmpCd.value,
+                salesOrgCd = salesOrgCd.value,
+                storCd = storCd.value
             )
 
-            //개점정보 있으면 insert 후 주문 목록 조회
+            //개점 정보 있으면 insert 후 주문 목록 조회
             if (result.data != null) {
-                saleOpen = result.data
-                Log.d(TAG, "saleOpen:$saleOpen")
-                saleOpenRepository.insert(saleOpen!!)
+                _saleOpen.value = result.data
+                Log.d(tag, "saleOpen:${_saleOpen.value}, cornerCd:${cornerCd.value}")
+                _saleOpen.value?.let { saleOpenRepository.insert(it) }
                 restApiRepository.getOrderList(
-                    cmpCd = cmpCd,
-                    salesOrgCd = salesOrgCd,
-                    storCd = storCd,
-                    cornerCd = cornerCd,
-                    saleDt = saleOpen!!.saleDt
-                ).let { result ->
-                    result.data?.filterNotNull()?.let {orderList ->
+                    cmpCd = cmpCd.value,
+                    salesOrgCd = salesOrgCd.value,
+                    storCd = storCd.value,
+                    cornerCd = cornerCd.value,
+                    saleDt = _saleOpen.value!!.saleDt
+                ).let { result1 ->
+                    result1.data?.filterNotNull()?.let {orderList ->
+                        Log.d(tag,"주문 목록:$orderList")
                         orderStatusRepository.insertAll(orderList)
                     }
                 }
-            } else { //없으면 로컬에서 개점정보 조회
-                Log.e(TAG, "saleOpen 데이터가 null입니다.")
-                saleOpen = saleOpenRepository.get(cmpCd, salesOrgCd, storCd).first()
-                Log.d(TAG,"saleOpen:$saleOpen")
-                if(saleOpen==null) {    //로컬에 개점정보가 없으면 주문정보도 가져오지 못함
-                    _uiState.emit(UiState.Error("개점정보가 없습니다."))
+            } else { //없으면 로컬에서 개점 정보 조회
+                Log.e(tag, "saleOpen 데이터 null")
+                _saleOpen.value = saleOpenRepository.get(cmpCd.value, salesOrgCd.value, storCd.value).first()
+                Log.d(tag,"saleOpen:${_saleOpen.value}")
+                if(_saleOpen.value ==null) {    //로컬에 개점 정보가 없으면 주문 정보도 가져오지 못함
+                    _uiState.emit(UiState.Error("개점 정보가 없습니다."))
                     return@launch
                 }
             }
 
-            orderStatusRepository.get(
-                saleDt = saleOpen!!.saleDt,
-                cmpCd = cmpCd,
-                salesOrgCd = salesOrgCd,
-                storCd = storCd,
-                cornerCd = cornerCd
-            ).collectLatest {list ->
-                oriOrderList = list
-                currentCalledOrder = oriOrderList.find { it?.status == "C" }
-                currentCalledOrder?.let { it1 -> scheduleStateUpdateToReady(it1) }
-                Log.d(TAG,"oriOrderList:$oriOrderList")
-                Log.d(TAG,"currentCalledOrder:$currentCalledOrder")
+            _saleOpen.value?.let { currentSaleOpen ->
+                orderStatusRepository.get(
+                    saleDt = currentSaleOpen.saleDt,
+                    cmpCd = cmpCd.value,
+                    salesOrgCd = salesOrgCd.value,
+                    storCd = storCd.value,
+                    cornerCd = cornerCd.value
+                ).collectLatest {list ->
+                    _oriOrderList.value = list
+                    Log.d(tag, "oriOrderList:${_oriOrderList.value}")
 
-                Log.d(TAG,"completedOrderList:$completedOrderList")
-                updateDisplayedLists()
-                startRolling()
-                scheduleStateUpdateToFinal()
-//                _uiState.emit(UiState.Idle)
+                    _currentCalledOrder.value = _oriOrderList.value.find { it?.status == "C" }
+                    _currentCalledOrder.value?.let { it1 -> scheduleStateUpdateToReady(it1) }
+                    Log.d(tag,"oriOrderList:$oriOrderList")
+                    Log.d(tag,"currentCalledOrder:${_currentCalledOrder.value}")
+
+                    Log.d(tag,"completedOrderList:$completedOrderList")
+                    updateDisplayedLists()
+                    startRolling()
+                    scheduleStateUpdateToFinal()
+                }
+
             }
+
+
         }
     }
 
@@ -155,13 +178,13 @@ class OrderStatusViewModel @Inject constructor(
     }
 
     private fun updateCompletedSlice() {
-        val chunked = completedOrderList.chunked(6)
-        displayedCompletedOrders = chunked.getOrNull(completedIndex).orEmpty()
+        val chunked = completedOrderList.value.chunked(6)
+        _displayedCompletedOrders.value = chunked.getOrNull(completedIndex).orEmpty()
     }
 
     private fun updateWaitingSlice() {
-        val chunked = waitingOrderList.chunked(9)
-        displayedWaitingOrders = chunked.getOrNull(waitingIndex).orEmpty()
+        val chunked = waitingOrderList.value.chunked(9)
+        _displayedWaitingOrders.value = chunked.getOrNull(waitingIndex).orEmpty()
     }
 
     private fun startRolling() {
@@ -169,30 +192,37 @@ class OrderStatusViewModel @Inject constructor(
         waitingJob?.cancel()
 
         completedJob = viewModelScope.launch {
-            if(completedOrderList.size < 6) {
-                Log.d(TAG,"size:${completedOrderList.size}")
-            }
-            else {
-                while (true) {
-                    delay(5000)
-                    Log.d(TAG,"롤링")
-                    val total = completedOrderList.chunked(6).size
-                    completedIndex = (completedIndex + 1) % total.coerceAtLeast(1)
-                    updateCompletedSlice()
+            completedOrderList.collectLatest { list ->
+                if (list.size < 6) {
+                    Log.d(tag, "completedOrderList size:${list.size}")
+                    _displayedCompletedOrders.value = list // 6개 미만이면 전체 표시
+                    completedIndex = 0 // 인덱스 초기화
+                } else {
+                    while (isActive) { // 코루틴이 활성 상태일 때만 반복
+                        delay(5000)
+                        Log.d(tag, "완료 주문 롤링")
+                        val totalPages = list.chunked(6).size
+                        completedIndex = (completedIndex + 1) % totalPages.coerceAtLeast(1)
+                        _displayedCompletedOrders.value = list.chunked(6).getOrNull(completedIndex).orEmpty()
+                    }
                 }
             }
         }
 
         waitingJob = viewModelScope.launch {
-            if(waitingOrderList.size < 9) {
-                Log.d(TAG,"waitingOrderList size:${waitingOrderList.size}")
-            }
-            else {
-                while (true) {
-                    delay(5000)
-                    val total = waitingOrderList.chunked(9).size
-                    waitingIndex = (waitingIndex + 1) % total.coerceAtLeast(1)
-                    updateWaitingSlice()
+            waitingOrderList.collectLatest { list ->
+                if (list.size < 9) {
+                    Log.d(tag, "waitingOrderList size:${list.size}")
+                    _displayedWaitingOrders.value = list // 9개 미만이면 전체 표시
+                    waitingIndex = 0 // 인덱스 초기화
+                } else {
+                    while (isActive) {
+                        delay(5000)
+                        Log.d(tag, "대기 주문 롤링")
+                        val totalPages = list.chunked(9).size
+                        waitingIndex = (waitingIndex + 1) % totalPages.coerceAtLeast(1)
+                        _displayedWaitingOrders.value = list.chunked(9).getOrNull(waitingIndex).orEmpty()
+                    }
                 }
             }
         }
@@ -205,13 +235,13 @@ class OrderStatusViewModel @Inject constructor(
 
             }
             is WebSocketViewModel.UiState.SoldOut -> {
-                Log.d(TAG,"품절발생!!")
+                Log.d(tag,"품절 발생!!")
                 viewModelScope.launch {
                     soldOutUpdater.update(state.data)
                 }
             }
             is WebSocketViewModel.UiState.UpdateVersion -> {
-                Log.d(TAG,"버전 업데이트")
+                Log.d(tag,"버전 업데이트")
                 val apkUrl = "http://o2pos.spcnetworks.kr/files/app/o2pos/download/backup/1123.apk"
 
                 viewModelScope.launch {
@@ -220,13 +250,17 @@ class OrderStatusViewModel @Inject constructor(
                 }
             }
             is WebSocketViewModel.UiState.InsertOrder -> {
-                //insert 처리(state:C DID호출)
-                Log.d(TAG,"주문발생!!")
+                Log.d(tag,"주문 발생")
                 viewModelScope.launch {
                     createOrder(state.data)
                 }
             }
-
+            is WebSocketViewModel.UiState.InsertSaleOpen -> {
+                Log.d(tag,"개점 발생")
+                viewModelScope.launch {
+                    createSaleOpen(state.data)
+                }
+            }
             else -> Unit // 다른 이벤트는 내가 처리하지 않음
         }
     }
@@ -234,74 +268,65 @@ class OrderStatusViewModel @Inject constructor(
     private fun scheduleStateUpdateToReady(order: OrderStatus) {
         CoroutineScope(Dispatchers.IO).launch {
             delay(20_000)
-            Log.d(TAG,"20초 경과")
+            Log.d(tag,"20초 경과")
             // 상태가 여전히 C이면 2로 변경
             val refreshedOrder = orderStatusRepository.getByOrderNoC(
                 order.saleDt, order.cmpCd, order.salesOrgCd, order.storCd, order.cornerCd, order.orderNoC
             ).first()
 
             if (refreshedOrder?.status == "C") {
-                Log.d(TAG,"호출 있음")
+                Log.d(tag,"호출 있음")
                 orderStatusRepository.updateOrderStatus(
                     order.saleDt, order.cmpCd, order.salesOrgCd, order.storCd, order.cornerCd, order.tradeNo,
                     order.posNo, "4")
-
-                oriOrderList = orderStatusRepository.get(
-                    saleDt = order.saleDt,
-                    cmpCd = order.cmpCd,
-                    salesOrgCd = order.salesOrgCd,
-                    storCd = order.storCd,
-                    cornerCd = order.cornerCd
-                ).first()
             }
         }
     }
 
     private fun scheduleStateUpdateToFinal() {
         viewModelScope.launch {
-            snapshotFlow { completedOrderList }
-                .collectLatest { list ->
-                    val trackedTradeNos = list.map { it.tradeNo }.toSet()
+            completedOrderList.collectLatest { list ->
+                val trackedTradeNos = list.map { it.tradeNo }.toSet()
 
-                    // 새로 들어온 주문에만 타이머 설정
-                    list.forEach { order ->
-                        val tradeNo = order.tradeNo
-                        if (!completedTimers.containsKey(tradeNo)) {
-                            val job = launch {
-                                try {
-                                    Log.d(TAG, "타이머 시작: ${order.tradeNo}")
-                                    delay(60_000) // 60초 후 상태 변경
+                // 새로 들어온 주문에만 타이머 설정
+                list.forEach { order ->
+                    val tradeNo = order.tradeNo
+                    if (!completedTimers.containsKey(tradeNo)) {
+                        val job = launch {
+                            try {
+                                Log.d(tag, "타이머 시작: ${order.tradeNo}")
+                                delay(60_000) // 60초 후 상태 변경
 
-                                    Log.d(TAG, "60초 경과 후 상태 '5'로 변경: ${order.tradeNo}")
-                                    withContext(Dispatchers.IO) {
-                                        orderStatusRepository.updateOrderStatus(
-                                            saleDt = order.saleDt,
-                                            cmpCd = order.cmpCd,
-                                            salesOrgCd = order.salesOrgCd,
-                                            storCd = order.storCd,
-                                            cornerCd = order.cornerCd,
-                                            tradeNo = order.tradeNo,
-                                            posNo = order.posNo,
-                                            status = "5"
-                                        )
-                                    }
-                                } catch (e: CancellationException) {
-                                    Log.d(TAG, "타이머 취소됨: $tradeNo")
-                                } finally {
-                                    completedTimers.remove(tradeNo)
+                                Log.d(tag, "60초 경과 후 상태 '5'로 변경: ${order.tradeNo}")
+                                withContext(Dispatchers.IO) {
+                                    orderStatusRepository.updateOrderStatus(
+                                        saleDt = order.saleDt,
+                                        cmpCd = order.cmpCd,
+                                        salesOrgCd = order.salesOrgCd,
+                                        storCd = order.storCd,
+                                        cornerCd = order.cornerCd,
+                                        tradeNo = order.tradeNo,
+                                        posNo = order.posNo,
+                                        status = "5"
+                                    )
                                 }
+                            } catch (e: CancellationException) {
+                                Log.d(tag, "타이머 취소됨: $tradeNo")
+                            } finally {
+                                completedTimers.remove(tradeNo)
                             }
-                            completedTimers[tradeNo] = job
                         }
-                    }
-
-                    // 이미 목록에서 사라진 주문은 타이머 취소
-                    val toRemove = completedTimers.keys - trackedTradeNos
-                    toRemove.forEach { tradeNo ->
-                        completedTimers[tradeNo]?.cancel()
-                        completedTimers.remove(tradeNo)
+                        completedTimers[tradeNo] = job
                     }
                 }
+
+                // 이미 사라진 주문은 타이머 취소
+                val toRemove = completedTimers.keys - trackedTradeNos
+                toRemove.forEach { tradeNo ->
+                    completedTimers[tradeNo]?.cancel()
+                    completedTimers.remove(tradeNo)
+                }
+            }
         }
     }
     override fun onCleared() {
@@ -311,9 +336,22 @@ class OrderStatusViewModel @Inject constructor(
     }
 
     fun onEnterKeyPressed() {
-        Log.d(TAG, "환경 설정 화면 이동")
+        Log.d(tag, "환경 설정 화면 이동")
         viewModelScope.launch {
             _uiState.emit(UiState.NavigateToDevice)
+        }
+    }
+
+    private suspend fun createSaleOpen(data: String) {
+        try {
+            val saleOpen = JSONObject(data)
+//            saleOpenRepository.insert(saleOpen)
+            //자동으로 개점일 변경되는지 확인
+            //개점일 변경 후 주문 수신 다시
+
+        }
+        catch(e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -349,7 +387,7 @@ class OrderStatusViewModel @Inject constructor(
                 posNo = posNo,
                 tradeNo = tradeNo
             )
-            Log.d(TAG,"orderStatusCnt:$orderStatusCnt")
+            Log.d(tag,"orderStatusCnt:$orderStatusCnt")
             if(orderStatusCnt > 0) {
                 orderStatusRepository.updateOrderStatus(
                     saleDt = saleDt,

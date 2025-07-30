@@ -86,6 +86,10 @@ fun OrderStatusScreen(
     val titleNmSize = with(density) { (screenWidth * 0.03f).toSp() }
     val titleMsgSize = with(density) { (screenWidth * 0.02f).toSp() }
 
+    val displayedCompletedOrders by viewModel.displayedCompletedOrders.collectAsState()
+    val displayedWaitingOrders by viewModel.displayedWaitingOrders.collectAsState()
+    val currentCalledOrder by viewModel.currentCalledOrder.collectAsState()
+
     val socketHandler = remember(viewModel) {
         { state: WebSocketViewModel.UiState ->
             viewModel.handleSocketEvent(state)
@@ -161,9 +165,9 @@ fun OrderStatusScreen(
                         titleMsgSize = titleMsgSize
                     )
                     OrderContents(
-                        displayedCompletedOrders = viewModel.displayedCompletedOrders,
-                        displayedWaitingOrders = viewModel.displayedWaitingOrders,
-                        currentCalledOrder = viewModel.currentCalledOrder
+                        displayedCompletedOrders = displayedCompletedOrders,
+                        displayedWaitingOrders = displayedWaitingOrders,
+                        currentCalledOrder = currentCalledOrder
                     )
                 }
                 if (dialogMessage != null) {
@@ -513,7 +517,7 @@ fun OrderContents(
                                         )
                                     } else {
                                         Text(
-                                            text = "55555",
+                                            text = "5555",
                                             fontSize = msgTextSize,
                                             modifier = Modifier.padding(4.dp, 0.dp),
                                             color = Color.White
@@ -539,7 +543,7 @@ fun OrderContents(
                                     }
                                     else {
                                         Text(
-                                            text = "55555",
+                                            text = "5555",
                                             fontSize = msgTextSize,
                                             modifier = Modifier.padding(4.dp, 0.dp),
                                             color = Color.White
@@ -564,7 +568,7 @@ fun OrderContents(
                                     }
                                     else {
                                         Text(
-                                            text = "55555",
+                                            text = "5555",
                                             fontSize = msgTextSize,
                                             modifier = Modifier.padding(4.dp, 0.dp),
                                             color = Color.White

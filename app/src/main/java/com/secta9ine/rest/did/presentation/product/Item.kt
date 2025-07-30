@@ -46,17 +46,17 @@ fun Item(
             .padding(4.dp)
     ) {
         val width = maxWidth
-
+        Log.d(TAG,"1width:$width")
         val textSizePrice = when {
             width < 200.dp -> 12.sp
-            width < 400.dp -> 15.sp
+            width < 400.dp -> 20.sp
             width < 700.dp -> 30.sp
             width < 1300.dp -> 50.sp
             else -> 10.sp
         }
         val textSizeProductNm = when {
             width < 200.dp -> 11.sp
-            width < 400.dp -> 13.sp
+            width < 400.dp -> 18.sp
             width < 700.dp -> 28.sp
             width < 1300.dp -> 45.sp
             else -> 9.sp
@@ -64,7 +64,7 @@ fun Item(
 
         val textSizeKcal = when {
             width < 200.dp -> 8.sp
-            width < 400.dp -> 10.sp
+            width < 400.dp -> 13.sp
             width < 700.dp -> 18.sp
             width < 1300.dp -> 28.sp
             else -> 6.sp
@@ -72,7 +72,7 @@ fun Item(
 
         val textSizeProductEngNm = when {
             width < 200.dp -> 8.sp
-            width < 400.dp -> 10.sp
+            width < 400.dp -> 13.sp
             width < 700.dp -> 18.sp
             width < 1300.dp -> 28.sp
             else -> 6.sp
@@ -122,9 +122,16 @@ fun Item(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.4f)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.White)
-                    .border(2.dp, Color.White, RoundedCornerShape(16.dp)),
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = 0.dp,
+                            topEnd = 0.dp,
+                            bottomStart = 8.dp,
+                            bottomEnd = 8.dp
+                        )
+                    )
+                    .background(Color.White),
+//                    .border(2.dp, Color.White, RoundedCornerShape(16.dp)),
 
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {

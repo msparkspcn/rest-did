@@ -47,8 +47,8 @@ fun SpecialItem(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.White)
             .clip(RoundedCornerShape(8.dp))
+            .background(Color.White)
             .border(2.dp, Color.White, RoundedCornerShape(16.dp))
             .padding(15.dp, 5.dp)
     ) {
@@ -59,8 +59,6 @@ fun SpecialItem(
             modifier = modifier
                 .fillMaxWidth()
                 .background(Color.White)
-                .clip(RoundedCornerShape(8.dp))
-                .border(2.dp, Color.White, RoundedCornerShape(16.dp))
                 .padding(15.dp, 5.dp)
 
 

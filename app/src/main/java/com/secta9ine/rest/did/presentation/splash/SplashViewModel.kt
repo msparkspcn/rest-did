@@ -94,12 +94,20 @@ class SplashViewModel @Inject constructor(
                 if (device != null) {
                     Log.d(TAG,"apiKey:${device.apiKey}")
                     device.apiKey?.let { RestApiService.updateAuthToken(it) }
+                    val displayCornerString: String? = device.displayCorner
+                    if(displayCornerString!=null) {
+                        val displayCorners: Set<String> = displayCornerString
+                            .split(",")
+                            .map {it.trim()}
+                            .toSet()
+                        dataStoreRepository.setDisplayCorners(displayCorners)
+                    }
                     dataStoreRepository.setCmpCd(device.cmpCd!!)
                     dataStoreRepository.setSalesOrgCd(device.salesOrgCd!!)
                     dataStoreRepository.setStorCd(device.storCd!!)
                     dataStoreRepository.setCornerCd(device.cornerCd!!)
                     dataStoreRepository.setDisplayMenuCd(device.displayMenuCd!!)
-                    dataStoreRepository.setDisplayCorners(setOf(device.cornerCd!!))
+
                     // 상품, 주문 마스터 수신 전까지 주석
                     /**/
                     when (val masterResult = registerUseCases.fetch(device)) {

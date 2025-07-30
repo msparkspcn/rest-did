@@ -22,5 +22,5 @@ data class Device (
     @ColumnInfo(name = "MESSAGE1") var message1: String? = null,
     @ColumnInfo(name = "MESSAGE2") var message2: String? = null,
     @ColumnInfo(name = "MESSAGE3") var message3: String? = null,
-    @ColumnInfo(name = "DISPLAY_CORNER") var displayCorner: Set<String>? = null
+    @ColumnInfo(name = "DISPLAY_CORNER") var displayCorner: String? = null
 )

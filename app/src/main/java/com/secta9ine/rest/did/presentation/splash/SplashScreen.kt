@@ -48,7 +48,6 @@ fun SplashScreen(
     wsViewModel: WebSocketViewModel = hiltViewModel()
 ) {
     var dialogMessage by remember { mutableStateOf<UiString?>(null) }
-    var dialogContents by remember { mutableStateOf<UiString?>(null) }
     val uiState by viewModel.uiState.collectAsState(initial = SplashViewModel.UiState.Idle)
     val uiState2 by wsViewModel.uiState.collectAsState(initial = WebSocketViewModel.UiState.Idle)
     val permissionState = remember { mutableStateOf(false) }
@@ -77,7 +76,7 @@ fun SplashScreen(
 
             is SplashViewModel.UiState.UpdateDevice -> {
                 Log.d(TAG,"### splash updateDevice")
-                var displayCd = viewModel.getDisplayMenuCd()
+                val displayCd = viewModel.getDisplayMenuCd()
                 Log.d(TAG,"### displayCd:$displayCd")
                 if(displayCd=="02") {
                     navController?.navigate(Screen.OrderStatusScreen.route)
@@ -100,7 +99,7 @@ fun SplashScreen(
         when (uiState2) {
             is WebSocketViewModel.UiState.UpdateDevice -> {
                 Log.d(TAG,"ws1 updateDevice")
-                //usecase 에서 장비 설정 완료 후 display할 화면으로 이동
+                //use case 에서 장비 설정 완료 후 display 할 화면으로 이동
 //                viewModel.getDevice()
                 viewModel.updateUiState(SplashViewModel.UiState.UpdateDevice)
             }
@@ -115,8 +114,6 @@ fun SplashScreen(
             }
         }
     }
-
-
 
     Box(
         modifier = Modifier

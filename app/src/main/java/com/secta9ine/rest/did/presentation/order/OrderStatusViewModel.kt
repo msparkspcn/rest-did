@@ -56,22 +56,22 @@ class OrderStatusViewModel @Inject constructor(
     var storCd by mutableStateOf("")
     var cornerCd by mutableStateOf("")
     private var jobInit: Job
-    var oriOrderList by mutableStateOf(emptyList<OrderStatus?>())
+    private var oriOrderList by mutableStateOf(emptyList<OrderStatus?>())
 
-    val completedOrderList by derivedStateOf {
+    private val completedOrderList by derivedStateOf {
         oriOrderList
             .filterNotNull()
             .filter { it.status == "4" }
             .sortedBy { it.updDate }
     }
 
-    val waitingOrderList by derivedStateOf {
+    private val waitingOrderList by derivedStateOf {
         oriOrderList.filterNotNull().filter { it?.status == "2" }
     }
 
     var currentCalledOrder by mutableStateOf<OrderStatus?>(null)
 
-    var saleOpen by mutableStateOf<SaleOpen?>(null)
+    private var saleOpen by mutableStateOf<SaleOpen?>(null)
 
     var displayedCompletedOrders by mutableStateOf<List<OrderStatus>>(emptyList())
         private set
@@ -83,20 +83,12 @@ class OrderStatusViewModel @Inject constructor(
     private var waitingJob: Job? = null
     private val completedTimers = mutableMapOf<String, Job>()
 
-    var callOrderNo: String?
-        private set
-
     init {
-        callOrderNo = ""
         jobInit = viewModelScope.launch {
-//            _uiState.emit(UiState.Loading)
             _uiState.emit(UiState.Idle)
             cmpCd = dataStoreRepository.getCmpCd().first()
-//            cmpCd = "SLKR"
             salesOrgCd = dataStoreRepository.getSalesOrgCd().first()
-//            salesOrgCd = "8000"
             storCd = dataStoreRepository.getStorCd().first()
-//            storCd = "5000511"
             cornerCd = dataStoreRepository.getCornerCd().first()
             Log.d(TAG,"11cmpCd:$cmpCd, salesOrgCd:$salesOrgCd, storCd:$storCd" +
                     ", cornerCd:$cornerCd")
@@ -317,9 +309,6 @@ class OrderStatusViewModel @Inject constructor(
         completedJob?.cancel()
 //        waitingJob?.cancel()
     }
-    fun onCallOrder(orderNo: String) {
-        callOrderNo = orderNo
-    }
 
     fun onEnterKeyPressed() {
         Log.d(TAG, "환경 설정 화면 이동")
@@ -328,7 +317,7 @@ class OrderStatusViewModel @Inject constructor(
         }
     }
 
-    suspend fun createOrder(data: String) {
+    private suspend fun createOrder(data: String) {
         try {
             val order = JSONObject(data)
             val saleDt = order.optString("saleDt", "")
@@ -402,7 +391,6 @@ class OrderStatusViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            null
         }
     }
 

@@ -81,7 +81,7 @@ class ProductViewModel @Inject constructor(
             rollingYn = device.rollingYn!!
 
             productRepository.getProductList(
-                cmpCd, salesOrgCd, storCd, cornerCds
+                cmpCd, salesOrgCd, storCd, corners
             ).collect { list ->
                 _productList.value = list
                 Log.d(TAG,"상품 목록:${list}")

@@ -68,7 +68,6 @@ import kotlinx.coroutines.delay
 private const val TAG = "OrderStatusScreen"
 @Composable
 fun OrderStatusScreen(
-    modifier: Modifier = Modifier,
     navController: NavHostController? = null,
     viewModel: OrderStatusViewModel = hiltViewModel(),
     wsViewModel: WebSocketViewModel = hiltViewModel(),
@@ -86,7 +85,6 @@ fun OrderStatusScreen(
     val density = LocalDensity.current
     val titleNmSize = with(density) { (screenWidth * 0.03f).toSp() }
     val titleMsgSize = with(density) { (screenWidth * 0.02f).toSp() }
-    val msgTextSize = with(density) { (screenWidth * 0.05f).toSp() }
 
     val socketHandler = remember(viewModel) {
         { state: WebSocketViewModel.UiState ->
@@ -109,7 +107,7 @@ fun OrderStatusScreen(
                     Log.d(TAG,"H2222")
 //                    var displayCd = viewModel.getDisplayCd()
 //                    if(displayCd=="1234") {
-//                        //같은 화면으로 이동할 필요 없고 업데이트된 로컬 db에서 조회에서 데이터 렌더링 다시 실행
+//                        //같은 화면으로 이동할 필요 없고 업데이트된 로컬 db 조회 후 데이터 렌더링 다시 실행
 //                    }
 //                    else {
 //                        navController?.navigateAsSecondScreen(Screen.ProductScreen.route)
@@ -139,8 +137,8 @@ fun OrderStatusScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xFFE0E0E0))
-                .focusRequester(focusRequester) // 포커스 요청
-                .focusable() // 키 입력을 받으려면 필수
+                .focusRequester(focusRequester)
+                .focusable()
                 .onKeyEvent { keyEvent ->
                     if (keyEvent.type == KeyEventType.KeyUp) {
                         viewModel.onEnterKeyPressed()
@@ -260,7 +258,7 @@ fun OrderContents(
                 isVisible = false
                 delay(500)
             }
-            isVisible = true // 마지막엔 항상 켜진 상태로 종료
+            isVisible = true // 마지막에는 항상 켜진 상태로 종료
         }
     }
 

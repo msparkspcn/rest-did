@@ -1,6 +1,7 @@
 package com.secta9ine.rest.did.presentation.splash
 
 import android.Manifest
+import android.content.res.Configuration
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -183,6 +185,92 @@ fun SplashScreen(
         }
         if (uiState is SplashViewModel.UiState.Loading) {
             AppLoadingIndicator()
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_TYPE_NORMAL or Configuration.ORIENTATION_LANDSCAPE,
+    widthDp = 640,
+    heightDp = 360)
+@Composable
+fun SplashScreenPreview() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "ABC123456789",
+                style = TextStyle(fontSize = 40.sp),
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "장비를 등록해주세요",
+                style = TextStyle(fontSize = 25.sp),
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(40.dp))
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_TYPE_NORMAL or Configuration.ORIENTATION_LANDSCAPE,
+    widthDp = 640,
+    heightDp = 360
+)
+@Composable
+fun AppAlertDialogPreview() {
+    var dialogMessage by remember { mutableStateOf<UiString?>(null) }
+
+    AppAlertDialog {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.6f)
+                .fillMaxHeight(0.6f)
+                .background(Color.White),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "알림", // 실제 stringResource(R.string.alert_title) 대체
+                        style = TextStyle(fontSize = 30.sp)
+                    )
+                    Spacer(modifier = Modifier.height(30.dp))
+                    Text(
+                        text = dialogMessage?.asString() ?: "",
+                        style = TextStyle(fontSize = 25.sp)
+                    )
+                }
+
+                AppButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { dialogMessage = null },
+                    shape = RoundedCornerShape(0.dp)
+                ) {
+                    Text(
+                        text = "확인", // 실제 stringResource(R.string.confirm) 대체
+                        style = TextStyle(fontSize = 28.sp)
+                    )
+                }
+            }
         }
     }
 }

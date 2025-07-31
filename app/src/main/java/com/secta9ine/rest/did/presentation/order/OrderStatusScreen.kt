@@ -583,3 +583,35 @@ fun OrderContents(
         }
     }
 }
+
+@Preview(
+    showBackground = true,
+    widthDp = 800,
+    heightDp = 100
+)
+@Composable
+fun PreviewOrderHeader() {
+    OrderHeader(
+        titleNmSize = 30.sp,
+        titleMsgSize = 20.sp
+    )
+}
+
+@Preview(
+    name = "OrderContents Preview",
+    showBackground = true,
+    widthDp = 1000,
+    heightDp = 600
+)
+@Composable
+fun PreviewOrderContents() {
+    val dummyOrder = OrderStatus(orderNoC = "A001")
+    val completedOrders = listOf(dummyOrder, dummyOrder, dummyOrder)
+    val waitingOrders = List(9) { OrderStatus(orderNoC = "W00$it") }
+
+    OrderContents(
+        displayedCompletedOrders = completedOrders,
+        displayedWaitingOrders = waitingOrders,
+        currentCalledOrder = OrderStatus(orderNoC = "C123")
+    )
+}

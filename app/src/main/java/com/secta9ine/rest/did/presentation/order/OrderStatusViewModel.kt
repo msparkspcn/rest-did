@@ -69,7 +69,7 @@ class OrderStatusViewModel @Inject constructor(
             .sortedBy { it.updDate } //
     }.stateIn(
         viewModelScope,
-        SharingStarted.WhileSubscribed(5000), // UI가 활성화되어 있을 때만 수집
+        SharingStarted.WhileSubscribed(5000),
         emptyList()
     )
 
@@ -85,7 +85,6 @@ class OrderStatusViewModel @Inject constructor(
     val currentCalledOrder: StateFlow<OrderStatus?> = _currentCalledOrder.asStateFlow()
 
     private val _saleOpen = MutableStateFlow<SaleOpen?>(null)
-    val saleOpen: StateFlow<SaleOpen?> = _saleOpen.asStateFlow()
 
     private val _displayedCompletedOrders = MutableStateFlow<List<OrderStatus>>(emptyList())
     val displayedCompletedOrders: StateFlow<List<OrderStatus>> = _displayedCompletedOrders.asStateFlow()
@@ -153,7 +152,7 @@ class OrderStatusViewModel @Inject constructor(
                     _oriOrderList.value = list
                     Log.d(tag, "oriOrderList:${_oriOrderList.value}")
 
-                    _currentCalledOrder.value = _oriOrderList.value.find { it?.status == "C" }
+                    _currentCalledOrder.value = _oriOrderList.value.find { it.status == "C" }
                     _currentCalledOrder.value?.let { it1 -> scheduleStateUpdateToReady(it1) }
                     Log.d(tag,"oriOrderList:$oriOrderList")
                     Log.d(tag,"currentCalledOrder:${_currentCalledOrder.value}")

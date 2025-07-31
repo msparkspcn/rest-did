@@ -27,7 +27,7 @@ interface ProductDao {
         """
             SELECT P.CMP_CD, P.SALES_ORG_CD, P.STOR_CD, P.CORNER_CD, C.CORNER_NM, P.ITEM_CD, 
             P.ITEM_NM, P.ITEM_NM_EN, P.PRICE, P.TAG, P.IMG_PATH, P.SOLDOUT_YN, P.WEEK_DIV,
-            P.SALE_CLOSE_START_TIME, P.SALE_CLOSE_END_TIME, P.SORT_ORDER, P.USE_YN,
+            P.SALE_CLOSE_START_TIME, P.SALE_CLOSE_END_TIME, C.SORT_ORDER as CORNER_ORDER, P.SORT_ORDER, P.USE_YN,
             P.PRODUCT_EXPLN, P.CALORY
             FROM PRODUCT P JOIN MST_CORNER C
             WHERE 1 = 1
@@ -41,7 +41,7 @@ interface ProductDao {
                 AND P.CORNER_CD IN (:cornerCds)
                 AND P.USE_YN = '1'
                 AND P.SOLDOUT_YN = '0'
-            ORDER BY SORT_ORDER
+            ORDER BY CORNER_ORDER, P.SORT_ORDER
         """,
     )
     fun get(cmpCd: String, salesOrgCd: String, storCd: String, cornerCds: Set<String>): Flow<List<ProductVo>>

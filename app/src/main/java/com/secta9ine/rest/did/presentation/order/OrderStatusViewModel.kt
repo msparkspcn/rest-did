@@ -99,8 +99,10 @@ class OrderStatusViewModel @Inject constructor(
     private val completedTimers = mutableMapOf<String, Job>()
 
     init {
+        uiState.onEach { Log.d(tag, "uiState=$it") }.launchIn(viewModelScope)
         jobInit = viewModelScope.launch {
-            _uiState.emit(UiState.Idle)
+            _uiState.emit(UiState.Loading)
+
             cmpCd.value = dataStoreRepository.getCmpCd().first()
             salesOrgCd.value = dataStoreRepository.getSalesOrgCd().first()
             storCd.value = dataStoreRepository.getStorCd().first()
@@ -149,20 +151,25 @@ class OrderStatusViewModel @Inject constructor(
                     storCd = storCd.value,
                     cornerCd = cornerCd.value
                 ).collectLatest {list ->
-                    _oriOrderList.value = list
-                    Log.d(tag, "oriOrderList:${_oriOrderList.value}")
+                    try {
+                        _oriOrderList.value = list
+//                            Log.d(tag, "oriOrderList:${_oriOrderList.value}")
 
-                    _currentCalledOrder.value = _oriOrderList.value.find { it.status == "C" }
-                    _currentCalledOrder.value?.let { it1 -> scheduleStateUpdateToReady(it1) }
-                    Log.d(tag,"oriOrderList:$oriOrderList")
-                    Log.d(tag,"currentCalledOrder:${_currentCalledOrder.value}")
+                        _currentCalledOrder.value = _oriOrderList.value.find { it.status == "C" }
+                        _currentCalledOrder.value?.let { it1 -> scheduleStateUpdateToReady(it1) }
+//                            Log.d(tag,"oriOrderList:$oriOrderList")
+                        Log.d(tag,"currentCalledOrder:${_currentCalledOrder.value}")
 
-                    Log.d(tag,"completedOrderList:$completedOrderList")
-                    updateDisplayedLists()
-                    startRolling()
-                    scheduleStateUpdateToFinal()
+//                            Log.d(tag,"completedOrderList:$completedOrderList")
+                        updateDisplayedLists()
+                        scheduleStateUpdateToFinal()
+                        _uiState.emit(UiState.Idle)
+                        startRolling()
+                    } catch (e: Exception) {
+                        Log.e(tag, "주문 처리 중 예외 발생", e)
+                        _uiState.emit(UiState.Error("주문 처리 실패: ${e.message}"))
+                    }
                 }
-
             }
 
 
@@ -197,6 +204,7 @@ class OrderStatusViewModel @Inject constructor(
                     _displayedCompletedOrders.value = list // 6개 미만이면 전체 표시
                     completedIndex = 0 // 인덱스 초기화
                 } else {
+                    _displayedCompletedOrders.value = list.chunked(6).getOrNull(completedIndex).orEmpty()
                     while (isActive) { // 코루틴이 활성 상태일 때만 반복
                         delay(5000)
                         Log.d(tag, "완료 주문 롤링")
@@ -215,6 +223,7 @@ class OrderStatusViewModel @Inject constructor(
                     _displayedWaitingOrders.value = list // 9개 미만이면 전체 표시
                     waitingIndex = 0 // 인덱스 초기화
                 } else {
+                    _displayedWaitingOrders.value = list.chunked(9).getOrNull(waitingIndex).orEmpty()
                     while (isActive) {
                         delay(5000)
                         Log.d(tag, "대기 주문 롤링")

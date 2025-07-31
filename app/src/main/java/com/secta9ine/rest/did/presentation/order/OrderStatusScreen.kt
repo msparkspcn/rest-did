@@ -77,7 +77,7 @@ fun OrderStatusScreen(
 
     var dialogMessage by remember { mutableStateOf<UiString?>(null) }
 
-    val uiState by viewModel.uiState.collectAsState(OrderStatusViewModel.UiState.Idle)
+    val uiState by viewModel.uiState.collectAsState(OrderStatusViewModel.UiState.Loading)
     val uiState2 by wsViewModel.uiState.collectAsState(initial = null)
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -333,253 +333,36 @@ fun OrderContents(
             val statusSize = with(density2) { (screenWidth2 * 0.015f).toSp() }
             val msgTextSize = with(density2) { (screenWidth2 * 0.05f).toSp() }
             val iconSizeDp = with(LocalDensity.current) { statusSize.toDp() }
-            Card(
-                backgroundColor = Color.White,
-                elevation = 2.dp,
-                shape = RoundedCornerShape(8.dp),
+            OrderStatusCard(
+                icon = Icons.Outlined.CheckCircleOutline,
+                iconMultiplier = 1.15f,
+                title = stringResource(id = R.string.completed_order),
+                orders = displayedCompletedOrders,
+                rowCount = 2,
+                columnCount = 3,
+                msgTextSize = msgTextSize,
+                statusSize = statusSize,
+                iconSizeDp = iconSizeDp,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .padding(start = 10.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.CheckCircleOutline,
-                            contentDescription = "Complete",
-                            modifier = Modifier.size(iconSizeDp *1.15f)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = stringResource(id = R.string.completed_order),
-                            fontSize = statusSize,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Divider(
-                        modifier = Modifier
-                            .fillMaxWidth(1f)
-                            .align(Alignment.CenterHorizontally)
-                            .padding(top = 10.dp),
-                        color = Color(0xFFDEE2E6),
-                        thickness = 2.dp // 밑줄 두께
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .padding(top = 8.dp)
-                    ) {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            val displayed1st = displayedCompletedOrders
-                                .take(3)
-                                .let { list ->
-                                    if (list.size == 2) list + listOf(null) else list
-                                }
-                            val displayed2nd = displayedCompletedOrders
-                                .drop(3).take(3)
-                                .let { list ->
-                                    if(list.size == 2) list + listOf(null) else list
-                                }
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                displayed1st.forEach { order ->
-                                    if (order != null) {
-                                        Text(
-                                            text = order.orderNoC,
-                                            fontSize = msgTextSize,
-                                            modifier = Modifier.padding(4.dp, 0.dp)
-                                        )
-                                    } else {
-                                        Text(
-                                            text = "55555",
-                                            fontSize = msgTextSize,
-                                            modifier = Modifier.padding(4.dp, 0.dp),
-                                            color = Color.White
-                                        )
-                                    }
-                                }
-                            }
-
-                            // 두 번째 행
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                displayed2nd.forEach { order ->
-                                    if (order != null) {
-                                        Text(
-                                            text = order.orderNoC,
-                                            fontSize = msgTextSize,
-                                            modifier = Modifier.padding(4.dp, 0.dp)
-                                        )
-                                    }
-                                    else {
-                                        Text(
-                                            text = "55555",
-                                            fontSize = msgTextSize,
-                                            modifier = Modifier.padding(4.dp, 0.dp),
-                                            color = Color.White
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            )
             Spacer(modifier = Modifier.height(20.dp))
-            Card(
-                backgroundColor = Color.White,
-                elevation = 2.dp,
-                shape = RoundedCornerShape(8.dp),
+            OrderStatusCard(
+                icon = Icons.Outlined.HourglassEmpty,
+                iconMultiplier = 1.25f,
+                title = stringResource(id = R.string.preparing_order),
+                orders = displayedWaitingOrders,
+                rowCount = 3,
+                columnCount = 3,
+                msgTextSize = msgTextSize,
+                statusSize = statusSize,
+                iconSizeDp = iconSizeDp,
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(1.5f)
                     .padding(start = 10.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.HourglassEmpty,
-                            contentDescription = "Preparing",
-                            modifier = Modifier.size(iconSizeDp *1.25f)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = stringResource(id = R.string.preparing_order),
-                            fontSize = statusSize,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Divider(
-                        modifier = Modifier
-                            .fillMaxWidth(1f)
-                            .align(Alignment.CenterHorizontally)
-                            .padding(top = 10.dp),
-                        color = Color(0xFFDEE2E6),
-                        thickness = 2.dp // 밑줄 두께
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .padding(top = 8.dp)
-                    ) {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            val displayed1st = displayedWaitingOrders
-                                .take(3)
-                                .let { list ->
-                                    if (list.size == 2) list + listOf(null) else list
-                                }
-                            val displayed2nd = displayedWaitingOrders
-                                .drop(3).take(3)
-                                .let { list ->
-                                    if(list.size == 2) list + listOf(null) else list
-                                }
-                            val displayed3rd = displayedWaitingOrders
-                                .drop(6).take(3)
-                                .let { list ->
-                                    if(list.size == 2) list + listOf(null) else list
-                                }
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                displayed1st.forEach { order ->
-                                    if (order != null) {
-                                        Text(
-                                            text = order.orderNoC,
-                                            fontSize = msgTextSize,
-                                            modifier = Modifier.padding(4.dp, 0.dp)
-                                        )
-                                    } else {
-                                        Text(
-                                            text = "5555",
-                                            fontSize = msgTextSize,
-                                            modifier = Modifier.padding(4.dp, 0.dp),
-                                            color = Color.White
-                                        )
-                                    }
-                                }
-                            }
-
-                            // 두 번째 행
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                displayed2nd.forEach { order ->
-                                    if (order != null) {
-                                        Text(
-                                            text = order.orderNoC,
-                                            fontSize = msgTextSize,
-                                            modifier = Modifier.padding(4.dp, 0.dp)
-                                        )
-                                    }
-                                    else {
-                                        Text(
-                                            text = "5555",
-                                            fontSize = msgTextSize,
-                                            modifier = Modifier.padding(4.dp, 0.dp),
-                                            color = Color.White
-                                        )
-                                    }
-                                }
-                            }
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                displayed3rd.forEach { order ->
-                                    if (order != null) {
-                                        Text(
-                                            text = order.orderNoC,
-                                            fontSize = msgTextSize,
-                                            modifier = Modifier.padding(4.dp, 0.dp)
-                                        )
-                                    }
-                                    else {
-                                        Text(
-                                            text = "5555",
-                                            fontSize = msgTextSize,
-                                            modifier = Modifier.padding(4.dp, 0.dp),
-                                            color = Color.White
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            )
         }
     }
 }

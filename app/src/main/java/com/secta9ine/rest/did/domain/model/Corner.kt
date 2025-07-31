@@ -14,4 +14,5 @@ data class Corner (
     @ColumnInfo(name = "CORNER_CD") val cornerCd: String = "",
     @ColumnInfo(name = "CORNER_NM") val cornerNm: String = "",
     @ColumnInfo(name = "USE_YN") val useYn: String = "",
+    @ColumnInfo(name = "SORT_ORDER") val sortOrder: Int = 0,
 )

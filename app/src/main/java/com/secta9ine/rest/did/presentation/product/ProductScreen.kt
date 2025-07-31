@@ -138,8 +138,7 @@ fun ProductScreen(
             }
             "06" -> {
                 VerticalProductList(
-                    productList = productList,
-                    rollingYn = viewModel.rollingYn
+                    productList = productList
                 )
             }
         }

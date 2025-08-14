@@ -109,7 +109,7 @@ fun Item(
                                 .crossfade(true)
                                 .build(),
                             contentDescription = "content",
-                            contentScale = ContentScale.FillBounds,
+                            contentScale = ContentScale.Fit,
                             modifier = Modifier
                                 .fillMaxWidth()
 //                            .height(imageHeight)

@@ -79,7 +79,7 @@ fun OrderStatusCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .padding(top = 8.dp)
+                    .padding(top = 4.dp)
             ) {
                 OrderGrid(
                     orders = orders,

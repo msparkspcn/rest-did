@@ -275,8 +275,8 @@ class OrderStatusViewModel @Inject constructor(
 
     private fun scheduleStateUpdateToReady(order: OrderStatus) {
         CoroutineScope(Dispatchers.IO).launch {
-            delay(20_000)
-            Log.d(tag,"20초 경과")
+            delay(60_000)
+            Log.d(tag,"60초 경과")
             // 상태가 여전히 C이면 2로 변경
             val refreshedOrder = orderStatusRepository.getByOrderNoC(
                 order.saleDt, order.cmpCd, order.salesOrgCd, order.storCd, order.cornerCd, order.orderNoC

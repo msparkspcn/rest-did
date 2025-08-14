@@ -103,7 +103,7 @@ interface OrderStatusDao {
                 AND SALES_ORG_CD = :salesOrgCd
                 AND STOR_CD = :storCd
                 AND CORNER_CD = :cornerCd
-                AND status = 'C'
+                AND STATUS = 'C'
         """
     )
     suspend fun updateOrderCallStatus(saleDt: String, cmpCd: String, salesOrgCd: String, storCd: String, cornerCd: String)

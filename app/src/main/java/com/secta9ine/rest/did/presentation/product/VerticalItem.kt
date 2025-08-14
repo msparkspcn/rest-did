@@ -96,7 +96,7 @@ fun VerticalItem(
                     .crossfade(true)
                     .build(),
                 contentDescription = "content",
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .width(screenWidth * 0.1f)
                     .aspectRatio(3f / 2f)

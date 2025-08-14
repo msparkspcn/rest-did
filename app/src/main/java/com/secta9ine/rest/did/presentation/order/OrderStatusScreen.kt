@@ -49,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -331,7 +332,7 @@ fun OrderContents(
             Log.d(TAG,"screenWidth2:$screenWidth2")
             val density2 = LocalDensity.current
             val statusSize = with(density2) { (screenWidth2 * 0.015f).toSp() }
-            val msgTextSize = with(density2) { (screenWidth2 * 0.05f).toSp() }
+            val msgTextSize = with(density2) { (screenWidth2 * 0.04f).toSp() }
             val iconSizeDp = with(LocalDensity.current) { statusSize.toDp() }
             OrderStatusCard(
                 icon = Icons.Outlined.CheckCircleOutline,
@@ -348,7 +349,7 @@ fun OrderContents(
                     .weight(1f)
                     .padding(start = 10.dp)
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(15.dp))
             OrderStatusCard(
                 icon = Icons.Outlined.HourglassEmpty,
                 iconMultiplier = 1.25f,

@@ -35,6 +35,7 @@ import androidx.navigation.NavHostController
 import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.util.CommonUtils
 import com.secta9ine.rest.did.util.UiString
+import kotlin.system.exitProcess
 
 private const val TAG = "ProductScreen"
 @Composable
@@ -106,8 +107,7 @@ fun ProductScreen(
                     Toast
                         .makeText(context, "Enter key pressed!", Toast.LENGTH_SHORT)
                         .show()
-
-                    true
+                    exitProcess(0)
                 } else {
                     false
                 }

@@ -39,7 +39,8 @@ class ProductViewModel @Inject constructor(
     private val productRepository: ProductRepository,
     private val dataStoreRepository: DataStoreRepository,
     private val soldOutUpdater: SoldOutUpdater,
-    private val versionUpdater: VersionUpdater
+    private val versionUpdater: VersionUpdater,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val TAG = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
@@ -66,7 +67,6 @@ class ProductViewModel @Inject constructor(
             val storCd = dataStoreRepository.getStorCd().first()
             val cornerCd = dataStoreRepository.getCornerCd().first()
             val displayCornerCds = dataStoreRepository.getDisplayCorners().first()
-            val cornerCds = setOf("CIHA","COAB")
 
             val corners: Set<String> = if(displayMenuCd =="06") {
                 displayCornerCds
@@ -104,6 +104,12 @@ class ProductViewModel @Inject constructor(
             }
             is WebSocketViewModel.UiState.UpdateVersion -> {
                 Log.d(TAG,"버전 업데이트")
+                val apkUrl = "http://o2pos.spcnetworks.kr/files/app/o2pos/download/backup/1123.apk"
+
+                viewModelScope.launch {
+                    versionUpdater.download(apkUrl) { downloadedFile ->
+                        versionUpdater.installApk(context, downloadedFile)}
+                }
             }
             else -> Unit // 다른 이벤트는 내가 처리하지 않음
         }

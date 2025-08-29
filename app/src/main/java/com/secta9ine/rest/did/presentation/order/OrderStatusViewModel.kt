@@ -29,7 +29,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -107,8 +109,6 @@ class OrderStatusViewModel @Inject constructor(
             salesOrgCd.value = dataStoreRepository.getSalesOrgCd().first()
             storCd.value = dataStoreRepository.getStorCd().first()
             cornerCd.value = dataStoreRepository.getCornerCd().first()
-            Log.d(tag,"11cmpCd:$cmpCd, salesOrgCd:$salesOrgCd, storCd:$storCd" +
-                    ", cornerCd:$cornerCd")
 
             val result = restApiRepository.getSaleOpen(
                 cmpCd = cmpCd.value,
@@ -134,7 +134,7 @@ class OrderStatusViewModel @Inject constructor(
                     }
                 }
             } else { //없으면 로컬에서 개점 정보 조회
-                Log.e(tag, "saleOpen 데이터 null")
+                Log.d(tag, "saleOpen 데이터 null")
                 _saleOpen.value = saleOpenRepository.get(cmpCd.value, salesOrgCd.value, storCd.value).first()
                 Log.d(tag,"saleOpen:${_saleOpen.value}")
                 if(_saleOpen.value ==null) {    //로컬에 개점 정보가 없으면 주문 정보도 가져오지 못함
@@ -171,8 +171,6 @@ class OrderStatusViewModel @Inject constructor(
                     }
                 }
             }
-
-
         }
     }
 
@@ -379,6 +377,7 @@ class OrderStatusViewModel @Inject constructor(
             val comTime = order.optString("updDate").takeIf { it.isNotEmpty() }
             val orderNoC = order.optString("orderNoC", "")
             val status = order.optString("status", "")
+
             orderStatusRepository.updateOrderCallStatus(
                 saleDt = saleDt,
                 cmpCd = cmpCd,
@@ -409,6 +408,7 @@ class OrderStatusViewModel @Inject constructor(
                         "2" -> "2"
                         "4" -> "C"
                         "5" -> "5"
+                        "8" -> "8"
                         else -> "E"
                     },
                 )

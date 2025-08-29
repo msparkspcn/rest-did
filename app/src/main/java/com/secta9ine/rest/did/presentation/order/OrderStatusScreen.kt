@@ -14,12 +14,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
-import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -65,6 +62,7 @@ import com.secta9ine.rest.did.ui.component.AppButton
 import com.secta9ine.rest.did.ui.component.AppLoadingIndicator
 import com.secta9ine.rest.did.util.UiString
 import kotlinx.coroutines.delay
+import kotlin.system.exitProcess
 
 private const val TAG = "OrderStatusScreen"
 @Composable
@@ -150,7 +148,7 @@ fun OrderStatusScreen(
                         Toast
                             .makeText(context, "Enter key pressed!", Toast.LENGTH_SHORT)
                             .show()
-                        true
+                        exitProcess(0)
                     } else {
                         false
                     }

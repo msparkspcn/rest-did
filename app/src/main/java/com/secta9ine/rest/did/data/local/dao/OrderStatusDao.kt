@@ -55,6 +55,7 @@ interface OrderStatusDao {
                 AND SALES_ORG_CD = :salesOrgCd
                 AND STOR_CD = :storCd
                 AND CORNER_CD = :cornerCd
+                AND STATUS NOT IN ('8')
                 ORDER BY ORD_TIME
         """
     )

@@ -27,8 +27,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -129,7 +132,6 @@ class OrderStatusViewModel @Inject constructor(
                     saleDt = _saleOpen.value!!.saleDt
                 ).let { result1 ->
                     result1.data?.filterNotNull()?.let {orderList ->
-                        Log.d(tag,"주문 목록:$orderList")
                         orderStatusRepository.insertAll(orderList)
                     }
                 }
@@ -142,36 +144,42 @@ class OrderStatusViewModel @Inject constructor(
                     return@launch
                 }
             }
+        }
+        _saleOpen
+            .filterNotNull()
+            .distinctUntilChanged() // 같은 saleDt 반복 방지
+            .flatMapLatest { currentSaleOpen ->
+                Log.d(tag, "saleOpen=$currentSaleOpen")
 
-            _saleOpen.value?.let { currentSaleOpen ->
                 orderStatusRepository.get(
                     saleDt = currentSaleOpen.saleDt,
                     cmpCd = cmpCd.value,
                     salesOrgCd = salesOrgCd.value,
                     storCd = storCd.value,
                     cornerCd = cornerCd.value
-                ).collectLatest {list ->
-                    try {
-                        _oriOrderList.value = list
-//                            Log.d(tag, "oriOrderList:${_oriOrderList.value}")
+                )
+            }
+            .onEach { list ->
+                try {
+                    _oriOrderList.value = list
+                    Log.d(tag, "currentSaleOpen.saleDt:${list}")
+                    Log.d(tag, "전체 oriOrderList:${_oriOrderList.value}")
 
-                        _currentCalledOrder.value = _oriOrderList.value.find { it.status == "C" }
-                        _currentCalledOrder.value?.let { it1 -> scheduleStateUpdateToReady(it1) }
+                    _currentCalledOrder.value = _oriOrderList.value.find { it.status == "C" }
+                    _currentCalledOrder.value?.let { it1 -> scheduleStateUpdateToReady(it1) }
 //                            Log.d(tag,"oriOrderList:$oriOrderList")
-                        Log.d(tag,"currentCalledOrder:${_currentCalledOrder.value}")
+                    Log.d(tag, "currentCalledOrder:${_currentCalledOrder.value}")
 
 //                            Log.d(tag,"completedOrderList:$completedOrderList")
-                        updateDisplayedLists()
-                        scheduleStateUpdateToFinal()
-                        _uiState.emit(UiState.Idle)
-                        startRolling()
-                    } catch (e: Exception) {
-                        Log.e(tag, "주문 처리 중 예외 발생", e)
-                        _uiState.emit(UiState.Error("주문 처리 실패: ${e.message}"))
-                    }
+                    updateDisplayedLists()
+                    scheduleStateUpdateToFinal()
+                    _uiState.emit(UiState.Idle)
+                    startRolling()
+                } catch (e: Exception) {
+                    Log.e(tag, "주문 처리 중 예외 발생", e)
+                    _uiState.emit(UiState.Error("주문 처리 실패: ${e.message}"))
                 }
-            }
-        }
+            }.launchIn(viewModelScope)
     }
 
     private fun updateDisplayedLists() {
@@ -351,9 +359,45 @@ class OrderStatusViewModel @Inject constructor(
     private suspend fun createSaleOpen(data: String) {
         try {
             val saleOpen = JSONObject(data)
-//            saleOpenRepository.insert(saleOpen)
-            //자동으로 개점일 변경되는지 확인
-            //개점일 변경 후 주문 수신 다시
+            val saleDt = saleOpen.optString("dt", "")
+            val newSaleOpen = SaleOpen(
+                cmpCd = cmpCd.value,
+                salesOrgCd = salesOrgCd.value,
+                storCd = storCd.value,
+                saleDt = saleDt
+            )
+
+            Log.d(tag,"new 개점일:$saleDt")
+            if(saleDt<=_saleOpen.value!!.saleDt) {
+                Log.d(tag,"가장 최근 일자(${_saleOpen.value!!.saleDt})로 개점됐으므로 개점 필요 X")
+
+                return
+            }
+            else {
+                Log.d(tag,"$saleDt 로 개점 처리")
+            }
+
+            saleOpenRepository.insert(
+                SaleOpen(
+                    cmpCd = cmpCd.value,
+                    salesOrgCd = salesOrgCd.value,
+                    storCd = storCd.value,
+                    saleDt = saleDt
+                )
+            )
+
+            val newOrderList = restApiRepository.getOrderList(
+                cmpCd = cmpCd.value,
+                salesOrgCd = salesOrgCd.value,
+                storCd = storCd.value,
+                cornerCd = cornerCd.value,
+                saleDt = saleDt
+            ).data?.filterNotNull() ?: emptyList()
+
+            orderStatusRepository.insertAll(newOrderList)
+
+            _saleOpen.emit(newSaleOpen)
+            _oriOrderList.value = newOrderList
 
         }
         catch(e: Exception) {

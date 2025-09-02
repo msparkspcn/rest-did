@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import javax.inject.Inject
@@ -162,56 +163,15 @@ class WebSocketViewModel
                                 _androidId.value = dataStoreRepository.getDeviceId().first()
                                 Log.d(tag,"ws androidId:${_androidId.value}")
                                 emitUiState(UiState.CheckDevice)
-
-//                                restApiRepository.checkDevice(androidId).let {
-//                                    when (it) {
-//                                        is Resource.Success -> {
-//                                            if (it.data != null) {  //인증된 경우 재등록 필요 없음.
-//                                                var device = it.data
-//                                                if (device.apiKey != null) {
-//                                                    RestApiService.updateAuthToken(device.apiKey!!)
-//                                                }
-//                                                if (it.data != null) {
-//                                                    registerUseCases.register(device)
-//                                                    _uiState.emit(SplashViewModel.UiState.UpdateDevice)
-//                                                } else {
-//
-//                                                }
-//                                            } else {
-//                                                restApiRepository.registerDeviceId(androidId).let {    //등록
-//                                                    Log.d(TAG, "device info:${it}")
-//                                                }
-//                                            }
-//                                        }
-//
-//                                        is Resource.Failure -> {}
-//                                    }
-//                                }
-
-                                /*
-                                registerUseCases.fetch(
-                                    deviceId = androidId
-                                ).let {
-                                    when(it) {
-                                        is Resource.Success -> {
-                                            Log.d(tag,"ws fetch Success")
-                                            registerUseCases.register(it.data!!)
-                                            _uiState.emit(UiState.UpdateDevice)
-                                        }
-                                        is Resource.Failure -> {
-                                            Log.d(tag,"ws fetch Failure")
-                                        }
-                                    }
-                                }
-                                 */
-//                                navController.navigate(Screen.OrderStatusScreen.route)
-                //                            _uiState.emit(UiState.UpdateDevice)
                             }
                         }
 
-                        "order_updated" -> {
+                        "saleOpen" -> {
                             //주문상태 업데이트 처리(update)
-                            val data = jsonObject.getJSONObject("data")
+                            Log.d(tag,"개점 이벤트 message:$data2")
+                            viewModelScope.launch {
+                                emitUiState(UiState.InsertSaleOpen(data2))
+                            }
                         }
                         "product_updated" -> {
                             val data = jsonObject.getJSONObject("data")
@@ -318,6 +278,21 @@ class WebSocketViewModel
         sendMessage(subscribeMessage)
     }
 
+    private fun subscribeSaleOpenEvents() {
+        val subscribeMessage = """{ "type": "subscribe", "topic": "saleOpen", "deviceId": "${_androidId.value}", "salesOrgCd":"${_salesOrgCd.value}", "storCd":"${_storCd.value}", "cornerCd":"${_cornerCd.value}", "deviceType":"DID"}"""
+        sendMessage(subscribeMessage)
+    }
+
+    private fun subscribeMasterEvents() {
+        val subscribeMessage = """{ "type": "subscribe", "topic": "master", "deviceId": "${_androidId.value}", "salesOrgCd":"${_salesOrgCd.value}", "storCd":"${_storCd.value}", "cornerCd":"${_cornerCd.value}", "deviceType":"DID"}"""
+        sendMessage(subscribeMessage)
+    }
+
+    private fun subscribeVersionEvents() {
+        val subscribeMessage = """{ "type": "subscribe", "topic": "version", "deviceId": "${_androidId.value}", "salesOrgCd":"${_salesOrgCd.value}", "storCd":"${_storCd.value}", "cornerCd":"${_cornerCd.value}", "deviceType":"DID"}"""
+        sendMessage(subscribeMessage)
+    }
+
     private fun subscribeRestartEvents() {
         val subscribeMessage = """{ "type": "subscribe", "topic": "RESTART", "deviceId": "${_androidId.value}"}"""
         sendMessage(subscribeMessage)
@@ -378,5 +353,6 @@ class WebSocketViewModel
         object Idle : UiState
         data class SoldOut(val data: String) : UiState
         data class InsertOrder(val data: String) : UiState
+        data class InsertSaleOpen(val data: String) : UiState
     }
 }

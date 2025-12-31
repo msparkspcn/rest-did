@@ -45,12 +45,12 @@ interface RestApiService {
 
     @GET("/api/v1/did/device/{deviceId}")
     suspend fun registerDeviceId(
-        @Path("deviceId") storeCd: String
+        @Path("deviceId") deviceId: String
     ):RestApiResponseDto<Device>
 
     @GET("/api/v1/did/auth/{deviceId}")
     suspend fun checkDevice(
-        @Path("deviceId") storeCd: String
+        @Path("deviceId") deviceId: String
     ):RestApiResponseDto<Device>
 
 

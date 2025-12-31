@@ -37,7 +37,7 @@ android {
         }
 
         getByName("debug") {
-            signingConfig = signingConfigs.getByName("config") // 디버그에도 적용
+            signingConfig = signingConfigs.getByName("config") // 디버그 적용
         }
     }
 

@@ -387,13 +387,41 @@ fun PreviewOrderHeader() {
 )
 @Composable
 fun PreviewOrderContents() {
-    val dummyOrder = OrderStatus(orderNoC = "A001")
-    val completedOrders = listOf(dummyOrder, dummyOrder, dummyOrder)
-    val waitingOrders = List(9) { OrderStatus(orderNoC = "W00$it") }
+    val dummyOrder = OrderStatus(orderNoC = "1149")
+    val dummyOrder2 = OrderStatus(orderNoC = "1148")
+    val dummyOrder3 = OrderStatus(orderNoC = "1147")
+    val completedOrders = listOf(dummyOrder, dummyOrder2, dummyOrder3)
+    val waitingOrders = List(9) { OrderStatus(orderNoC = "213$it") }
 
     OrderContents(
         displayedCompletedOrders = completedOrders,
         displayedWaitingOrders = waitingOrders,
-        currentCalledOrder = OrderStatus(orderNoC = "C123")
+        currentCalledOrder = OrderStatus(orderNoC = "1132")
     )
+}
+@Preview(
+    name = "PreviewOrderStatusScreen Preview",
+    showBackground = true,
+    widthDp = 1000,
+    heightDp = 600, device = "id:pixel_9_pro"
+)
+@Composable
+fun PreviewOrderStatusScreen() {
+    val dummyOrder = OrderStatus(orderNoC = "1149")
+    val dummyOrder2 = OrderStatus(orderNoC = "1148")
+    val dummyOrder3 = OrderStatus(orderNoC = "1147")
+    val completedOrders = listOf(dummyOrder, dummyOrder2, dummyOrder3)
+    val waitingOrders = List(9) { OrderStatus(orderNoC = "213$it") }
+    Column {
+        OrderHeader(
+            titleNmSize = 30.sp,
+            titleMsgSize = 20.sp
+        )
+        OrderContents(
+            displayedCompletedOrders = completedOrders,
+            displayedWaitingOrders = waitingOrders,
+            currentCalledOrder = OrderStatus(orderNoC = "1132")
+        )
+    }
+
 }

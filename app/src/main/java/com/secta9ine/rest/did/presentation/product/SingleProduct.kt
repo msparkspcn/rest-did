@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -158,3 +159,32 @@ fun SingleProduct(
     }
 }
 
+@Preview(
+    name = "SingleProduct Preview",
+    showBackground = true,
+    backgroundColor = 0xFFFFFFFF,
+    widthDp = 1000,
+    heightDp = 600,
+)
+@Composable
+fun SingleProductPreview() {
+    val previewProducts = listOf(
+        ProductVo(
+            itemNm = "아메리카노",
+            itemNmEn = "Americano",
+            price = 4500,
+            imgPath = "preview_image"
+        ),
+        ProductVo(
+            itemNm = "카페라떼",
+            itemNmEn = "Caffe Latte",
+            price = 5000,
+            imgPath = "preview_image"
+        )
+    )
+
+    SingleProduct(
+        productList = previewProducts,
+        rollingYn = "N"
+    )
+}

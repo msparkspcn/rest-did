@@ -62,7 +62,11 @@ class WebSocketViewModel
             _storCd.value = dataStoreRepository.getStorCd().first()
             _cornerCd.value = dataStoreRepository.getCornerCd().first()
             Log.d(tag, "salesOrgCd: ${_salesOrgCd.value}, storCd: ${_storCd.value}, cornerCd: ${_cornerCd.value}")
-            if(_salesOrgCd.value!=null && _storCd.value!=null && _cornerCd.value!=null) {
+            if (
+                _salesOrgCd.value.isNotBlank() &&
+                _storCd.value.isNotBlank() &&
+                _cornerCd.value.isNotBlank()
+            ) {
                 observeNetworkChanges()
                 connectWebSocket()
             }
@@ -106,6 +110,7 @@ class WebSocketViewModel
                 subscribeDeviceEvent() //장비 이벤트 구독(cmp,sales,stor,corner,deviceNo,displayMenuCd,rollingYn,apiKey 변경 여부 감지)
                 subscribeSoldOutEvent()
                 subscribeOrderEvents() //주문 이벤트 구독
+                subscribeSaleOpenEvents() //개점 이벤트 구독
 //                subscribeRestartEvents() //재실행 이벤트 구독
                 //DID 상품 이벤트 구독
                 //DID 상품 부가 정보 이벤트 구독

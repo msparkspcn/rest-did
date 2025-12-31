@@ -67,20 +67,14 @@ fun VerticalProductList(
                 val groupRawHeight = groupHeights[cornerCd]!!
                 val groupScaledHeight = groupRawHeight * scaleRatio
 
-        groupedProducts.forEach { (cornerCd, productsInCorner) ->
-            val cornerNm = productsInCorner.firstOrNull()?.cornerNm ?: ""
-            val itemsToDisplayInCorner = productsInCorner.take(maxDisplayCount)
-            val currentCornerItemCount = itemsToDisplayInCorner.size
-            if (itemsToDisplayInCorner.isNotEmpty()) {
-                val cornerWeight = if (displayedProductCount > 0) {
-                    currentCornerItemCount.toFloat() / displayedProductCount.toFloat()
-                } else {
-                    1f / groupedProducts.size.toFloat()
-                }
+                val scaledItemAreaHeight = groupScaledHeight - titleHeight
+                val scaledItemHeight = scaledItemAreaHeight / itemCount
+                val clampedItemHeight = scaledItemHeight.coerceIn(minItemHeight, maxItemHeight)
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(cornerWeight)
+                        .height(groupScaledHeight)
                 ) {
                     Text(
                         text = cornerNm,
@@ -94,16 +88,14 @@ fun VerticalProductList(
                     )
 
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f, fill = true)
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        itemsToDisplayInCorner.forEach { item ->
+                        items.forEach { item ->
                             VerticalItem(
                                 item = item,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(singleItemEstimatedHeight)
+                                    .height(clampedItemHeight)
                             )
                         }
                     }

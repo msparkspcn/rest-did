@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.domain.model.ProductVo
 import com.secta9ine.rest.did.util.formatCurrency
 
@@ -92,7 +93,13 @@ fun VerticalItem(
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(item.imgPath)
+                    .data(
+                        if (item.imgPath.isNullOrBlank()) {
+                            R.drawable.no_image
+                        } else {
+                            item.imgPath
+                        }
+                    )
                     .crossfade(true)
                     .build(),
                 contentDescription = "content",

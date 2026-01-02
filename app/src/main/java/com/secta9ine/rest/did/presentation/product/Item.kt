@@ -105,7 +105,13 @@ fun Item(
                     ) {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
-                                .data(item.imgPath)
+                                .data(
+                                    if (item.imgPath.isNullOrBlank()) {
+                                        R.drawable.no_image
+                                    } else {
+                                        item.imgPath
+                                    }
+                                )
                                 .crossfade(true)
                                 .build(),
                             contentDescription = "content",

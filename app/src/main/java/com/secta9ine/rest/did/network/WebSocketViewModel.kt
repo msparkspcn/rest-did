@@ -62,18 +62,9 @@ class WebSocketViewModel
             _storCd.value = dataStoreRepository.getStorCd().first()
             _cornerCd.value = dataStoreRepository.getCornerCd().first()
             Log.d(tag, "salesOrgCd: ${_salesOrgCd.value}, storCd: ${_storCd.value}, cornerCd: ${_cornerCd.value}")
-            if (
-                _salesOrgCd.value.isNotBlank() &&
-                _storCd.value.isNotBlank() &&
-                _cornerCd.value.isNotBlank()
-            ) {
-                observeNetworkChanges()
-                connectWebSocket()
-            }
-            else {
-                Log.d(tag,"not ready")
-            }
-            // 이후 로직 실행
+
+            observeNetworkChanges()
+            connectWebSocket()
         }
 
 
@@ -108,16 +99,22 @@ class WebSocketViewModel
                 this@WebSocketViewModel.webSocket = webSocket
                 isConnected = true
                 subscribeDeviceEvent() //장비 이벤트 구독(cmp,sales,stor,corner,deviceNo,displayMenuCd,rollingYn,apiKey 변경 여부 감지)
-                subscribeSoldOutEvent()
-                subscribeOrderEvents() //주문 이벤트 구독
-                subscribeSaleOpenEvents() //개점 이벤트 구독
+                if (
+                    _salesOrgCd.value.isNotBlank() &&
+                    _storCd.value.isNotBlank() &&
+                    _cornerCd.value.isNotBlank()
+                ) {
+                    subscribeSoldOutEvent()
+                    subscribeOrderEvents() //주문 이벤트 구독
+                    subscribeSaleOpenEvents() //개점 이벤트 구독
 //                subscribeRestartEvents() //재실행 이벤트 구독
-                //DID 상품 이벤트 구독
-                //DID 상품 부가 정보 이벤트 구독
-                //주문 이벤트 구독
-                subscribeToEvents()
-                viewModelScope.launch {
-                    emitUiState(UiState.CheckDevice)
+                    //DID 상품 이벤트 구독
+                    //DID 상품 부가 정보 이벤트 구독
+                    //주문 이벤트 구독
+                    subscribeToEvents()
+                }
+                else {
+                    Log.d(tag,"not ready")
                 }
             }
 
@@ -270,7 +267,7 @@ class WebSocketViewModel
     }
 
     private fun subscribeDeviceEvent() {    //장비 이벤트 구독
-        val subscribeMessage = """{"type": "subscribe", "topic":"DEVICE", "deviceId": "${_androidId.value}", "salesOrgCd":"${_salesOrgCd.value}", "storCd":"${_storCd.value}", "cornerCd":"${_cornerCd.value}", "deviceType":"DID"}"""
+        val subscribeMessage = """{"type": "subscribe", "topic":"DEVICE", "deviceId": "${_androidId.value}", "deviceType":"DID"}"""
         sendMessage(subscribeMessage)
     }
     private fun subscribeSoldOutEvent() {    //품절 이벤트 구독

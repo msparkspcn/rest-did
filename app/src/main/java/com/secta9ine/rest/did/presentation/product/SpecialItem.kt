@@ -69,7 +69,7 @@ fun SpecialItem(
                 width < 400.dp -> 14.sp
                 width < 800.dp -> 30.sp
                 width > 1200.dp -> 16.sp
-                else -> 50.sp
+                else -> 65.sp
             }
 
             val textSizeProductNm = when {
@@ -77,7 +77,7 @@ fun SpecialItem(
                 width < 400.dp -> 12.sp
                 width < 800.dp -> 28.sp
                 width > 1200.dp -> 14.sp
-                else -> 33.sp
+                else -> 65.sp
             }
 
             val textSizeExpln = when {
@@ -93,7 +93,7 @@ fun SpecialItem(
                 width < 400.dp -> 8.sp
                 width < 800.dp -> 22.sp
                 width > 1200.dp -> 10.sp
-                else -> 18.sp
+                else -> 35.sp
             }
 
             val textSizeProductEngNm = when {
@@ -101,7 +101,7 @@ fun SpecialItem(
                 width < 400.dp -> 6.sp
                 width < 800.dp -> 20.sp
                 width > 1200.dp -> 10.sp
-                else -> 18.sp
+                else -> 35.sp
             }
 
             if (isEven) {
@@ -241,7 +241,13 @@ fun ItemSubInfo(
                 .background((Color.White))
         ) {
             Image(
-                painter = painterResource(id = R.drawable.tag_new),
+                painter = painterResource(
+                    id = when (item.tag) {
+                        "2" -> R.drawable.tag_best
+                        "3" -> R.drawable.tag_nb
+                        else -> R.drawable.tag_new
+                    }
+                ),
                 contentDescription = "content",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit

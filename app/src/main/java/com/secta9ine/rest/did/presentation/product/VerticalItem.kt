@@ -47,7 +47,7 @@ fun VerticalItem(
         screenWidth < 400.dp -> 15.sp
         screenWidth < 800.dp -> 20.sp
         screenWidth < 1000.dp -> 25.sp
-        screenWidth < 1200.dp -> 30.sp
+        screenWidth < 1200.dp -> 35.sp
         screenWidth < 1300.dp -> 40.sp
         else -> 10.sp
     }
@@ -73,7 +73,6 @@ fun VerticalItem(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(screenHeight * 0.05f)
             .drawBehind {
                 val strokeWidth = 1.dp.toPx()
                 val y = size.height - strokeWidth / 2

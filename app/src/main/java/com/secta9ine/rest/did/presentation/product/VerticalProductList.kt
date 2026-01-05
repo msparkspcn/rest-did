@@ -27,8 +27,8 @@ fun VerticalProductList(
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
 
-    val minItemHeight = 40.dp
-    val maxItemHeight = 80.dp
+    val minItemHeight = 80.dp
+    val maxItemHeight = 100.dp
     val maxDisplayCount = 15
     val titleHeight = 40.dp
 

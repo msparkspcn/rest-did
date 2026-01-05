@@ -222,7 +222,7 @@ fun ItemSubInfo(
             val imageSize = min(maxWidth, maxHeight) / 2
             Image(
                 painter = painterResource(
-                    id = when (item.tag) {
+                    id = when (item.itemTag) {
                         "1" -> R.drawable.tag_new
                         "2" -> R.drawable.tag_nb
                         else -> R.drawable.tag_best

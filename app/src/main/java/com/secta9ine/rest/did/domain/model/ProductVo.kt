@@ -1,7 +1,6 @@
 package com.secta9ine.rest.did.domain.model
 
 import androidx.room.ColumnInfo
-import androidx.room.Entity
 
 data class ProductVo(
     @ColumnInfo(name = "SEQ") val seq: Long? = null, // SEQ 번호
@@ -14,7 +13,7 @@ data class ProductVo(
     @ColumnInfo(name = "ITEM_NM") val itemNm: String = "",
     @ColumnInfo(name = "ITEM_NM_EN") val itemNmEn: String? =null,
     @ColumnInfo(name = "PRICE") val price: Int = 0,
-    @ColumnInfo(name = "TAG") val tag: String? = null,
+    @ColumnInfo(name = "ITEM_TAG") val itemTag: String? = null,
     @ColumnInfo(name = "IMG_PATH") val imgPath: String? =null,
     @ColumnInfo(name = "SOLDOUT_YN") val soldoutYn: String? =null,
     @ColumnInfo(name = "WEEK_DIV") val weekDiv: String ="",
@@ -23,5 +22,6 @@ data class ProductVo(
     @ColumnInfo(name = "SORT_ORDER") val sortOrder: Int = 0,
     @ColumnInfo(name = "USE_YN") val useYn: String? =null,
     @ColumnInfo(name = "PRODUCT_EXPLN") val productExpln: String? =null, //상품 설명
-    @ColumnInfo(name = "CALORY") val calorie: String? =null //열량
+    @ColumnInfo(name = "CALORY") val calorie: String? =null, //열량
+    @ColumnInfo(name = "NUTRIENT") val nutrient: String? =null
 )

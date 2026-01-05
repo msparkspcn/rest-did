@@ -19,6 +19,7 @@ import com.secta9ine.rest.did.util.CommonUtils
 import com.secta9ine.rest.did.util.SoldOutUpdater
 import com.secta9ine.rest.did.util.VersionUpdater
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -147,7 +148,7 @@ class ProductViewModel @Inject constructor(
             val inTimeRange = isInSaleTime(now, product.saleCloseStartTime, product.saleCloseEndTime)
             isToday && inTimeRange
         }
-//        Log.d(TAG,"_filteredProducts:${_filteredProducts.value }")
+        Log.d(TAG,"_filteredProducts size:${_filteredProducts.value.size }")
     }
 
     private fun getTodayIndex(): Int {

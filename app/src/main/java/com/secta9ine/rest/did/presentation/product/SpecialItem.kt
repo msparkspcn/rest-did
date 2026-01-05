@@ -8,12 +8,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
@@ -30,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -69,7 +69,7 @@ fun SpecialItem(
                 width < 400.dp -> 14.sp
                 width < 800.dp -> 30.sp
                 width > 1200.dp -> 16.sp
-                else -> 65.sp
+                else -> 75.sp
             }
 
             val textSizeProductNm = when {
@@ -78,22 +78,6 @@ fun SpecialItem(
                 width < 800.dp -> 28.sp
                 width > 1200.dp -> 14.sp
                 else -> 65.sp
-            }
-
-            val textSizeExpln = when {
-                width < 200.dp -> 7.sp
-                width < 400.dp -> 9.sp
-                width < 800.dp -> 22.sp
-                width > 1200.dp -> 12.sp
-                else -> 20.sp
-            }
-
-            val textSizeKcal = when {
-                width < 200.dp -> 6.sp
-                width < 400.dp -> 8.sp
-                width < 800.dp -> 22.sp
-                width > 1200.dp -> 10.sp
-                else -> 35.sp
             }
 
             val textSizeProductEngNm = when {
@@ -114,18 +98,14 @@ fun SpecialItem(
                 ItemSubInfo(
                     modifier = Modifier.fillMaxWidth(1f).fillMaxHeight(),
                     item = item,
-                    textSizeExpln = textSizeExpln,
                     textSizePrice = textSizePrice,
-                    textSizeKcal = textSizeKcal,
                     horizontalAlignment = Alignment.End
                 )
             } else {
                 ItemSubInfo(
                     modifier = Modifier.fillMaxWidth(0.4f).fillMaxHeight(),
                     item = item,
-                    textSizeExpln = textSizeExpln,
                     textSizePrice = textSizePrice,
-                    textSizeKcal = textSizeKcal
                 )
                 ItemMainInfo(
                     modifier = Modifier.fillMaxWidth(1f).fillMaxHeight(),
@@ -224,9 +204,7 @@ fun ItemMainInfo(
 fun ItemSubInfo(
     modifier: Modifier,
     item: ProductVo,
-    textSizeExpln: TextUnit,
     textSizePrice: TextUnit,
-    textSizeKcal: TextUnit,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start
 ) {
     Column(
@@ -234,41 +212,27 @@ fun ItemSubInfo(
             .fillMaxWidth()
             .fillMaxHeight()
     ) {
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.5f)
-                .background((Color.White))
+                .weight(0.7f)
+                .background((Color.White)),
+            contentAlignment = Alignment.Center
         ) {
+            val imageSize = min(maxWidth, maxHeight) / 2
             Image(
                 painter = painterResource(
                     id = when (item.tag) {
-                        "2" -> R.drawable.tag_best
-                        "3" -> R.drawable.tag_nb
-                        else -> R.drawable.tag_new
+                        "1" -> R.drawable.tag_new
+                        "2" -> R.drawable.tag_nb
+                        else -> R.drawable.tag_best
                     }
                 ),
                 contentDescription = "content",
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.size(imageSize),
                 contentScale = ContentScale.Fit
             )
         }
-        item.productExpln?.let {
-            Text(
-                text = it,
-                fontSize = textSizeExpln,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(0.2f),
-                color = Color(0xFFAFB7BF),
-                fontWeight = FontWeight.Bold,
-            )
-        } ?: run {
-            Spacer(modifier = Modifier.weight(0.2f))
-        }
-
         Divider(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -290,14 +254,6 @@ fun ItemSubInfo(
                 overflow = TextOverflow.Ellipsis,
                 color = Color(0xFF1EB5EC)
             )
-            item.calorie?.let { calorie ->
-                Text(
-                    text = "(${calorie.formatCurrency()} kcal)",
-                    fontSize = textSizeKcal,
-                    color = Color(0xFFAFB7BF),
-                    fontWeight = FontWeight.Bold,
-                )
-            }
         }
     }
 }

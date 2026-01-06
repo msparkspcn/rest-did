@@ -40,7 +40,6 @@ fun VerticalItem(
     Log.d(TAG,"item:${item}")
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
-    val screenHeight = configuration.screenHeightDp.dp
     Log.d(TAG,"screenWidth:$screenWidth")
     val textSizePrice = when {
         screenWidth < 200.dp -> 12.sp

@@ -28,7 +28,7 @@ class LoginViewModel @Inject constructor(
     private val restApiRepository: RestApiRepository,
     private val resources: Resources
 ) : ViewModel() {
-    private val TAG = this.javaClass.simpleName
+    private val tag = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
     var currentFocus by mutableStateOf("userId")
@@ -45,7 +45,7 @@ class LoginViewModel @Inject constructor(
         private set
 
     init {
-        uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
+        uiState.onEach { Log.d(tag, "uiState=$it") }.launchIn(viewModelScope)
 
         viewModelScope.launch {
             userId = dataStoreRepository.getUserId().first()
@@ -73,9 +73,9 @@ class LoginViewModel @Inject constructor(
     fun checkAutoLogin() {
         viewModelScope.launch {
             isAutoLoginChecked = dataStoreRepository.getIsAutoLoginChecked().first()
-            Log.d(TAG,"isAutoLoginChecked:$isAutoLoginChecked")
+            Log.d(tag,"isAutoLoginChecked:$isAutoLoginChecked")
             if (isAutoLoginChecked == "Y") {
-                Log.d(TAG, "자동 로그인 시작")
+                Log.d(tag, "자동 로그인 시작")
                 password = dataStoreRepository.getPassword().first()
                 onLogin()
 //                _uiState.emit(UiState.Login)
@@ -86,7 +86,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onChangeFocus(value: String) {
-        Log.d(TAG,"onChangeFocus currentFocus:$value")
+        Log.d(tag,"onChangeFocus currentFocus:$value")
         currentFocus = value
     }
 
@@ -98,16 +98,16 @@ class LoginViewModel @Inject constructor(
     }
 
    fun onChangeAutoLoginChecked(currentState: String) {
-        Log.d(TAG,"1.체크 상태:$currentState")
+        Log.d(tag,"1.체크 상태:$currentState")
         if(currentState=="N") {
-            Log.d(TAG,"2.isAutoLoginChecked Y로 변경")
+            Log.d(tag,"2.isAutoLoginChecked Y로 변경")
             isAutoLoginChecked ="Y"
         }
         else isAutoLoginChecked = "N"
     }
 
     fun onLogin() {
-        Log.d(TAG,"### 로그인 클릭 userId:$userId, password:$password")
+        Log.d(tag,"### 로그인 클릭 userId:$userId, password:$password")
         viewModelScope.launch {
             _uiState.emit(UiState.Loading)
             if(userId.isEmpty()) {
@@ -124,13 +124,13 @@ class LoginViewModel @Inject constructor(
                     when (it) {
                         is Resource.Success -> {
                             if(it.data!=null) {
-                                Log.d(TAG,"data:${it.data}")
+                                Log.d(tag,"data:${it.data}")
                                 val user = it.data!!
                                 dataStoreRepository.setUserId(user.userId)
                                 dataStoreRepository.setPassword(password)
                                 dataStoreRepository.setCmpCd(user.cmpCd)
                                 RestApiService.updateAuthToken(user.apiKey)
-                                Log.d(TAG,"3.isAutoLoginChecked:$isAutoLoginChecked")
+                                Log.d(tag,"3.isAutoLoginChecked:$isAutoLoginChecked")
                                 dataStoreRepository.setIsAutoLoginChecked(isAutoLoginChecked)
 //                                RestApiService.updateAuthToken("1234")
                                 if(user.userRoleType!=null) {
@@ -154,7 +154,7 @@ class LoginViewModel @Inject constructor(
                                 _uiState.emit(UiState.Login)
                             }
                             else {
-                                Log.d(TAG,"로그인 실패")
+                                Log.d(tag,"로그인 실패")
                             }
                         }
                         is Resource.Failure -> {

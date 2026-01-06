@@ -22,7 +22,7 @@ import javax.inject.Inject
 class VersionUpdater @Inject constructor(
 
 ) {
-    private val TAG = this.javaClass.simpleName
+    private val tag = this.javaClass.simpleName
     suspend fun download(apkUrl: String, onDownloaded: (File) -> Unit
     ) = withContext(Dispatchers.IO) {
         try {
@@ -59,10 +59,10 @@ class VersionUpdater @Inject constructor(
     }
 
     fun installApk(context: Context, apkFile: File) {
-        Log.d(TAG,"installApk")
+        Log.d(tag,"installApk")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Log.d(TAG,"기준 버전 이상")
+            Log.d(tag,"기준 버전 이상")
             // ADB를 통해 APK 설치
             val packageInstaller = context.packageManager.packageInstaller
             val sessionParams = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
@@ -97,7 +97,7 @@ class VersionUpdater @Inject constructor(
             }
         } else {
             // Android 7.0 미만에서는 직접 설치
-            Log.d(TAG,"직접 설치")
+            Log.d(tag,"직접 설치")
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive")
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

@@ -37,8 +37,6 @@ class DeviceViewModel @Inject constructor(
     var userRoleType by mutableStateOf("")
     var selectedOption by mutableStateOf("fixed")
         private set
-    var deviceCdList: List<String> = emptyList()
-        private set
 
     var cmpList by mutableStateOf(emptyList<Cmp>())
     var cmpNmList by mutableStateOf(emptyList<Pair<String, String>>())
@@ -132,12 +130,6 @@ class DeviceViewModel @Inject constructor(
 
     fun onSelectOption(option: String) {
         selectedOption = option
-    }
-
-    fun onSelectItem(listNm: String, item: String) {
-        when(listNm) {
-
-        }
     }
 
     fun getCornerList(cmpCd: String, salesOrgCd: String, storCd: String) {

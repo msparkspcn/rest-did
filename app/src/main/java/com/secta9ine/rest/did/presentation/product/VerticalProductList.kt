@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import com.secta9ine.rest.did.domain.model.ProductVo
 
-private const val TAG = "VerticalProductList"
 @Composable
 fun VerticalProductList(
     productList: List<ProductVo>

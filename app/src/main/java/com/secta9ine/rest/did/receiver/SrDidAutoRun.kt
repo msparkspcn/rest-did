@@ -1,15 +1,12 @@
 package com.secta9ine.rest.did.receiver
 
 import android.app.ActivityManager
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.secta9ine.rest.did.MainActivity
@@ -38,9 +35,9 @@ class SrDidAutoRun : BroadcastReceiver() {
                     } else {
                         // Android 8.0 미만 Activity 시작
                         Log.d(TAG,"Main start2")
-                        val intent = Intent(context, MainActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        context.startActivity(intent)
+                        val intent2 = Intent(context, MainActivity::class.java)
+                        intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(intent2)
                     }
                 } else {
                     Log.d(TAG, "opened")

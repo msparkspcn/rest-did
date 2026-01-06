@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.data.remote.api.RestApiService
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
-import com.secta9ine.rest.did.domain.repository.DeviceRepository
 import com.secta9ine.rest.did.domain.repository.RestApiRepository
 import com.secta9ine.rest.did.domain.usecase.RegisterUseCases
 import com.secta9ine.rest.did.util.Resource
@@ -31,7 +30,6 @@ import javax.inject.Inject
 class SplashViewModel @Inject constructor(
     application: Application,
     private val restApiRepository: RestApiRepository,
-    private val deviceRepository: DeviceRepository,
     private val registerUseCases: RegisterUseCases,
     private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {

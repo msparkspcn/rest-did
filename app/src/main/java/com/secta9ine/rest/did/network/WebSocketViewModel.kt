@@ -13,7 +13,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.secta9ine.rest.did.MainActivity
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
-import com.secta9ine.rest.did.domain.usecase.RegisterUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -40,7 +39,6 @@ class WebSocketViewModel
 @Inject constructor(
     application: Application,
     private val dataStoreRepository: DataStoreRepository,
-    private val registerUseCases: RegisterUseCases,
 ) : AndroidViewModel(application) {
     private val tag = this.javaClass.simpleName
     private var webSocket: WebSocket? = null

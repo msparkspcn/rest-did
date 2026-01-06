@@ -43,7 +43,7 @@ class ProductViewModel @Inject constructor(
     private val versionUpdater: VersionUpdater,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
-    private val TAG = this.javaClass.simpleName
+    private val tag = this.javaClass.simpleName
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
 
@@ -57,7 +57,7 @@ class ProductViewModel @Inject constructor(
     private val _currentTime = MutableStateFlow(getCurrentTime())
 
     init {
-        uiState.onEach { Log.d(TAG, "uiState=$it") }.launchIn(viewModelScope)
+        uiState.onEach { Log.d(tag, "uiState=$it") }.launchIn(viewModelScope)
         startTimer()
 
         viewModelScope.launch {
@@ -77,7 +77,7 @@ class ProductViewModel @Inject constructor(
 
 //            Log.d(TAG,"### 상품 화면 deviceId:$deviceId $cmpCd $salesOrgCd $storCd $cornerCd")
             device = deviceRepository.getDevice(deviceId).first()
-            Log.d(TAG,"### 상품 화면 device:$device")
+            Log.d(tag,"### 상품 화면 device:$device")
             displayCd = device.displayMenuCd!!
             rollingYn = device.rollingYn!!
 
@@ -85,7 +85,7 @@ class ProductViewModel @Inject constructor(
                 cmpCd, salesOrgCd, storCd, corners
             ).collect { list ->
                 _productList.value = list
-                Log.d(TAG,"상품 목록:${list}")
+                Log.d(tag,"상품 목록:${list}")
                 checkProductSale()
             }
         }
@@ -98,13 +98,13 @@ class ProductViewModel @Inject constructor(
 
             }
             is WebSocketViewModel.UiState.SoldOut -> {
-                Log.d(TAG,"품절발생!!")
+                Log.d(tag,"품절발생!!")
                 viewModelScope.launch {
                     soldOutUpdater.update(state.data)
                 }
             }
             is WebSocketViewModel.UiState.UpdateVersion -> {
-                Log.d(TAG,"버전 업데이트")
+                Log.d(tag,"버전 업데이트")
                 val apkUrl = "http://o2pos.spcnetworks.kr/files/app/o2pos/download/backup/1123.apk"
 
                 viewModelScope.launch {
@@ -137,9 +137,9 @@ class ProductViewModel @Inject constructor(
     }
 
     private fun checkProductSale() {
-        Log.d(TAG,"상품 표시 체크")
+        Log.d(tag,"상품 표시 체크")
         val now = getCurrentTime()
-        Log.d(TAG, "현재 시간: $now")
+        Log.d(tag, "현재 시간: $now")
 
         val todayIndex = getTodayIndex()
 
@@ -148,7 +148,7 @@ class ProductViewModel @Inject constructor(
             val inTimeRange = isInSaleTime(now, product.saleCloseStartTime, product.saleCloseEndTime)
             isToday && inTimeRange
         }
-        Log.d(TAG,"_filteredProducts size:${_filteredProducts.value.size }")
+        Log.d(tag,"_filteredProducts size:${_filteredProducts.value.size }")
     }
 
     private fun getTodayIndex(): Int {
@@ -168,11 +168,11 @@ class ProductViewModel @Inject constructor(
         //ws으로 버전정보(버전, url)을 받고 현재 버전과 비교
         viewModelScope.launch {
             val currentVersion = CommonUtils.getAppVersion(context)
-            Log.d(TAG,"currentVersion:$currentVersion")
+            Log.d(tag,"currentVersion:$currentVersion")
         }
     }
     fun onEnterKeyPressed(context: Context) {
-        Log.d(TAG,"Enter Key Pressed 22")
+        Log.d(tag,"Enter Key Pressed 22")
         viewModelScope.launch {
 
             isSystemApp(context)
@@ -202,17 +202,17 @@ class ProductViewModel @Inject constructor(
                 .getApplicationInfo(context.packageName, 0)
             val isSystem = appInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0
             val isUpdatedSystem = appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0
-            Log.d(TAG, "FLAG_SYSTEM: $isSystem")
-            Log.d(TAG, "FLAG_UPDATED_SYSTEM_APP: $isUpdatedSystem")
+            Log.d(tag, "FLAG_SYSTEM: $isSystem")
+            Log.d(tag, "FLAG_UPDATED_SYSTEM_APP: $isUpdatedSystem")
             if (isSystem || isUpdatedSystem) {
-                Log.i(TAG, "앱은 시스템 앱입니다.")
+                Log.i(tag, "앱은 시스템 앱입니다.")
                 true
             } else {
-                Log.w(TAG, "앱은 시스템 앱이 아닙니다.")
+                Log.w(tag, "앱은 시스템 앱이 아닙니다.")
                 false
             }
         } catch (e: PackageManager.NameNotFoundException) {
-            Log.e(TAG, "패키지를 찾을 수 없습니다: " + e.message)
+            Log.e(tag, "패키지를 찾을 수 없습니다: " + e.message)
             false
         }
     }

@@ -31,6 +31,14 @@ class ProductRepositoryImpl @Inject constructor(
             soldoutYn = soldoutYn
         )
 
+    override suspend fun getProduct(cmpCd: String, salesOrgCd: String, storCd: String, itemCd: String): Flow<List<ProductVo>> =
+        productDao.getOne(
+            cmpCd = cmpCd,
+            salesOrgCd = salesOrgCd,
+            storCd = storCd,
+            itemCd = itemCd
+        )
+
 
 
 }

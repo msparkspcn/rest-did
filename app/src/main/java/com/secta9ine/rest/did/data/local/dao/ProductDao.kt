@@ -58,4 +58,22 @@ interface ProductDao {
         """
     )
     fun updateSoldoutYn(cmpCd: String, salesOrgCd: String, storCd: String, itemCd: String, soldoutYn: String)
+
+    @Query(
+        """
+            SELECT P.CMP_CD, P.SALES_ORG_CD, P.STOR_CD, P.CORNER_CD, P.ITEM_CD, 
+            P.ITEM_NM, P.ITEM_NM_EN, P.PRICE, P.ITEM_TAG, P.IMG_PATH, P.SOLDOUT_YN, P.WEEK_DIV,
+            P.SALE_CLOSE_START_TIME, P.SALE_CLOSE_END_TIME, P.SORT_ORDER, P.USE_YN,
+            P.PRODUCT_EXPLN, P.CALORY, '' AS CORNER_NM, P.SEQ, '' AS CORNER_ORDER, P.NUTRIENT
+            FROM PRODUCT P
+            WHERE 1 = 1
+                AND P.CMP_CD = :cmpCd
+                AND P.SALES_ORG_CD = :salesOrgCd
+                AND P.STOR_CD = :storCd
+                AND P.ITEM_CD = :itemCd
+                AND P.USE_YN = '1'
+                AND P.SOLDOUT_YN = '0'
+        """,
+    )
+    fun getOne(cmpCd: String, salesOrgCd: String, storCd: String, itemCd: String): Flow<List<ProductVo>>
 }

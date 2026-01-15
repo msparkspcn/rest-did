@@ -83,6 +83,9 @@ fun SplashScreen(
                 if(displayCd=="02") {
                     navController?.navigate(Screen.OrderStatusScreen.route)
                 }
+                else if(displayCd=="07") {
+                    navController?.navigate(Screen.AdvertScreen.route)
+                }
                 else {
                     navController?.navigate(Screen.ProductScreen.route)
                 }

@@ -17,6 +17,7 @@ import com.secta9ine.rest.did.domain.repository.ProductRepository
 import com.secta9ine.rest.did.network.WebSocketViewModel
 import com.secta9ine.rest.did.util.CommonUtils
 import com.secta9ine.rest.did.util.SoldOutUpdater
+import com.secta9ine.rest.did.util.UiString
 import com.secta9ine.rest.did.util.VersionUpdater
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -44,6 +45,9 @@ class ProductViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val tag = this.javaClass.simpleName
+    private val _state = MutableStateFlow(ProductScreenState())
+    val state: StateFlow<ProductScreenState> = _state
+
     private val _uiState = MutableSharedFlow<UiState>()
     val uiState = _uiState.asSharedFlow()
 
@@ -225,4 +229,11 @@ class ProductViewModel @Inject constructor(
         object Idle : UiState
         data class Error(val message: String) : UiState
     }
+    data class ProductScreenState(
+        val isLoading: Boolean = true,
+        val displayCd: String? = null,
+        val rollingYn: String = "N",
+        val products: List<ProductVo> = emptyList(),
+        val errorMessage: UiString? = null
+    )
 }

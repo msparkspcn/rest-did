@@ -87,10 +87,11 @@ fun ProductList(
                             if (item != null) {
                                 Item(
                                     item = item,
+                                    showNutrition = false,
                                     modifier = Modifier
                                         .weight(1f)
                                         .fillMaxHeight()
-                                        .padding(horizontal = screenWidth * 0.02f)
+                                        .padding(horizontal = screenWidth * 0.02f),
                                 )
                             } else {
                                 Spacer(

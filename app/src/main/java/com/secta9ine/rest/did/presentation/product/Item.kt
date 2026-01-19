@@ -2,7 +2,6 @@ package com.secta9ine.rest.did.presentation.product
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +21,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,6 +34,7 @@ private const val TAG = "Item"
 @Composable
 fun Item(
     item: ProductVo,
+    showNutrition: Boolean = false,
     modifier: Modifier
 ) {
     Log.d(TAG,"itemNm:${item.itemNm}")
@@ -49,31 +47,23 @@ fun Item(
         Log.d(TAG,"1width:$width")
         val textSizePrice = when {
             width < 200.dp -> 12.sp
-            width < 400.dp -> 20.sp
+            width < 400.dp -> 25.sp
             width < 700.dp -> 30.sp
-            width < 1300.dp -> 50.sp
+            width < 1300.dp -> 60.sp
             else -> 10.sp
         }
         val textSizeProductNm = when {
             width < 200.dp -> 11.sp
-            width < 400.dp -> 18.sp
+            width < 400.dp -> 23.sp
             width < 700.dp -> 28.sp
             width < 1300.dp -> 45.sp
             else -> 9.sp
         }
 
-        val textSizeKcal = when {
-            width < 200.dp -> 8.sp
-            width < 400.dp -> 13.sp
-            width < 700.dp -> 18.sp
-            width < 1300.dp -> 28.sp
-            else -> 6.sp
-        }
-
         val textSizeProductEngNm = when {
             width < 200.dp -> 8.sp
-            width < 400.dp -> 13.sp
-            width < 700.dp -> 18.sp
+            width < 400.dp -> 16.sp
+            width < 700.dp -> 25.sp
             width < 1300.dp -> 28.sp
             else -> 6.sp
         }
@@ -83,7 +73,9 @@ fun Item(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.6f)
+                    .weight(
+                        if (showNutrition) 0.6f else 0.8f
+                    )
                     .background((Color.White))
             ) {
                 BoxWithConstraints(
@@ -101,7 +93,9 @@ fun Item(
                     Box(
                         modifier = Modifier
                             .size(finalImageWidth, finalImageHeight)
-                            .align(Alignment.Center) // 이미지 박스를 중앙에 배치
+                            .align(Alignment.Center)
+                            .background(Color.White)
+                            .padding(10.dp)
                     ) {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
@@ -115,7 +109,7 @@ fun Item(
                                 .crossfade(true)
                                 .build(),
                             contentDescription = "content",
-                            contentScale = ContentScale.Fit,
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .fillMaxWidth()
 //                            .height(imageHeight)
@@ -127,7 +121,9 @@ fun Item(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.4f)
+                    .weight(
+                        if (showNutrition) 0.4f else 0.2f
+                    )
                     .clip(
                         RoundedCornerShape(
                             topStart = 0.dp,
@@ -161,7 +157,8 @@ fun Item(
                             fontSize = textSizeProductEngNm,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            color = Color(0xFF444444)
                         )
                     }
                 }
@@ -182,25 +179,6 @@ fun Item(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             color = Color(0xFF1EB5EC)
-                        )
-                        Text(
-                            text = stringResource(R.string.currency_unit),
-                            fontSize = textSizeKcal,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    item.calorie?.let { calorie ->
-                        Text(
-                            text = "(${calorie.formatCurrency()} kcal)",
-                            fontSize = textSizeKcal,
-                            color = Color(0xFFAFB7BF),
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentWidth(Alignment.End)
                         )
                     }
                 }

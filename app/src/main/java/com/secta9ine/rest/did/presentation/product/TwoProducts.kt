@@ -75,7 +75,7 @@ fun TwoProducts(
                 ) {
                     rowItems.forEach { item ->
                         key(item.itemCd) {
-                            Item(item, Modifier.weight(1f))
+                            Item(item, false, Modifier.weight(1f))
                         }
                     }
                     if (rowItems.size == 1) {

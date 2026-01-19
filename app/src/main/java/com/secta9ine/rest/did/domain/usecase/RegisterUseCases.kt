@@ -54,11 +54,11 @@ class RegisterUseCases @Inject constructor(
                 },
             )
                 .awaitAll()
-                .also {
-                    it.firstOrNull { it is Resource.Failure }?.let {
-                        return@withContext Resource.Failure(it.message!!)
+                .also { resources ->
+                    resources.firstOrNull { res -> res is Resource.Failure }?.let { failure ->
+                        return@withContext Resource.Failure(failure.message!!)
                     }
-                    it.firstOrNull { it.data == null }?.let {
+                    resources.firstOrNull { res -> res.data == null }?.let {
                         return@withContext Resource.Failure(app.resources.getString(R.string.no_device_config_error))
                     }
                 }

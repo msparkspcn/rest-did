@@ -1,9 +1,11 @@
 package com.secta9ine.rest.did.presentation.order
 
 import android.content.Context
+import android.media.MediaPlayer
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.domain.model.OrderStatus
 import com.secta9ine.rest.did.domain.model.SaleOpen
 import com.secta9ine.rest.did.domain.repository.DataStoreRepository
@@ -478,6 +480,15 @@ class OrderStatusViewModel @Inject constructor(
                     updUserId = null,
                     updDate = updDate
                 ))
+            }
+
+            if(status == "4") {
+                Log.d(tag,"주문호출. 알림 메시지 출력")
+                withContext(Dispatchers.Main) {
+                    val mediaPlayer = MediaPlayer.create(context, R.raw.completed)
+                    mediaPlayer.setOnCompletionListener { it.release() }
+                    mediaPlayer.start()
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()

@@ -96,18 +96,13 @@ fun AdvertScreen(
         }
     }
 
-//    AndroidView(
-//        modifier = Modifier.fillMaxSize(),
-//        factory = {
-//            PlayerView(it).apply {
-//                player = exoPlayer
-//                useController = false
-//            }
-//        }
-//    )
-    SplitWallHttpVideo(
-        url = "http://o2pos.spcnetworks.kr/files/pos/store/000281/참이슬 TVC 라벨교체_15.mp4",
-        screenIndex = 0,
-        modifier = Modifier.fillMaxSize()
+    AndroidView(
+        modifier = Modifier.fillMaxSize(),
+        factory = {
+            PlayerView(it).apply {
+                player = exoPlayer
+                useController = false
+            }
+        }
     )
 }

@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.secta9ine.rest.did.network.WebSocketViewModel
+import com.secta9ine.rest.did.presentation.advert.AdvertScreen
 import com.secta9ine.rest.did.presentation.device.DeviceScreen
 import com.secta9ine.rest.did.presentation.login.LoginScreen
 import com.secta9ine.rest.did.presentation.order.OrderStatusScreen
@@ -66,6 +67,9 @@ fun AppNavHost(
         composable(route = Screen.SplashScreen.route) {
             SplashScreen(navController = navController,
                 wsViewModel = webSocketViewModel)
+        }
+        composable(route = Screen.AdvertScreen.route) {
+            AdvertScreen()
         }
     }
 }

@@ -69,7 +69,6 @@ class OrderStatusViewModel @Inject constructor(
     private var jobInit: Job
 
     private val _oriOrderList = MutableStateFlow<List<OrderStatus>>(emptyList())
-    private val oriOrderList: StateFlow<List<OrderStatus>> = _oriOrderList.asStateFlow()
 
     private val completedOrderList: StateFlow<List<OrderStatus>> = _oriOrderList.map { list ->
         list.filter { it.status == "4" }
@@ -134,7 +133,13 @@ class OrderStatusViewModel @Inject constructor(
                     saleDt = _saleOpen.value!!.saleDt
                 ).let { result1 ->
                     result1.data?.filterNotNull()?.let {orderList ->
-                        orderStatusRepository.insertAll(orderList)
+                        Log.d(tag, "orderList=$orderList")
+//                        orderStatusRepository.insertAll(orderList)
+                        val filteredList = orderList.filter { it.orderNoC != null }
+
+                        if (filteredList.isNotEmpty()) {
+                            orderStatusRepository.insertAll(filteredList)
+                        }
                     }
                 }
             } else { //없으면 로컬에서 개점 정보 조회

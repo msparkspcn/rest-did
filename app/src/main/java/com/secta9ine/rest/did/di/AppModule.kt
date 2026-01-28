@@ -47,8 +47,8 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideRestApiRepository(restApiService: RestApiService, app: Application): RestApiRepository =
-        RestApiRepositoryImpl(app.resources, restApiService)
+    fun provideRestApiRepository(restApiService: RestApiService): RestApiRepository =
+        RestApiRepositoryImpl(restApiService)
     @Singleton
     @Provides
     fun provideAppDatabase(app: Application): AppDatabase = AppDatabase.create(app)

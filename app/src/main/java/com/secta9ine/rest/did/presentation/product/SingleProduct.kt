@@ -12,11 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,164 +22,96 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.secta9ine.rest.did.domain.model.ProductVo
 import com.secta9ine.rest.did.util.formatCurrency
-import kotlinx.coroutines.delay
 
-private const val TAG = "SingleProduct"
 @Composable
 fun SingleProduct(
-    productList: List<ProductVo>,
-    rollingYn: String,
+    viewModel: ProductViewModel = hiltViewModel()
 ) {
-    var displayedProducts by remember { mutableStateOf(productList.take(1)) }
-    var productIndex by remember { mutableStateOf(0) }
-
+    val state by viewModel.state.collectAsState()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
-    Log.d(TAG,"screenWidth:$screenWidth")
     val density = LocalDensity.current
+
     val itemNmSize = with(density) { (screenWidth * 0.05f).toSp() }
     val itemNmEnSize = with(density) { (screenWidth * 0.02f).toSp() }
     val priceSize = with(density) { (screenWidth * 0.09f).toSp() }
     val unitSize = with(density) { (screenWidth * 0.06f).toSp() }
-    LaunchedEffect(productList) {
-        Log.d(TAG,"productList 변경")
-        // 새로운 productList가 들어올 때마다 초기화
-        productIndex = 0
-        displayedProducts = productList.take(1)
-    }
 
-    LaunchedEffect(productList, rollingYn) {
-        Log.d(TAG,"productList, rollingYn 변경")
-        if(productList.size>1&&rollingYn=="Y") {
-            while(true) {
-                delay(5000)
-                Log.d(TAG,"productIndex:$productIndex, displayedProducts:$displayedProducts")
-                productIndex = (productIndex + 1) % productList.size
-                displayedProducts = productList.subList(productIndex,
-                    minOf(productIndex + 1, productList.size))
+    val item = state.displayedProducts.getOrNull(0) ?: return
+
+    Row {
+        Column(
+            modifier = Modifier
+                .padding(40.dp, 60.dp, 40.dp, 40.dp)
+                .weight(4f)
+        ) {
+            Text(
+                text = item.itemNm,
+                fontSize = itemNmSize,
+                fontWeight = FontWeight.Bold,
+            )
+            item.itemNmEn?.let {
+                Text(
+                    text = it,
+                    fontSize = itemNmEnSize,
+                    color = Color(0xFF1EB5EC)
+                )
+            }
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 8.dp),
+                color = Color(0xFF1EB5EC),
+                thickness = 2.dp
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.End,
+            ) {
+                Text(
+                    text = "${item.price}".formatCurrency() ?: "0",
+                    fontSize = priceSize,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1EB5EC)
+                )
+                Text(
+                    text = "원",
+                    fontSize = unitSize,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF444444)
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .weight(6f)
+                .fillMaxHeight()
+                .background((Color.White))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.Center)
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(item.imgPath)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "content",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
-    displayedProducts.chunked(1).forEach { rowItems ->
-        rowItems.forEach { item ->
-            Row {
-                Column(
-                    modifier = Modifier
-                        .padding(40.dp, 60.dp, 40.dp, 40.dp)
-                        .weight(4f)
-                ) {
-                    Text(
-                        text = item.itemNm,
-                        fontSize = itemNmSize,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    item.itemNmEn?.let {
-                        Text(
-                            text = it,
-                            fontSize = itemNmEnSize,
-                            color = Color(0xFF1EB5EC)
-                        )
-                    }
-                    Divider(
-                        modifier = Modifier
-                            .fillMaxWidth(1f)
-                            .align(Alignment.CenterHorizontally)
-                            .padding(top = 8.dp),
-                        color = Color(0xFF1EB5EC),
-                        thickness = 2.dp // 밑줄 두께
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.End,
-                    ) {
-                        Text(
-                            text = "${item.price}".formatCurrency() ?: "0",
-                            fontSize = priceSize,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1EB5EC)
-                        )
-                        Text(
-                            text = "원",
-                            fontSize = unitSize,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF444444)
-                        )
-                    }
-
-//                    Divider(
-//                        modifier = Modifier
-//                            .fillMaxWidth(1f)
-//                            .align(Alignment.CenterHorizontally)
-//                            .padding(top = 8.dp),
-//                        color = Color(0xFF1EB5EC),
-//                        thickness = 2.dp // 밑줄 두께
-//                    )
-
-                }
-                Box(
-                    modifier = Modifier
-                        .weight(6f)
-                        .fillMaxHeight()
-                        .background((Color.White))
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.Center)
-                    ) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(item.imgPath)
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = "content",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxWidth()
-//                                .height(imageHeight)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Preview(
-    name = "SingleProduct Preview",
-    showBackground = true,
-    backgroundColor = 0xFFFFFFFF,
-    widthDp = 1000,
-    heightDp = 600,
-)
-@Composable
-fun SingleProductPreview() {
-    val previewProducts = listOf(
-        ProductVo(
-            itemNm = "아메리카노",
-            itemNmEn = "Americano",
-            price = 4500,
-            imgPath = "preview_image"
-        ),
-        ProductVo(
-            itemNm = "카페라떼",
-            itemNmEn = "Caffe Latte",
-            price = 5000,
-            imgPath = "preview_image"
-        )
-    )
-
-    SingleProduct(
-        productList = previewProducts,
-        rollingYn = "N"
-    )
 }

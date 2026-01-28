@@ -48,13 +48,12 @@ fun ProductScreen(
 
     var dialogMessage by remember { mutableStateOf<UiString?>(null)
     }
+    val state by viewModel.state.collectAsState()
     val uiState by viewModel.uiState.collectAsState(initial = null)
 
-    val productList by viewModel.productList.collectAsState()
-
     val socketHandler = remember(viewModel) {
-        { state: WebSocketViewModel.UiState ->
-            viewModel.handleSocketEvent(state)
+        { event: WebSocketViewModel.UiState ->
+            viewModel.handleSocketEvent(event)
         }
     }
 
@@ -72,19 +71,7 @@ fun ProductScreen(
 
         viewModel.uiState.collect {
             when(it) {
-                is ProductViewModel.UiState.UpdateDevice -> {
-                    var displayCd = viewModel.getDisplayCd()
-
-//                    if(displayCd=="1234") {
-//                        navController?.navigateAsSecondScreen(Screen.OrderStatusScreen.route)
-//                    }
-//                    else {
-                        //같은 화면 으로 이동할 필요 없고 업데이트 된 로컬 db에서 조회에서 데이터 렌더링 다시 실행
-//                    }
-                }
-                is ProductViewModel.UiState.UpdateVersion -> {
-                    viewModel.updateVersion(context)
-                }
+                is ProductViewModel.UiState.UpdateVersion -> {}
 
                 is ProductViewModel.UiState.Error -> {
                     dialogMessage = UiString.TextString(it.message)
@@ -102,7 +89,7 @@ fun ProductScreen(
             .focusable()
             .onKeyEvent { keyEvent ->
                 if (keyEvent.type == KeyEventType.KeyUp) {
-                    viewModel.onEnterKeyPressed(context)
+                    viewModel.onEnterKeyPressed()
                     Toast
                         .makeText(context, "Enter key pressed!", Toast.LENGTH_SHORT)
                         .show()
@@ -112,38 +99,26 @@ fun ProductScreen(
                 }
             }
     ) {
-        when (viewModel.displayCd) {
+        when (state.device.displayMenuCd) {
             "01" -> {
-                SingleProduct(
-                    productList = productList,
-                    rollingYn = viewModel.rollingYn)
+                SingleProduct()
             }
             "03" -> {
-                TwoProducts(
-                    productList = productList,
-                    rollingYn = viewModel.rollingYn)
+                TwoProducts()
             }
             "04" -> {
-                ProductList(
-                    productList = productList,
-                    rollingYn = viewModel.rollingYn
-                )
+                ProductList()
             }
             "05" -> {
-                SpecialProductList(
-                    productList = productList,
-                    rollingYn = viewModel.rollingYn)
+                SpecialProductList()
             }
             "06" -> {
                 VerticalProductList(
-                    productList = productList
+                    productList = state.productList
                 )
             }
             "07" -> {
-                ProductList2(
-                    productList = productList,
-                    rollingYn = viewModel.rollingYn
-                )
+                ProductList2()
             }
         }
     }

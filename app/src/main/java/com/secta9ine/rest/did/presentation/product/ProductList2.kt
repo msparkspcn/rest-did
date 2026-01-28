@@ -2,68 +2,36 @@ package com.secta9ine.rest.did.presentation.product
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import com.secta9ine.rest.did.domain.model.ProductVo
-import kotlinx.coroutines.delay
+import androidx.hilt.navigation.compose.hiltViewModel
 
-private const val TAG = "ProductList2"
 @Composable
 fun ProductList2(
-    productList: List<ProductVo>,
-    rollingYn: String,
+    viewModel: ProductViewModel = hiltViewModel()
 ) {
+    val state by viewModel.state.collectAsState()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
-    var displayedProducts by remember { mutableStateOf(productList.take(12)) }
-    var productIndex by remember { mutableStateOf(0) }
 
-
-    LaunchedEffect(productList, rollingYn) {
-        Log.d(TAG,"productList, rollingYn 변경")
-        if(productList.size<=12) {
-            displayedProducts = productList.take(12)
-        }
-        else if(rollingYn=="Y"){
-            productIndex = 0
-            while(true) {
-                val endIndex = minOf(productIndex + 12, productList.size)
-                displayedProducts = productList.subList(productIndex, endIndex)
-
-                delay(5000)
-
-                productIndex = if (endIndex == productList.size) 0 else endIndex
-            }
-        }
-    }
+    val displayedProducts = state.displayedProducts
     val fullProductList = displayedProducts + List(12 - displayedProducts.size) { null }
 
     Column {
         Header2()
         Box(
             modifier = Modifier
-                .fillMaxSize() // 전체 화면을 100% 차지
-                .background(Color(0xFFE0E0E0)) // 배경색 설정
+                .fillMaxSize()
+                .background(Color(0xFFE0E0E0))
         ) {
             Column(
                 modifier = Modifier
@@ -87,7 +55,7 @@ fun ProductList2(
                                     modifier = Modifier
                                         .weight(1f)
                                         .fillMaxHeight()
-                                        .padding(horizontal = screenWidth * 0.005f), // Reduced padding to maximize size
+                                        .padding(horizontal = screenWidth * 0.005f),
                                 )
                             } else {
                                 Spacer(

@@ -27,27 +27,27 @@ import androidx.compose.ui.unit.dp
 import com.secta9ine.rest.did.domain.model.ProductVo
 import kotlinx.coroutines.delay
 
-private const val TAG = "ProductList"
+private const val TAG = "ProductList2"
 @Composable
-fun ProductList(
+fun ProductList2(
     productList: List<ProductVo>,
-    rollingYn: String
+    rollingYn: String,
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
-    var displayedProducts by remember { mutableStateOf(productList.take(8)) }
+    var displayedProducts by remember { mutableStateOf(productList.take(12)) }
     var productIndex by remember { mutableStateOf(0) }
 
 
     LaunchedEffect(productList, rollingYn) {
         Log.d(TAG,"productList, rollingYn 변경")
-        if(productList.size<=8) {
-            displayedProducts = productList.take(8)
+        if(productList.size<=12) {
+            displayedProducts = productList.take(12)
         }
         else if(rollingYn=="Y"){
             productIndex = 0
             while(true) {
-                val endIndex = minOf(productIndex + 8, productList.size)
+                val endIndex = minOf(productIndex + 12, productList.size)
                 displayedProducts = productList.subList(productIndex, endIndex)
 
                 delay(5000)
@@ -56,10 +56,10 @@ fun ProductList(
             }
         }
     }
-    val fullProductList = displayedProducts + List(8 - displayedProducts.size) { null }
+    val fullProductList = displayedProducts + List(12 - displayedProducts.size) { null }
 
     Column {
-        Header()
+        Header2()
         Box(
             modifier = Modifier
                 .fillMaxSize() // 전체 화면을 100% 차지
@@ -67,47 +67,36 @@ fun ProductList(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(0.8f) // 가로 70% 차지
-                    .fillMaxHeight(0.9f) // 세로 70% 차지
-                    .align(Alignment.Center) // 가운데 정렬
+                    .fillMaxWidth()
+                    .fillMaxHeight()
                     .padding(8.dp),
-                verticalArrangement = Arrangement.Center, // 세로 가운데 정렬
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                fullProductList.chunked(2).forEach { rowItems ->
+                fullProductList.chunked(6).forEach { rowItems ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = screenWidth * 0.02f)
+                            .padding(vertical = screenWidth * 0.01f)
                             .weight(1f),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.Start
                     ) {
                         rowItems.forEach { item ->
                             if (item != null) {
-                                Item(
+                                Item2(
                                     item = item,
-                                    showNutrition = false,
                                     modifier = Modifier
                                         .weight(1f)
                                         .fillMaxHeight()
-                                        .padding(horizontal = screenWidth * 0.02f),
+                                        .padding(horizontal = screenWidth * 0.005f), // Reduced padding to maximize size
                                 )
                             } else {
                                 Spacer(
                                     modifier = Modifier
                                         .weight(1f)
                                         .fillMaxHeight()
-                                        .padding(horizontal = screenWidth * 0.02f)
+                                        .padding(horizontal = screenWidth * 0.01f)
                                 )
                             }
-                        }
-                        if (rowItems.size == 1) {
-                            Spacer(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxHeight()
-                                    .padding(horizontal = screenWidth * 0.02f)
-                            )
                         }
                     }
                 }
@@ -117,7 +106,7 @@ fun ProductList(
 }
 
 @Composable
-fun Header() {
+fun Header2() {
     Row(
         modifier = Modifier
             .background(Color(0xFF283237))

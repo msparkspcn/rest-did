@@ -33,7 +33,6 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.secta9ine.rest.did.network.WebSocketViewModel
-import com.secta9ine.rest.did.util.CommonUtils
 import com.secta9ine.rest.did.util.UiString
 import kotlin.system.exitProcess
 
@@ -127,8 +126,7 @@ fun ProductScreen(
             "04" -> {
                 ProductList(
                     productList = productList,
-                    rollingYn = viewModel.rollingYn,
-                    version= CommonUtils.getAppVersion(context)
+                    rollingYn = viewModel.rollingYn
                 )
             }
             "05" -> {
@@ -139,6 +137,12 @@ fun ProductScreen(
             "06" -> {
                 VerticalProductList(
                     productList = productList
+                )
+            }
+            "07" -> {
+                ProductList2(
+                    productList = productList,
+                    rollingYn = viewModel.rollingYn
                 )
             }
         }

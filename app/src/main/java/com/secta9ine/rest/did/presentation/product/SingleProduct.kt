@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -138,7 +137,6 @@ fun SingleProduct(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .aspectRatio(3f / 2f)
                             .align(Alignment.Center)
                     ) {
                         AsyncImage(
@@ -147,7 +145,7 @@ fun SingleProduct(
                                 .crossfade(true)
                                 .build(),
                             contentDescription = "content",
-                            contentScale = ContentScale.Fit,
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .fillMaxWidth()
 //                                .height(imageHeight)

@@ -2,14 +2,14 @@ package com.secta9ine.rest.did.presentation.product
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,11 +30,11 @@ import coil.request.ImageRequest
 import com.secta9ine.rest.did.R
 import com.secta9ine.rest.did.domain.model.ProductVo
 import com.secta9ine.rest.did.util.formatCurrency
+
 private const val TAG = "Item"
 @Composable
-fun Item(
+fun Item2(
     item: ProductVo,
-    showNutrition: Boolean = false,
     modifier: Modifier
 ) {
     Log.d(TAG,"itemNm:${item.itemNm}")
@@ -47,36 +47,30 @@ fun Item(
         Log.d(TAG,"1width:$width")
         val textSizePrice = when {
             width < 200.dp -> 12.sp
-            width < 400.dp -> 25.sp
-            width < 700.dp -> 30.sp
-            width < 1300.dp -> 60.sp
+            width < 400.dp -> 40.sp
+            width < 700.dp -> 43.sp
+            width < 1300.dp -> 70.sp
             else -> 10.sp
         }
         val textSizeProductNm = when {
             width < 200.dp -> 11.sp
-            width < 400.dp -> 23.sp
-            width < 700.dp -> 28.sp
-            width < 1300.dp -> 45.sp
+            width < 400.dp -> 30.sp
+            width < 700.dp -> 33.sp
+            width < 1300.dp -> 60.sp
             else -> 9.sp
         }
 
-        val textSizeProductEngNm = when {
-            width < 200.dp -> 8.sp
-            width < 400.dp -> 16.sp
-            width < 700.dp -> 25.sp
-            width < 1300.dp -> 28.sp
-            else -> 6.sp
-        }
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color.White),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(
-                        if (showNutrition) 0.6f else 0.8f
-                    )
-                    .background((Color.White))
+                    .weight(0.65f)
             ) {
                 BoxWithConstraints(
                     modifier = Modifier.fillMaxSize()
@@ -85,11 +79,15 @@ fun Item(
                     val maxBoxHeight = maxHeight
 
                     val imageWidth = maxBoxWidth
-                    val imageHeight = imageWidth * 4 / 5
+                    val imageHeight = imageWidth * 4/ 5
+
+                    val finalImageHeight = if (imageHeight <= maxBoxHeight) imageHeight else maxBoxHeight
+                    val finalImageWidth = if (imageHeight <= maxBoxHeight) imageWidth else maxBoxHeight * 5f / 4f
 
                     Box(
                         modifier = Modifier
-                            .align(Alignment.Center)
+                            .size(finalImageWidth, finalImageHeight)
+                            .align(Alignment.TopCenter)
                             .background(Color.White)
                             .padding(10.dp)
                     ) {
@@ -114,71 +112,35 @@ fun Item(
                 }
             }
 
-            Row(
+            Column(
                 modifier = Modifier
+                    .padding(10.dp)
                     .fillMaxWidth()
-                    .weight(
-                        if (showNutrition) 0.4f else 0.2f
-                    )
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = 0.dp,
-                            topEnd = 0.dp,
-                            bottomStart = 8.dp,
-                            bottomEnd = 8.dp
-                        )
-                    )
-                    .background(Color.White),
-//                    .border(2.dp, Color.White, RoundedCornerShape(16.dp)),
-
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .weight(0.35f),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.Top)
-                        .padding(10.dp)
-                        .fillMaxWidth(0.65f)
-                ) {
-                    Text(
-                        text = item.itemNm,
-                        fontSize = textSizeProductNm,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    item.itemNmEn?.let {
-                        Text(
-                            text = it,
-                            fontSize = textSizeProductEngNm,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.fillMaxWidth(),
-                            color = Color(0xFF444444)
-                        )
-                    }
-                }
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.Top)
-                        .padding(8.dp),
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.End,
-                    ) {
-                        Text(
-                            text = "${item.price}".formatCurrency() ?: "0",
-                            fontSize = textSizePrice,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            color = Color(0xFF1EB5EC)
-                        )
-                    }
-                }
+                Text(
+                    text = item.itemNm,
+                    fontSize = textSizeProductNm,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "${item.price}".formatCurrency() ?: "0",
+                    fontSize = textSizePrice,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color(0xFF1EB5EC),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
             }
+
         }
     }
 }

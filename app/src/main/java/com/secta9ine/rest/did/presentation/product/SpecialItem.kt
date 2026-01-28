@@ -145,7 +145,6 @@ fun ItemMainInfo(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(imageHeight)
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
@@ -159,7 +158,7 @@ fun ItemMainInfo(
                         .crossfade(true)
                         .build(),
                     contentDescription = "content",
-                    contentScale = ContentScale.Fit,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(imageHeight)
